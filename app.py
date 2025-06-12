@@ -5,11 +5,14 @@ import base64
 import tempfile
 import os
 import logging
-from gTTS import gTTS
+from gtts import gTTS
 import librosa
 import soundfile as sf
 import numpy as np
+from pathlib import Path
 import requests
+import json
+import time
 import urllib.parse
 import re
 
@@ -21,7 +24,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Configure Gemini API
-genai.configure(api_key=os.getenv('GOOGLE_API_KEY', 'your_google_api_key_here'))
+genai.configure(api_key='AIzaSyCr46nkrI0cmCpYybRg8uMtsnAHzQpb1VM')
 model = genai.GenerativeModel('gemini-1.5-flash')
 
 # Global variables for voice management
@@ -29,28 +32,29 @@ custom_voice_data = None
 voice_samples_dir = "voice_samples"
 os.makedirs(voice_samples_dir, exist_ok=True)
 
-# ElevenLabs API configuration
-ELEVENLABS_API_KEY = os.getenv('ELEVENLABS_API_KEY', 'your_elevenlabs_api_key_here')
+# ElevenLabs API configuration (optional - for better voice cloning)
+ELEVENLABS_API_KEY = "your_elevenlabs_api_key_here"  # Replace with your API key
 ELEVENLABS_BASE_URL = "https://api.elevenlabs.io/v1"
 
-# Google Custom Search API configuration
-GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY', 'your_google_api_key_here')
-GOOGLE_CSE_ID = os.getenv('GOOGLE_CSE_ID', 'your_cse_id_here')
+# Google Custom Search API configuration (replace with your keys)
+GOOGLE_API_KEY = "AIzaSyCr46nkrI0cmCpYybRg8uMtsnAHzQpb1VM"  # Replace with your Google API key
+GOOGLE_CSE_ID = "your_cse_id_here"  # Replace with your Custom Search Engine ID
 
-# OpenAI API configuration
-CHATGPT_API_KEY = os.getenv('CHATGPT_API_KEY', 'your_chatgpt_api_key_here')
+# Placeholder for ChatGPT API (not implemented)
+CHATGPT_API_KEY = "your_chatgpt_api_key_here"  # Replace with your OpenAI API key if used
 OPENAI_API_URL = "https://api.openai.com/v1/chat/completions"
 
 def fetch_google_search(query):
     """Fetch search results from Google Custom Search API"""
     try:
         if GOOGLE_API_KEY == "your_google_api_key_here" or GOOGLE_CSE_ID == "your_cse_id_here":
-            return None
+            return None  # Skip if API keys not configured
+        
         url = f"https://www.googleapis.com/customsearch/v1?key={GOOGLE_API_KEY}&cx={GOOGLE_CSE_ID}&q={urllib.parse.quote(query)}"
         response = requests.get(url)
         if response.status_code == 200:
             results = response.json().get('items', [])
-            snippets = [item.get('snippet', '') for item in results[:3]]
+            snippets = [item.get('snippet', '') for item in results[:3]]  # Get top 3 snippets
             return "\n".join(snippets)
         else:
             logger.warning(f"Google Search API error: {response.status_code}")
@@ -60,9 +64,10 @@ def fetch_google_search(query):
         return None
 
 def fetch_chatgpt_answer(question):
-    """Placeholder for ChatGPT API call"""
+    """Placeholder for ChatGPT API call (not implemented)"""
     if CHATGPT_API_KEY == "your_chatgpt_api_key_here":
         return None
+    
     try:
         headers = {
             "Authorization": f"Bearer {CHATGPT_API_KEY}",
@@ -80,7 +85,7 @@ def fetch_chatgpt_answer(question):
             logger.warning(f"ChatGPT API error: {response.status_code}")
             return None
     except Exception as e:
-        logger.error(f"Error fetching ChatGPT response: {str(e)}")
+        logger.error(f"Error fetching ChatGPT answer: {str(e)}")
         return None
 
 @app.route('/ask', methods=['POST'])
@@ -93,9 +98,11 @@ def ask():
         if not question:
             return jsonify({'answer': '<p>Please ask a valid question.</p>', 'success': False})
 
+        # Initialize response
         answer = ""
         source = "document"
         
+        # Try to answer from document context first if provided
         if context:
             prompt = f"""You are an experienced, patient, and knowledgeable teacher. Your goal is to explain concepts clearly and thoroughly, just like a great educator would in a classroom.
 
@@ -121,9 +128,11 @@ Teacher's Response:"""
             response = model.generate_content(prompt)
             answer = response.text.strip()
             
+            # Check if the response indicates the question wasn't answered from context
             if "not in the document" in answer.lower() or "no information" in answer.lower() or not answer:
                 answer = ""
         
+        # If no answer from document or no context, fetch from external sources
         if not answer:
             source = "external"
             intermediate_response = {
@@ -133,8 +142,10 @@ Teacher's Response:"""
             }
             logger.info("Fetching answer from external sources")
             
+            # Simulate delay for external fetch
             time.sleep(2)
             
+            # Try Gemini first
             external_prompt = f"""You are a knowledgeable teacher. Provide a detailed, clear, and engaging explanation for the following question: {question}
 
 Instructions:
@@ -154,6 +165,7 @@ Response:"""
                 logger.warning(f"Gemini fetch failed: {str(e)}")
                 answer = ""
             
+            # If Gemini fails, try Google search
             if not answer:
                 search_results = fetch_google_search(question)
                 if search_results:
@@ -176,12 +188,14 @@ Response:"""
                     except Exception as e:
                         logger.warning(f"Search-based answer failed: {str(e)}")
             
+            # Format the external answer
             if answer:
                 answer = format_teacher_response(answer)
                 answer = f"<p class='note'>Note: This explanation was fetched from external sources (Gemini and web search) as the question was not covered in the provided document.</p>{answer}"
             else:
                 answer = "<p>I'm sorry, I couldn't find a detailed answer from my external sources. Could you please rephrase your question or provide more context?</p>"
 
+        # Format document-based answer if applicable
         if source == "document":
             answer = format_teacher_response(answer)
 
@@ -208,6 +222,7 @@ Response:"""
 
 def format_teacher_response(response):
     """Format the response to be more teacher-like in HTML"""
+    # Split the response into paragraphs
     paragraphs = response.split('\n\n')
     formatted_response = []
 
@@ -216,12 +231,14 @@ def format_teacher_response(response):
         if not para:
             continue
 
+        # Handle headings
         if para.startswith('# '):
             formatted_response.append(f"<h1>{para[2:].strip()}</h1>")
         elif para.startswith('## '):
             formatted_response.append(f"<h2>{para[3:].strip()}</h2>")
         elif para.startswith('### '):
             formatted_response.append(f"<h3>{para[4:].strip()}</h3>")
+        # Handle lists
         elif para.startswith('- ') or para.startswith('* '):
             items = para.split('\n')
             list_items = []
@@ -237,10 +254,12 @@ def format_teacher_response(response):
                     list_items.append(f"<li>{re.sub(r'^\d+\.\s', '', item).strip()}</li>")
             formatted_response.append(f"<ol>{''.join(list_items)}</ol>")
         else:
+            # Handle inline formatting: *text* for emphasis, **text** for strong
             para = re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', para)
             para = re.sub(r'\*(.*?)\*', r'<em>\1</em>', para)
             formatted_response.append(f"<p>{para}</p>")
 
+    # Add greeting and conclusion if needed
     result = ''.join(formatted_response)
     if len(response) > 500:
         if not any(greeting.lower() in result.lower()[:100] for greeting in ['great question', 'excellent']):
@@ -361,30 +380,26 @@ def enhance_text_for_speech(text):
 
 def generate_custom_voice_tts(text):
     """Generate TTS using custom voice (simplified implementation)"""
-    try:
-        tts = gTTS(text=text, lang='en', slow=False)
+    tts = gTTS(text=text, lang='en', slow=False)
+    
+    with tempfile.NamedTemporaryFile(delete=False, suffix='.mp3') as tmp_file:
+        tts.save(tmp_file.name)
         
-        with tempfile.NamedTemporaryFile(delete=False, suffix='.mp3') as tmp_file:
-            tts.save(tmp_file.name)
-            
-            audio_data, sr = librosa.load(tmp_file.name)
-            
-            if custom_voice_data:
-                audio_data = librosa.effects.pitch_shift(audio_data, sr=sr, n_steps=2)
-            
-            modified_path = tmp_file.name.replace('.mp3', '_modified.wav')
-            sf.write(modified_path, audio_data, sr)
-            
-            with open(modified_path, 'rb') as audio_file:
-                audio_base64 = base64.b64encode(audio_file.read()).decode('utf-8')
-            
-            os.unlink(tmp_file.name)
-            os.unlink(modified_path)
-            
-            return audio_base64
-    except Exception as e:
-        logger.error(f"Custom TTS failed: {str(e)}")
-        raise
+        audio_data, sr = librosa.load(tmp_file.name)
+        
+        if custom_voice_data:
+            audio_data = librosa.effects.pitch_shift(audio_data, sr=sr, n_steps=2)
+        
+        modified_path = tmp_file.name.replace('.mp3', '_modified.wav')
+        sf.write(modified_path, audio_data, sr)
+        
+        with open(modified_path, 'rb') as audio_file:
+            audio_base64 = base64.b64encode(audio_file.read()).decode('utf-8')
+        
+        os.unlink(tmp_file.name)
+        os.unlink(modified_path)
+        
+        return audio_base64
 
 def generate_elevenlabs_tts(text):
     """Generate TTS using ElevenLabs API"""
@@ -394,7 +409,7 @@ def generate_elevenlabs_tts(text):
         "xi-api-key": ELEVENLABS_API_KEY
     }
     
-    voice_id = "21m00Tcm4TlvDq8ikWAM"
+    voice_id = "21m00Tcm4TlvDq8ikWAM"  # Rachel voice - sounds professional
     
     data = {
         "text": text,
@@ -420,20 +435,16 @@ def generate_elevenlabs_tts(text):
 
 def generate_gtts(text):
     """Generate TTS using Google Text-to-Speech (fallback)"""
-    try:
-        tts = gTTS(text=text, lang='en', slow=False)
+    tts = gTTS(text=text, lang='en', slow=False)
+    
+    with tempfile.NamedTemporaryFile(delete=False, suffix='.mp3') as tmp_file:
+        tts.save(tmp_file.name)
         
-        with tempfile.NamedTemporaryFile(delete=False, suffix='.mp3') as tmp_file:
-            tts.save(tmp_file.name)
-            
-            with open(tmp_file.name, 'rb') as audio_file:
-                audio_data = base64.b64encode(audio_file.read()).decode('utf-8')
-            
-            os.unlink(tmp_file.name)
-            return audio_data
-    except Exception as e:
-        logger.error(f"gTTS failed: {str(e)}")
-        raise
+        with open(tmp_file.name, 'rb') as audio_file:
+            audio_data = base64.b64encode(audio_file.read()).decode('utf-8')
+        
+        os.unlink(tmp_file.name)
+        return audio_data
 
 @app.route('/get_voice_status', methods=['GET'])
 def get_voice_status():
@@ -481,6 +492,7 @@ def explain_topic():
             'advanced': "Give an in-depth, detailed explanation with technical specifics, advanced examples, and theoretical background."
         }
         
+        # Try document context first if provided
         if context:
             prompt = f"""You are a master teacher with decades of experience. You have a gift for making complex topics understandable and engaging.
 
@@ -518,6 +530,7 @@ Begin your detailed explanation:"""
             if "not in the document" in answer.lower() or "no information" in answer.lower() or not answer:
                 answer = ""
         
+        # If no answer from document or no context, fetch from external sources
         if not answer:
             source = "external"
             intermediate_response = {
