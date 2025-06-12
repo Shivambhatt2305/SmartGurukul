@@ -37,7 +37,7 @@ ELEVENLABS_API_KEY = "your_elevenlabs_api_key_here"  # Replace with your API key
 ELEVENLABS_BASE_URL = "https://api.elevenlabs.io/v1"
 
 # Google Custom Search API configuration (replace with your keys)
-GOOGLE_API_KEY = "AIzaSyCr46nkrI0cmCpYybRg8uMtsnAHzQpb1VM"  # Replace with your Google API key
+GOOGLE_API_KEY = "your_google_api_key_here"  # Replace with your Google API key
 GOOGLE_CSE_ID = "your_cse_id_here"  # Replace with your Custom Search Engine ID
 
 # Placeholder for ChatGPT API (not implemented)
@@ -636,11 +636,12 @@ def health_check():
     })
 
 if __name__ == '__main__':
-    print("🎓 Teacher Voice Assistant Starting...")
-    print("📚 Features available:")
-    print("   - Detailed topic explanations")
-    print("   - Custom voice cloning")
-    print("   - Multiple TTS options")
-    print("   - Educational response formatting")
-    print("   - External knowledge fetching from Gemini and Google")
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    if os.environ.get('FLASK_ENV') == 'development':
+        print("🎓 Teacher Voice Assistant Starting...")
+        print("📚 Features available:")
+        print("   - Detailed topic explanations")
+        print("   - Custom voice cloning")
+        print("   - Multiple TTS options")
+        print("   - Educational response formatting")
+        print("   - External knowledge fetching from Gemini and Google")
+        app.run(debug=True, host='0.0.0.0', port=5000)
