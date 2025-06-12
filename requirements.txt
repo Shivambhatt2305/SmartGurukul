@@ -6,3 +6,4 @@ librosa==0.11.0           # Audio processing
 soundfile==0.13.1         # Audio file handling
 requests==2.32.3          # HTTP requests for APIs
 numpy==2.0.2              # Numerical operations for librosa
+gunicorn==23.0.0          # WSGI server for deployment
