@@ -5,7 +5,7 @@ import base64
 import tempfile
 import os
 import logging
-from gTTS import gTTS  # Fixed import case
+from gTTS import gTTS
 import librosa
 import soundfile as sf
 import numpy as np
@@ -80,7 +80,7 @@ def fetch_chatgpt_answer(question):
             logger.warning(f"ChatGPT API error: {response.status_code}")
             return None
     except Exception as e:
-        logger.error(f"Error fetching ChatGPT answer: {str(e)}")
+        logger.error(f"Error fetching ChatGPT response: {str(e)}")
         return None
 
 @app.route('/ask', methods=['POST'])
