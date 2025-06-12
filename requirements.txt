@@ -27,7 +27,7 @@ docutils==0.21.2
 et_xmlfile==2.0.0
 filelock==3.16.1
 Flask==3.0.3
-flask-cors==4.0.1
+Flask-Cors==5.0.0
 Flask-Mail==0.10.0
 flatbuffers==25.2.10
 folium==0.18.0
@@ -42,13 +42,12 @@ google-api-core==2.25.0
 google-api-python-client==2.171.0
 google-auth==2.40.3
 google-auth-httplib2==0.2.0
-google-generativeai==0.7.2
+google-generativeai==0.8.5
 google-pasta==0.2.0
 googleapis-common-protos==1.70.0
 grpcio==1.73.0
 grpcio-status==1.71.0
-gunicorn==22.0.0
-gtts==2.5.0
+gunicorn==23.0.0
 h11==0.16.0
 h5py==3.13.0
 httpcore==1.0.9
@@ -67,7 +66,6 @@ langcodes==3.4.1
 language_data==1.2.0
 libclang==18.1.1
 lxml==5.3.0
-librosa==0.10.1
 marisa-trie==1.2.1
 Markdown==3.7
 markdown-it-py==3.0.0
@@ -81,7 +79,7 @@ mysql-connector-python==9.1.0
 namex==0.0.8
 networkx==3.4.2
 nltk==3.9.1
-numpy==1.26.4
+numpy==2.0.2
 openai==1.85.0
 opencv-contrib-python==4.10.0.84
 opencv-python==4.11.0.86
@@ -113,7 +111,7 @@ pytz==2024.1
 PyYAML==6.0.2
 qrcode==8.1
 regex==2024.9.11
-requests==2.31.0
+requests==2.32.3
 rich==13.9.4
 rsa==4.9.1
 safetensors==0.4.5
@@ -131,7 +129,6 @@ spacy-loggers==1.0.5
 SpeechRecognition==3.11.0
 srsly==2.4.8
 statsmodels==0.14.4
-soundfile==0.12.1
 tensorboard==2.18.0
 tensorboard-data-server==0.7.2
 tensorflow==2.18.0
