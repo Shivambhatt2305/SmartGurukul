@@ -154,3 +154,12 @@ wrapt==1.16.0
 xgboost==2.1.2
 xyzservices==2024.9.0
 yarl==1.17.1
+flask==2.3.3
+flask-cors==4.0.1
+google-generativeai==0.7.2
+gtts==2.5.0
+librosa==0.10.1
+soundfile==0.12.1
+numpy==1.26.4
+requests==2.31.0
+gunicorn==22.0.0
