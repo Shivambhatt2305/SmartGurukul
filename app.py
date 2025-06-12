@@ -226,6 +226,9 @@ def format_teacher_response(response):
     paragraphs = response.split('\n\n')
     formatted_response = []
 
+    # Define the regex pattern outside the f-string
+    numbered_list_pattern = r'^\d+\.\s'
+
     for para in paragraphs:
         para = para.strip()
         if not para:
@@ -246,12 +249,13 @@ def format_teacher_response(response):
                 if item.startswith('- ') or item.startswith('* '):
                     list_items.append(f"<li>{item[2:].strip()}</li>")
             formatted_response.append(f"<ul>{''.join(list_items)}</ul>")
-        elif re.match(r'^\d+\.\s', para):
+        elif re.match(numbered_list_pattern, para):
             items = para.split('\n')
             list_items = []
             for item in items:
-                if re.match(r'^\d+\.\s', item):
-                    list_items.append(f"<li>{re.sub(r'^\d+\.\s', '', item).strip()}</li>")
+                if re.match(numbered_list_pattern, item):
+                    cleaned_item = re.sub(numbered_list_pattern, '', item).strip()
+                    list_items.append(f"<li>{cleaned_item}</li>")
             formatted_response.append(f"<ol>{''.join(list_items)}</ol>")
         else:
             # Handle inline formatting: *text* for emphasis, **text** for strong
