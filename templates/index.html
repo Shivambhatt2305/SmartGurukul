@@ -7,12 +7,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: #f5f7fa;
@@ -128,7 +123,7 @@
             flex-direction: column;
             position: relative;
             border-right: 1px solid #e0e0e0;
-            min-width: 0; /* Allow flex shrinking */
+            min-width: 0;
             overflow: hidden;
         }
 
@@ -163,6 +158,23 @@
             display: flex;
             gap: clamp(5px, 1.5vw, 10px);
             flex-wrap: wrap;
+            align-items: center;
+        }
+
+        /* Language Dropdown */
+        .language-select {
+            padding: clamp(6px, 1.5vw, 8px);
+            border: 2px solid #e0e0e0;
+            border-radius: clamp(10px, 2vw, 15px);
+            font-size: clamp(0.75rem, 2vw, 0.85rem);
+            background: white;
+            cursor: pointer;
+            transition: border-color 0.3s ease;
+        }
+
+        .language-select:focus {
+            outline: none;
+            border-color: #667eea;
         }
 
         /* Document Viewer - Mobile Optimized */
@@ -1030,6 +1042,24 @@
                     <p id="document-stats">Ready to load...</p>
                 </div>
                 <div class="document-controls">
+                    <select id="language-select" class="language-select" onchange="changeLanguage()">
+                        <option value="en">English</option>
+                        <option value="es">Spanish</option>
+                        <option value="fr">French</option>
+                        <option value="de">German</option>
+                        <option value="hi">Hindi</option>
+                        <option value="zh-cn">Chinese (Simplified)</option>
+                        <option value="ja">Japanese</option>
+                        <option value="ko">Korean</option>
+                        <option value="ru">Russian</option>
+                        <option value="pt">Portuguese</option>
+                        <option value="it">Italian</option>
+                        <option value="ar">Arabic</option>
+                        <option value="bn">Bengali</option>
+                        <option value="ur">Urdu</option>
+                        <option value="tr">Turkish</option>
+                        <option value="nl">Dutch</option>
+                    </select>
                     <button class="btn btn-primary" id="read-btn" onclick="readDocument()" disabled>
                         <i class="fas fa-play"></i> Read Aloud
                     </button>
@@ -1041,9 +1071,7 @@
 
             <!-- Document Viewer -->
             <div class="document-viewer">
-                <div class="pdf-container" id="pdf-container">
-                    <!-- PDF pages will be rendered here -->
-                </div>
+                <div class="pdf-container" id="pdf-container"></div>
                 
                 <!-- Page Navigation -->
                 <div class="page-navigation" id="page-navigation" style="display: none;">
@@ -1125,6 +1153,7 @@
         let pageRenderQueue = [];
         let isRendering = false;
         let isResizing = false;
+        let selectedLanguage = 'en';
 
         // PDF.js setup
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.worker.min.js';
@@ -1156,6 +1185,7 @@
         const documentPanel = document.querySelector('.document-panel');
         const chatPanel = document.querySelector('.chat-panel');
         const resizeHandle = document.getElementById('resize-handle');
+        const languageSelect = document.getElementById('language-select');
 
         // Responsive layout detection
         function isMobile() {
@@ -1195,7 +1225,6 @@
                 const newDocumentWidth = startDocumentWidth + deltaX;
                 const newChatWidth = startChatWidth - deltaX;
                 
-                // Set minimum and maximum widths
                 const minDocumentWidth = 400;
                 const minChatWidth = 300;
                 const maxDocumentWidth = containerWidth - minChatWidth - 5;
@@ -1224,13 +1253,11 @@
 
         // Handle window resize
         function handleWindowResize() {
-            // Reset panel widths on orientation change or window resize
             if (isMobile()) {
                 documentPanel.style.width = '';
                 chatPanel.style.width = '';
             }
             
-            // Re-render visible PDF pages if needed
             if (currentPDF) {
                 debounce(reRenderVisiblePages, 300)();
             }
@@ -1261,8 +1288,8 @@
 
         // Get optimal scale based on screen size
         function getOptimalScale() {
-            const containerWidth = pdfContainer.offsetWidth - 20; // Account for padding
-            const baseScale = containerWidth / 600; // 600px base width
+            const containerWidth = pdfContainer.offsetWidth - 20;
+            const baseScale = containerWidth / 600;
             
             if (isMobile()) {
                 return Math.max(0.8, Math.min(baseScale, 1.2));
@@ -1278,10 +1305,8 @@
             initializeResize();
             console.log('Smart Gurukul Document Reader initialized with comprehensive responsive design');
             
-            // Add window resize listener
             window.addEventListener('resize', debounce(handleWindowResize, 250));
             
-            // Add orientation change listener
             window.addEventListener('orientationchange', () => {
                 setTimeout(handleWindowResize, 100);
             });
@@ -1304,13 +1329,10 @@
             const deltaX = touchStartX - touchX;
             const deltaY = touchStartY - touchY;
             
-            // Horizontal swipe for page navigation
             if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
                 if (deltaX > 0 && currentPage < totalPages - 1) {
-                    // Swipe left - next page
                     goToNextPage();
                 } else if (deltaX < 0 && currentPage > 0) {
-                    // Swipe right - previous page
                     goToPreviousPage();
                 }
                 touchStartX = touchX;
@@ -1346,8 +1368,18 @@
             }
         });
 
+        // Language change handler
+        function changeLanguage() {
+            selectedLanguage = languageSelect.value;
+            console.log(`Language changed to: ${selectedLanguage}`);
+            if (currentPDF && documentText) {
+                // Re-upload the PDF to reprocess with the new language
+                handleFile(originalFile);
+            }
+        }
+
         // File handling
-        function handleFile(file) {
+        async function handleFile(file) {
             if (file.type !== 'application/pdf') {
                 alert('Please upload a PDF file only.');
                 return;
@@ -1360,11 +1392,37 @@
             documentName.textContent = fileName;
             documentStats.textContent = `Size: ${fileSize} | Loading...`;
             
-            // Hide upload screen
             uploadScreen.classList.add('hidden');
             newDocBtn.style.display = 'block';
             
-            // Load PDF
+            try {
+                const formData = new FormData();
+                formData.append('pdf_file', file);
+                formData.append('language', selectedLanguage);
+                
+                const response = await fetch('http://localhost:5000/upload-pdf', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        documentText = data.translated_text || data.original_text;
+                        if (data.audio_data) {
+                            playResponseAudio(data.audio_data);
+                        }
+                    } else {
+                        alert(data.error || 'Failed to process PDF.');
+                    }
+                } else {
+                    alert('Failed to upload PDF.');
+                }
+            } catch (error) {
+                console.error('PDF upload error:', error);
+                alert('Failed to upload PDF. Please check your connection.');
+            }
+            
             loadPDF(file);
         }
 
@@ -1378,10 +1436,8 @@
                     totalPages = pdf.numPages;
                     documentPages = [];
                     
-                    // Clear container
                     pdfContainer.innerHTML = '';
                     
-                    // Create container for pages
                     const pagesContainer = document.createElement('div');
                     pagesContainer.style.display = 'flex';
                     pagesContainer.style.flexDirection = 'column';
@@ -1389,24 +1445,19 @@
                     pagesContainer.style.gap = 'clamp(5px, 2vw, 10px)';
                     pdfContainer.appendChild(pagesContainer);
                     
-                    // Update page navigation
                     pageNavigation.style.display = 'flex';
                     updatePageNavigation();
                     
-                    // Queue all pages for rendering
                     for (let i = 1; i <= totalPages; i++) {
                         pageRenderQueue.push(i);
                     }
                     
-                    // Start rendering pages
                     renderNextPage(pagesContainer);
                     
-                    // Extract text from all pages
                     extractAllText(pdf);
                     
                     documentStats.textContent = `Size: ${(file.size / 1024 / 1024).toFixed(2)} MB | Pages: ${totalPages}`;
                     
-                    // Enable controls
                     readBtn.disabled = false;
                     downloadBtn.disabled = false;
                     summaryBtn.disabled = false;
@@ -1422,7 +1473,7 @@
             reader.readAsArrayBuffer(file);
         }
 
-        // Render pages one by one to avoid browser freezing
+        // Render pages one by one
         async function renderNextPage(container) {
             if (pageRenderQueue.length === 0 || isRendering) {
                 return;
@@ -1456,7 +1507,6 @@
                 
                 await page.render(renderContext).promise;
                 
-                // Add page number indicator
                 const pageNumberDiv = document.createElement('div');
                 pageNumberDiv.style.position = 'absolute';
                 pageNumberDiv.style.bottom = 'clamp(8px, 2vw, 10px)';
@@ -1473,7 +1523,6 @@
                 
                 isRendering = false;
                 
-                // Render next page with a small delay to prevent blocking
                 if (pageRenderQueue.length > 0) {
                     setTimeout(() => renderNextPage(container), isMobile() ? 50 : 10);
                 }
@@ -1537,22 +1586,18 @@
         function scrollToPage(pageNumber) {
             const pageElement = document.getElementById(`page-${pageNumber}`);
             if (pageElement) {
-                // Remove highlight from all pages
                 document.querySelectorAll('.pdf-page').forEach(page => {
                     page.classList.remove('current-page');
                 });
                 
-                // Add highlight to current page
                 pageElement.classList.add('current-page');
                 
-                // Scroll to page
                 pageElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
         }
 
-        // PDF container scroll event to update current page
+        // PDF container scroll event
         pdfContainer.addEventListener('scroll', debounce(function() {
-            // Find which page is most visible in the viewport
             const pages = document.querySelectorAll('.pdf-page');
             let maxVisiblePage = null;
             let maxVisibleArea = 0;
@@ -1561,7 +1606,6 @@
                 const rect = page.getBoundingClientRect();
                 const containerRect = pdfContainer.getBoundingClientRect();
                 
-                // Calculate how much of the page is visible
                 const visibleTop = Math.max(rect.top, containerRect.top);
                 const visibleBottom = Math.min(rect.bottom, containerRect.bottom);
                 const visibleHeight = Math.max(0, visibleBottom - visibleTop);
@@ -1579,16 +1623,14 @@
                     currentPage = pageNumber - 1;
                     updatePageNavigation();
                     
-                    // Remove highlight from all pages
                     pages.forEach(p => p.classList.remove('current-page'));
                     
-                    // Add highlight to current page
                     maxVisiblePage.classList.add('current-page');
                 }
             }
         }, 100));
 
-        // Debounce function to limit event firing
+        // Debounce function
         function debounce(func, wait) {
             let timeout;
             return function() {
@@ -1613,7 +1655,6 @@
             stopBtn.disabled = false;
             readBtn.innerHTML = '<div class="loading"></div> Preparing...';
             
-            // Start reading from current page
             await readFromPage(currentPage);
         }
 
@@ -1627,14 +1668,10 @@
             currentPage = pageIndex;
             currentReadingPage.textContent = page.pageNumber;
             
-            // Update page navigation
             updatePageNavigation();
-            
-            // Scroll to current page
             scrollToPage(page.pageNumber);
 
             try {
-                // Try server TTS first
                 const response = await fetch('http://localhost:5000/tts', {
                     method: 'POST',
                     headers: {
@@ -1642,7 +1679,8 @@
                     },
                     body: JSON.stringify({
                         text: page.content,
-                        page: page.pageNumber
+                        page: page.pageNumber,
+                        language: selectedLanguage
                     })
                 });
 
@@ -1651,10 +1689,18 @@
                     if (data.success) {
                         await playServerAudio(data.audio_data, pageIndex);
                         return;
+                    } else {
+                        console.error('Server TTS failed:', data.error);
+                        alert(`TTS failed for ${selectedLanguage}: ${data.error}`);
                     }
+                } else {
+                    const errorData = await response.json();
+                    console.error('Server TTS failed:', errorData.error || response.statusText);
+                    alert(`TTS failed for ${selectedLanguage}: ${errorData.error || 'Server error'}`);
                 }
             } catch (error) {
                 console.error('Server TTS failed:', error);
+                alert(`TTS service unavailable for ${selectedLanguage}. Falling back to browser TTS. Error: ${error.message}`);
             }
 
             // Fallback to browser TTS
@@ -1680,7 +1726,6 @@
                 currentAudio.onended = () => {
                     URL.revokeObjectURL(audioUrl);
                     resolve();
-                    // Continue to next page
                     setTimeout(() => {
                         if (isReading) {
                             readFromPage(pageIndex + 1);
@@ -1701,7 +1746,7 @@
 
         function useBrowserTTS(text, pageIndex) {
             const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = 'en-US';
+            utterance.lang = selectedLanguage || 'en-US';
             utterance.rate = 0.9;
             utterance.pitch = 1;
             
@@ -1780,7 +1825,6 @@
             speechSynthesis.cancel();
             audioPlayer.classList.remove('show');
             
-            // Remove highlight from all pages
             document.querySelectorAll('.pdf-page').forEach(page => {
                 page.classList.remove('current-page');
             });
@@ -1831,7 +1875,8 @@
                     },
                     body: JSON.stringify({
                         question: 'Please provide a comprehensive summary of this document with key points and important information.',
-                        context: documentText
+                        context: documentText,
+                        language: selectedLanguage
                     })
                 });
 
@@ -1839,7 +1884,6 @@
                     const data = await response.json();
                     const summary = data.answer || 'Could not generate summary.';
                     
-                    // Create and download summary file
                     const summaryContent = `DOCUMENT SUMMARY\n\nDocument: ${originalFile.name}\nGenerated: ${new Date().toLocaleString()}\n\n${summary}`;
                     const blob = new Blob([summaryContent], { type: 'text/plain' });
                     const url = URL.createObjectURL(blob);
@@ -1879,18 +1923,11 @@
 
         async function sendMessage() {
             const question = chatInput.value.trim();
-            if (!question) return;
-
-            if (!documentText) {
-                alert('Please upload a document first.');
-                return;
-            }
+            if (!question || !documentText) return;
 
             addMessage('user', question);
             chatInput.value = '';
             chatInput.style.height = 'auto';
-
-            const loadingId = addMessage('bot', '<div class="loading"></div> Preparing detailed explanation...');
             sendBtn.disabled = true;
 
             try {
@@ -1902,61 +1939,43 @@
                     body: JSON.stringify({
                         question: question,
                         context: documentText,
-                        detail_level: 'medium'
-                    })
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    updateMessage(loadingId, data.answer || 'Sorry, I could not generate an answer.');
-                    
-                    // Generate TTS for the detailed response
-                    if (data.answer) {
-                        generateTTS(data.answer);
-                    }
-                } else {
-                    updateMessage(loadingId, 'Sorry, there was an error processing your question.');
-                }
-            } catch (error) {
-                console.error('Chat error:', error);
-                updateMessage(loadingId, 'Sorry, I am currently unavailable. Please check your connection.');
-            }
-
-            sendBtn.disabled = false;
-        }
-
-        // Generate TTS for responses
-        async function generateTTS(text) {
-            try {
-                const response = await fetch('http://localhost:5000/tts', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        text: text
+                        language: selectedLanguage
                     })
                 });
 
                 if (response.ok) {
                     const data = await response.json();
                     if (data.success) {
-                        playResponseAudio(data.audio_data);
+                        addMessage('bot', data.answer);
+                        if (data.audio_data) {
+                            playResponseAudio(data.audio_data);
+                        }
+                    } else {
+                        addMessage('bot', 'Sorry, I couldn\'t process your question. Please try again.');
                     }
+                } else {
+                    addMessage('bot', 'Error communicating with the server. Please try again.');
                 }
             } catch (error) {
-                console.error('TTS error:', error);
+                console.error('Chat error:', error);
+                addMessage('bot', 'Failed to get a response. Please check your connection.');
             }
+
+            sendBtn.disabled = false;
         }
 
-        function playResponseAudio(audioData) {
+        function addMessage(sender, content) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            messageDiv.innerHTML = content;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        async function playResponseAudio(audioData) {
             try {
                 const audioBlob = new Blob([Uint8Array.from(atob(audioData), c => c.charCodeAt(0))], { type: 'audio/mp3' });
                 const audioUrl = URL.createObjectURL(audioBlob);
-                
-                if (currentAudio) {
-                    currentAudio.pause();
-                }
                 
                 currentAudio = new Audio(audioUrl);
                 audioPlayer.classList.add('show');
@@ -1975,57 +1994,90 @@
                     playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
                 };
                 
+                currentAudio.onerror = () => {
+                    URL.revokeObjectURL(audioUrl);
+                    alert('Failed to play audio response.');
+                };
+                
                 currentAudio.play();
                 playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
-                
             } catch (error) {
                 console.error('Audio playback error:', error);
-            }
-        }
-
-        function addMessage(type, content) {
-            const messageId = 'msg-' + Date.now();
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${type}`;
-            messageDiv.id = messageId;
-            messageDiv.innerHTML = content;
-            
-            chatMessages.appendChild(messageDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-            
-            return messageId;
-        }
-
-        function updateMessage(messageId, newContent) {
-            const messageElement = document.getElementById(messageId);
-            if (messageElement) {
-                messageElement.innerHTML = newContent;
-                chatMessages.scrollTop = chatMessages.scrollHeight;
+                alert('Failed to play audio response.');
             }
         }
 
         function showUploadScreen() {
             uploadScreen.classList.remove('hidden');
             newDocBtn.style.display = 'none';
-            
-            // Reset everything
             currentPDF = null;
             documentPages = [];
             documentText = '';
+            currentPage = 0;
+            totalPages = 0;
             originalFile = null;
             pdfContainer.innerHTML = '';
-            chatMessages.innerHTML = '';
-            fileInput.value = '';
             pageNavigation.style.display = 'none';
-            
-            // Disable controls
+            documentName.textContent = 'Document Name';
+            documentStats.textContent = 'Ready to load...';
             readBtn.disabled = true;
+            stopBtn.disabled = true;
             downloadBtn.disabled = true;
             summaryBtn.disabled = true;
             sendBtn.disabled = true;
-            
-            stopReading();
+            chatMessages.innerHTML = '';
         }
+        // [Previous JavaScript code remains the same until the readDocument function]
+
+        async function readDocument() {
+            if (!documentText) {
+                alert('No document content to read.');
+                return;
+            }
+
+            if (isReading) return;
+
+            isReading = true;
+            readBtn.disabled = true;
+            stopBtn.disabled = false;
+            readBtn.innerHTML = '<div class="loading"></div> Preparing...';
+            
+            try {
+                const response = await fetch('http://localhost:5000/tts', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        text: documentPages[currentPage].content,
+                        language: selectedLanguage
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        await playServerAudio(data.audio_data, currentPage);
+                        return;
+                    } else {
+                        console.error('Server TTS failed:', data.error);
+                        alert(`TTS failed for ${selectedLanguage}: ${data.error}`);
+                    }
+                } else {
+                    const errorData = await response.json();
+                    console.error('Server TTS failed:', errorData.error || response.statusText);
+                    alert(`TTS failed for ${selectedLanguage}: ${errorData.error || 'Server error'}`);
+                }
+            } catch (error) {
+                console.error('Server TTS failed:', error);
+                alert(`TTS service unavailable for ${selectedLanguage}. Falling back to browser TTS. Error: ${error.message}`);
+            }
+
+            // Fallback to browser TTS
+            useBrowserTTS(documentPages[currentPage].content, currentPage);
+        }
+
+        // [Rest of the JavaScript code remains exactly the same]
     </script>
 </body>
 </html>
