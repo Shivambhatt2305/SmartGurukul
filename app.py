@@ -435,13 +435,15 @@ def format_teacher_response(response):
             if items:
                 formatted_response.append(f"<ul>{''.join(items)}</ul>")
         
-        # Handle numbered lists
+        # Handle numbered lists - FIXED THIS SECTION
         elif re.match(r'^\d+\.', para):
             items = []
             for line in para.split('\n'):
                 line = line.strip()
                 if re.match(r'^\d+\.', line):
-                    items.append(f"<li>{re.sub(r'^\d+\.\s*', '', line)}</li>")
+                    # Fixed: Move the regex operation outside the f-string
+                    cleaned_line = re.sub(r'^\d+\.\s*', '', line)
+                    items.append(f"<li>{cleaned_line}</li>")
             if items:
                 formatted_response.append(f"<ol>{''.join(items)}</ol>")
         
