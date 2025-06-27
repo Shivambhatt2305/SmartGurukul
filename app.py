@@ -236,8 +236,7 @@ def format_teacher_response(response):
             items = [f"<li>{line[2:].strip()}</li>" for line in para.split('\n') if line.startswith(('- ', '* '))]
             formatted_response.append(f"<ul>{''.join(items)}</ul>")
         elif re.match(r'^\d+\.', para):
-           # Line 239 in your app.py
-            items = [f"<li>{re.sub(r'^\d+\.\s*', '', line).strip()}</li>" for line in para.split('\n') if re.match(r'^\d+\.', line)]
+            items = [f"<li>{re.sub(r'^\d+\.\s*', '', line.strip())}</li>" for line in para.split('\n') if re.match(r'^\d+\.', line)]
             formatted_response.append(f"<ol>{''.join(items)}</ol>")
         else:
             para = re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', para)
