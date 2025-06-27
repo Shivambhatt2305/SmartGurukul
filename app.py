@@ -11,8 +11,11 @@ import PyPDF2
 import json
 from pathlib import Path
 
-app = Flask(__name__)
+app = Flask(__name__, 
+            static_folder='static',
+            template_folder='templates')
 CORS(app)
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -509,6 +512,32 @@ def index():
     except Exception as e:
         logger.error(f"Error in index route: {str(e)}")
         return jsonify({'error': 'Internal server error', 'message': str(e)}), 500
+        
+@app.route('/api/status')
+def api_status():
+    return jsonify({
+        'endpoints': {
+            'GET /health': 'Health check',
+            'GET /subjects': 'List all available subjects',
+            'GET /supported-languages': 'List supported languages',
+            'POST /ask': 'Ask questions about a chapter',
+            'POST /chapters': 'Get chapters for a subject',
+            'POST /get-chapter-content': 'Get PDF content for a chapter',
+            'POST /teach-chapter': 'Get chapter content with audio'
+        },
+        'features': [
+            'Support for 75+ languages',
+            'Text-to-speech in 50+ languages',
+            'PDF content extraction',
+            'AI-powered question answering',
+            'Subject and chapter organization'
+        ],
+        'message': 'API is running successfully',
+        'service': 'Smart Gurukul Teaching Assistant',
+        'status': 'online',
+        'version': '2.0.0'
+    })
+
 
 @app.route('/get-pdf/<subject>/<chapter>')
 def get_pdf(subject, chapter):
