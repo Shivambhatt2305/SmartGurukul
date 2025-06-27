@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subjects - Engineering Learning Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            line-height: 1.6;
+            color: #1a202c;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-weight: 400;
+        }
+
+        .container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Professional Header - Enhanced */
+        .professional-header {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 0;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 2rem;
+            gap: 2rem;
+        }
+
+        .brand-section {
+            flex-shrink: 0;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo-icon {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 16px;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            animation: logoFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes logoFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .brand-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .brand-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+        }
+
+        /* Enhanced Navigation */
+        .main-navigation {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(102, 126, 234, 0.08);
+            padding: 0.5rem;
+            border-radius: 50px;
+            position: relative;
+            margin: 0 auto;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            text-decoration: none;
+            color: #4a5568;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            z-index: 2;
+        }
+
+        .nav-item.active {
+            color: white;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .nav-item:hover:not(.active) {
+            color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .nav-icon {
+            font-size: 1.1rem;
+        }
+
+        .nav-text {
+            font-weight: 600;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .action-btn {
+            width: 44px;
+            height: 44px;
+            border: none;
+            border-radius: 12px;
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            font-size: 1.2rem;
+        }
+
+        .action-btn:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 2rem;
+        }
+
+        /* Professional Breadcrumb */
+        .professional-breadcrumb {
+            margin-bottom: 2rem;
+        }
+
+        .breadcrumb-container {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            padding: 1rem 1.5rem;
+            border-radius: 50px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            width: fit-content;
+        }
+
+        .breadcrumb-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+
+        .breadcrumb-item:hover {
+            color: white;
+        }
+
+        .breadcrumb-separator {
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: 300;
+        }
+
+        .breadcrumb-current {
+            color: white;
+            font-weight: 600;
+        }
+
+        .breadcrumb-icon {
+            font-size: 1rem;
+        }
+
+        /* Professional Page Header */
+        .professional-page-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 3rem;
+            margin-bottom: 3rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .page-header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 3rem;
+        }
+
+        .page-title-section {
+            flex: 1;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #1a202c;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .page-description {
+            font-size: 1.2rem;
+            color: #718096;
+            line-height: 1.6;
+            max-width: 600px;
+        }
+
+        .semester-progress {
+            min-width: 300px;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .progress-label {
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .progress-percentage {
+            font-weight: 700;
+            color: #667eea;
+            font-size: 1.1rem;
+        }
+
+        .progress-bar-container {
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 50px;
+            padding: 4px;
+        }
+
+        .progress-bar {
+            background: #e2e8f0;
+            border-radius: 50px;
+            height: 12px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50px;
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                transform: translateX(-100%);
+            }
+            100% {
+                transform: translateX(100%);
+            }
+        }
+
+        /* Professional Subject Container */
+        .professional-subject-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 3rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .subject-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 2px solid rgba(102, 126, 234, 0.1);
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #1a202c;
+        }
+
+        .view-options {
+            display: flex;
+            gap: 0.5rem;
+            background: rgba(102, 126, 234, 0.1);
+            padding: 0.5rem;
+            border-radius: 12px;
+        }
+
+        .view-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            border: none;
+            border-radius: 8px;
+            background: transparent;
+            color: #718096;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .view-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .view-btn:hover:not(.active) {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+        }
+
+        .professional-subject-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+        }
+
+        .professional-subject-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 100%);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .professional-subject-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .professional-subject-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .subject-card-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .subject-icon-container {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            flex-shrink: 0;
+        }
+
+        .subject-details h3 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #1a202c;
+            margin-bottom: 0.75rem;
+            line-height: 1.3;
+        }
+
+        .subject-details p {
+            color: #718096;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .subject-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(226, 232, 240, 0.8);
+        }
+
+        .subject-meta {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .subject-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #718096;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .subject-meta-icon {
+            color: #667eea;
+        }
+
+        .subject-action-btn {
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .subject-action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Professional Footer */
+        .professional-footer {
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(20px);
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            margin-top: 4rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .header-content {
+                flex-wrap: wrap;
+                gap: 1rem;
+                padding: 1rem;
+            }
+            
+            .main-navigation {
+                order: 1;
+                width: 100%;
+                justify-content: center;
+                margin-top: 0.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .brand-title {
+                font-size: 1.2rem;
+            }
+
+            .main-content {
+                padding: 1rem;
+            }
+
+            .page-header-content {
+                flex-direction: column;
+                gap: 2rem;
+            }
+
+            .professional-subject-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .subject-header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+
+            .breadcrumb-container {
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+            
+            .main-navigation {
+                overflow-x: auto;
+                padding: 0.25rem;
+                justify-content: flex-start;
+            }
+            
+            .nav-item {
+                padding: 0.5rem 1rem;
+                font-size: 0.8rem;
+            }
+            
+            .nav-text {
+                white-space: nowrap;
+            }
+        }
+
+        /* Mobile menu styles */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: #4a5568;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .close-menu-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #4a5568;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+            
+            .main-navigation {
+                position: fixed;
+                top: 80px;
+                left: 0;
+                width: 100%;
+                background: rgba(255, 255, 255, 0.98);
+                flex-direction: column;
+                padding: 1rem;
+                border-radius: 0 0 24px 24px;
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+                transform: translateY(-150%);
+                transition: transform 0.4s ease;
+                z-index: 999;
+                max-height: calc(100vh - 80px);
+                overflow-y: auto;
+            }
+            
+            .main-navigation.active {
+                transform: translateY(0);
+            }
+            
+            .nav-item {
+                width: 100%;
+                justify-content: center;
+                border-radius: 12px;
+                margin-bottom: 0.5rem;
+            }
+            
+            .header-content {
+                flex-wrap: wrap;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .professional-page-header,
+            .professional-subject-container {
+                padding: 1.5rem;
+            }
+            
+            .page-title {
+                font-size: 1.6rem;
+            }
+            
+            .subject-card-header {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+            
+            .subject-card-footer {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .subject-meta {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 1rem;
+            }
+            
+            .subject-action-btn {
+                width: 100%;
+            }
+        }
+
+        /* Animations */
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stagger-animation {
+            animation-delay: calc(var(--stagger) * 0.1s);
+        }
+        
+        /* Header enhancements */
+        .header-gradient {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border-radius: 50px;
+            z-index: 1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .nav-item:hover .header-gradient {
+            opacity: 1;
+        }
+        
+        /* Centering for desktop */
+        @media (min-width: 1025px) {
+            .header-content {
+                justify-content: center;
+            }
+            
+            .brand-section {
+                margin-right: auto;
+            }
+            
+            .header-actions {
+                margin-left: auto;
+            }
+            
+            .main-navigation {
+                position: absolute;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Enhanced Professional Header -->
+        <header class="professional-header">
+            <div class="header-content">
+               
+                
+                <div class="brand-section">
+                    <div class="logo-container">
+                        <div class="logo-icon">🎓</div>
+                        <div class="brand-text">
+                            <h1 class="brand-title">Smart Gurukul</h1>
+                        </div>
+                    </div>
+                </div>
+                
+                <nav class="main-navigation">
+                    <button class="close-menu-btn">✕</button>
+                    <div class="header-gradient"></div>
+                    <a href="index.html" class="nav-item">
+                        <span class="nav-icon">🏠</span>
+                        <span class="nav-text">Home</span>
+                    </a>
+                    <a href="self-learning.html" class="nav-item">
+                        <span class="nav-icon">🤖</span>
+                        <span class="nav-text">AI Learning</span>
+                    </a>
+                    <a href="degree.html" class="nav-item active">
+                        <span class="nav-icon">🎯</span>
+                        <span class="nav-text">Programs</span>
+                    </a>
+                </nav>
+
+                <div class="header-actions">
+                    <button class="action-btn profile-btn">
+                        <span class="btn-icon">👤</span>
+                    </button>
+                </div>
+                 <button class="mobile-menu-btn">☰</button>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <!-- Professional Breadcrumb -->
+            <div class="professional-breadcrumb">
+                <div class="breadcrumb-container">
+                    <a href="degree.html" class="breadcrumb-item">
+                        <span class="breadcrumb-icon">🎓</span>
+                        <span>Programs</span>
+                    </a>
+                    <span class="breadcrumb-separator">›</span>
+                    <a href="semester.html" class="breadcrumb-item" id="degree-link">
+                        <span class="breadcrumb-icon">📚</span>
+                        <span>Information Technology</span>
+                    </a>
+                    <span class="breadcrumb-separator">›</span>
+                    <span class="breadcrumb-current" id="current-semester">Semester 1</span>
+                    <span class="breadcrumb-separator">›</span>
+                    <span class="breadcrumb-current">Subjects</span>
+                </div>
+            </div>
+
+            <!-- Professional Page Header -->
+            <div class="professional-page-header">
+                <div class="page-header-content">
+                    <div class="page-title-section">
+                        <h2 class="page-title" id="semester-title">Semester 1 - Foundation Courses</h2>
+                        <p class="page-description">Master the fundamental concepts that form the backbone of your engineering journey</p>
+                    </div>
+                    <div class="semester-progress">
+                        <div class="progress-info">
+                            <span class="progress-label">Semester Progress</span>
+                            <span class="progress-percentage">25%</span>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 25%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Professional Subject Grid -->
+            <div class="professional-subject-container">
+                <div class="subject-header">
+                    <h3 class="section-title">Course Curriculum</h3>
+                    <div class="view-options">
+                        <button class="view-btn active" data-view="grid">
+                            <span class="view-icon">⊞</span>
+                            <span>Grid</span>
+                        </button>
+                        <button class="view-btn" data-view="list">
+                            <span class="view-icon">☰</span>
+                            <span>List</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="professional-subject-grid" id="subject-grid">
+                    <!-- Subject cards will be populated by JavaScript -->
+                </div>
+            </div>
+        </main>
+
+        <footer class="professional-footer">
+            <p>&copy; 2024 Engineering Learning Platform. Empowering Future Engineers.</p>
+        </footer>
+    </div>
+
+    <script>
+        // Global data structure for degrees
+        const learningData = {
+            degrees: {
+                ict: {
+                    name: "Information & Communication Technology",
+                    icon: "📡",
+                    semesters: 8,
+                    description: "Master modern communication systems, networking, and digital technologies",
+                    subjects: {
+                        1: [
+                            {
+                                name: "Digital Systems Fundamentals",
+                                icon: "💻",
+                                credits: 4,
+                                chapters: 12,
+                                description: "Foundation of digital logic, number systems, and computer architecture",
+                                difficulty: "Beginner",
+                                duration: "16 weeks"
+                            },
+                            {
+                                name: "Programming Basics",
+                                icon: "⌨️",
+                                credits: 4,
+                                chapters: 14,
+                                description: "Introduction to programming concepts using modern languages",
+                                difficulty: "Beginner",
+                                duration: "16 weeks"
+                            },
+                            {
+                                name: "Mathematics for ICT",
+                                icon: "📊",
+                                credits: 3,
+                                chapters: 10,
+                                description: "Mathematical foundations for information technology",
+                                difficulty: "Intermediate",
+                                duration: "16 weeks"
+                            },
+                            {
+                                name: "Communication Skills",
+                                icon: "📢",
+                                credits: 2,
+                                chapters: 8,
+                                description: "Professional communication and technical writing",
+                                difficulty: "Beginner",
+                                duration: "16 weeks"
+                            }
+                        ],
+                        2: [
+                            {
+                                name: "Network Fundamentals",
+                                icon: "🌐",
+                                credits: 4,
+                                chapters: 16,
+                                description: "Comprehensive networking concepts and protocols",
+                                difficulty: "Intermediate",
+                                duration: "16 weeks"
+                            },
+                            {
+                                name: "Database Systems",
+                                icon: "🗄️",
+                                credits: 3,
+                                chapters: 12,
+                                description: "Database design, implementation, and management",
+                                difficulty: "Intermediate",
+                                duration: "16 weeks"
+                            },
+                            {
+                                name: "Web Technologies",
+                                icon: "🌍",
+                                credits: 4,
+                                chapters: 15,
+                                description: "Modern web development technologies and frameworks",
+                                difficulty: "Intermediate",
+                                duration: "16 weeks"
+                            },
+                            {
+                                name: "Digital Electronics",
+                                icon: "⚡",
+                                credits: 3,
+                                chapters: 10,
+                                description: "Electronic circuits and digital system design",
+                                difficulty: "Advanced",
+                                duration: "16 weeks"
+                            }
+                        ]
+                    }
+                },
+                it: {
+                    name: "Information Technology",
+                    icon: "💻",
+                    semesters: 8,
+                    description: "Comprehensive IT education covering software development, systems, and management",
+                    subjects: {
+                        1: [
+                            {
+                                name: "Programming Fundamentals",
+                                icon: "👨‍💻",
+                                credits: 4,
+                                chapters: 15,
+                                description: "Core programming concepts and problem-solving techniques",
+                                difficulty: "Beginner",
+                                duration: "16 weeks"
+                            },
+                            {
+                                name: "Computer Systems Architecture",
+                                icon: "🖥️",
+                                credits: 3,
+                                chapters: 12,
+                                description: "Understanding computer hardware and system organization",
+                                difficulty: "Intermediate",
+                                duration: "16 weeks"
+                            },
+                            {
+                                name: "IT Mathematics",
+                                icon: "🔢",
+                                credits: 3,
+                                chapters: 11,
+                                description: "Mathematical concepts essential for IT professionals",
+                                difficulty: "Intermediate",
+                                duration: "16 weeks"
+                            },
+                            {
+                                name: "Professional Communication",
+                                icon: "📝",
+                                credits: 2,
+                                chapters: 8,
+                                description: "Business communication and presentation skills",
+                                difficulty: "Beginner",
+                                duration: "16 weeks"
+                            }
+                        ],
+                        2: [
+                            {
+                                name: "Object-Oriented Programming",
+                                icon: "🎯",
+                                credits: 4,
+                                chapters: 18,
+                                description: "Advanced programming using object-oriented paradigms",
+                                difficulty: "Intermediate",
+                                duration: "16 weeks"
+                            },
+                            {
+                                name: "Data Structures & Algorithms",
+                                icon: "🗂️",
+                                credits: 4,
+                                chapters: 16,
+                                description: "Efficient data organization and algorithmic thinking",
+                                difficulty: "Advanced",
+                                duration: "16 weeks"
+                            },
+                            {
+                                name: "System Analysis & Design",
+                                icon: "📋",
+                                credits: 3,
+                                chapters: 12,
+                                description: "Software engineering principles and system design",
+                                difficulty: "Intermediate",
+                                duration: "16 weeks"
+                            },
+                            {
+                                name: "Computer Networks",
+                                icon: "🔗",
+                                credits: 3,
+                                chapters: 14,
+                                description: "Network protocols, security, and administration",
+                                difficulty: "Advanced",
+                                duration: "16 weeks"
+                            }
+                        ]
+                    }
+                },
+                mechanical: {
+                    name: "Mechanical Engineering",
+                    icon: "⚙️",
+                    semesters: 8,
+                    description: "Design, analyze, and manufacture mechanical systems and machines",
+                    subjects: {
+                        1: [
+                            { name: "Engineering Mathematics", icon: "📐", credits: 4, chapters: 20, description: "Advanced mathematical concepts for engineering", difficulty: "Intermediate", duration: "16 weeks" },
+                            { name: "Engineering Physics", icon: "⚛️", credits: 4, chapters: 16, description: "Physics principles applied to engineering", difficulty: "Intermediate", duration: "16 weeks" },
+                            { name: "Engineering Chemistry", icon: "🧪", credits: 3, chapters: 12, description: "Chemical processes in engineering applications", difficulty: "Beginner", duration: "16 weeks" },
+                            { name: "Engineering Graphics", icon: "📏", credits: 3, chapters: 10, description: "Technical drawing and CAD fundamentals", difficulty: "Beginner", duration: "16 weeks" }
+                        ],
+                        2: [
+                            { name: "Mechanics of Materials", icon: "🔧", credits: 4, chapters: 18, description: "Material behavior under various loads", difficulty: "Advanced", duration: "16 weeks" },
+                            { name: "Thermodynamics", icon: "🌡️", credits: 4, chapters: 15, description: "Energy transfer and thermal systems", difficulty: "Advanced", duration: "16 weeks" },
+                            { name: "Fluid Mechanics", icon: "💧", credits: 3, chapters: 14, description: "Fluid behavior and flow analysis", difficulty: "Advanced", duration: "16 weeks" },
+                            { name: "Manufacturing Processes", icon: "🏭", credits: 3, chapters: 12, description: "Production methods and quality control", difficulty: "Intermediate", duration: "16 weeks" }
+                        ]
+                    }
+                },
+                computer: {
+                    name: "Computer Engineering",
+                    icon: "🖥️",
+                    semesters: 8,
+                    description: "Bridge hardware and software with comprehensive computer systems knowledge",
+                    subjects: {
+                        1: [
+                            { name: "Digital Logic Design", icon: "🔌", credits: 4, chapters: 14, description: "Logic gates and digital circuit design", difficulty: "Intermediate", duration: "16 weeks" },
+                            { name: "Programming in C", icon: "💾", credits: 4, chapters: 16, description: "System programming with C language", difficulty: "Beginner", duration: "16 weeks" },
+                            { name: "Engineering Mathematics", icon: "📊", credits: 4, chapters: 18, description: "Mathematical foundations for engineering", difficulty: "Intermediate", duration: "16 weeks" },
+                            { name: "Physics for Engineers", icon: "⚡", credits: 3, chapters: 12, description: "Physics concepts for computer engineering", difficulty: "Beginner", duration: "16 weeks" }
+                        ],
+                        2: [
+                            { name: "Computer Architecture", icon: "🏗️", credits: 4, chapters: 15, description: "Computer system design and organization", difficulty: "Advanced", duration: "16 weeks" },
+                            { name: "Data Structures", icon: "📚", credits: 4, chapters: 17, description: "Efficient data organization techniques", difficulty: "Advanced", duration: "16 weeks" },
+                            { name: "Microprocessors", icon: "🔬", credits: 3, chapters: 13, description: "Microprocessor architecture and programming", difficulty: "Advanced", duration: "16 weeks" },
+                            { name: "Circuit Analysis", icon: "⚡", credits: 3, chapters: 11, description: "Electronic circuit analysis and design", difficulty: "Intermediate", duration: "16 weeks" }
+                        ]
+                    }
+                },
+                ai: {
+                    name: "Artificial Intelligence Engineering",
+                    icon: "🤖",
+                    semesters: 8,
+                    description: "Cutting-edge AI technologies, machine learning, and intelligent systems",
+                    subjects: {
+                        1: [
+                            { name: "Introduction to AI", icon: "🧠", credits: 4, chapters: 12, description: "Fundamentals of artificial intelligence", difficulty: "Beginner", duration: "16 weeks" },
+                            { name: "Python Programming", icon: "🐍", credits: 4, chapters: 15, description: "Programming with Python for AI applications", difficulty: "Beginner", duration: "16 weeks" },
+                            { name: "Mathematics for AI", icon: "🔢", credits: 4, chapters: 16, description: "Mathematical foundations for AI", difficulty: "Intermediate", duration: "16 weeks" },
+                            { name: "Statistics & Probability", icon: "📈", credits: 3, chapters: 10, description: "Statistical methods for data analysis", difficulty: "Intermediate", duration: "16 weeks" }
+                        ],
+                        2: [
+                            { name: "Machine Learning Fundamentals", icon: "🎯", credits: 4, chapters: 18, description: "Core machine learning algorithms", difficulty: "Advanced", duration: "16 weeks" },
+                            { name: "Data Science & Analytics", icon: "📊", credits: 4, chapters: 16, description: "Data analysis and visualization techniques", difficulty: "Advanced", duration: "16 weeks" },
+                            { name: "Neural Networks", icon: "🕸️", credits: 4, chapters: 14, description: "Deep learning and neural network architectures", difficulty: "Advanced", duration: "16 weeks" },
+                            { name: "Computer Vision Basics", icon: "👁️", credits: 3, chapters: 12, description: "Image processing and computer vision", difficulty: "Advanced", duration: "16 weeks" }
+                        ]
+                    }
+                }
+            }
+        };
+
+        // Utility functions
+        function getUrlParams() {
+            const params = new URLSearchParams(window.location.search);
+            return {
+                degree: params.get('degree'),
+                semester: params.get('semester'),
+                subject: params.get('subject'),
+                chapter: params.get('chapter')
+            };
+        }
+
+        // Subject page functions
+        function loadSubjects() {
+            const params = getUrlParams();
+            const degreeId = params.degree || 'it';
+            const semesterNum = parseInt(params.semester) || 1;
+            const degree = learningData.degrees[degreeId];
+
+            if (!degree) return;
+
+            // Update page elements
+            document.getElementById('semester-title').textContent = `Semester ${semesterNum} - Foundation Courses`;
+            document.getElementById('current-semester').textContent = `Semester ${semesterNum}`;
+            document.getElementById('degree-link').textContent = degree.name;
+            document.getElementById('degree-link').href = `semester.html?degree=${degreeId}`;
+
+            // Generate subject cards
+            const subjectGrid = document.getElementById('subject-grid');
+            if (!subjectGrid) return;
+
+            subjectGrid.innerHTML = '';
+
+            const subjects = degree.subjects[semesterNum] || [];
+            subjects.forEach((subject, index) => {
+                const subjectCard = document.createElement('div');
+                subjectCard.className = 'professional-subject-card fade-in-up stagger-animation';
+                subjectCard.style.setProperty('--stagger', index);
+                subjectCard.onclick = () => selectSubject(degreeId, semesterNum, subject.name);
+
+                subjectCard.innerHTML = `
+                    <div class="subject-card-header">
+                        <div class="subject-icon-container">
+                            ${subject.icon}
+                        </div>
+                        <div class="subject-details">
+                            <h3>${subject.name}</h3>
+                            <p>${subject.description}</p>
+                        </div>
+                    </div>
+                    <div class="subject-card-footer">
+                        <div class="subject-meta">
+                            <div class="subject-meta-item">
+                                <span class="subject-meta-icon">📚</span>
+                                <span>${subject.credits} Credits</span>
+                            </div>
+                            <div class="subject-meta-item">
+                                <span class="subject-meta-icon">📖</span>
+                                <span>${subject.chapters} Chapters</span>
+                            </div>
+                            <div class="subject-meta-item">
+                                <span class="subject-meta-icon">⏱️</span>
+                                <span>${subject.duration}</span>
+                            </div>
+                        </div>
+                        <button class="subject-action-btn">
+                            Start Learning
+                        </button>
+                    </div>
+                `;
+
+                subjectGrid.appendChild(subjectCard);
+            });
+        }
+
+        function selectSubject(degreeId, semesterNum, subjectName) {
+            window.location.href = `chapter.html?degree=${degreeId}&semester=${semesterNum}&subject=${encodeURIComponent(subjectName)}`;
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSubjects();
+            
+            // Mobile menu toggle
+            const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+            const closeMenuBtn = document.querySelector('.close-menu-btn');
+            const mainNav = document.querySelector('.main-navigation');
+            
+            if (mobileMenuBtn) {
+                mobileMenuBtn.addEventListener('click', () => {
+                    mainNav.classList.add('active');
+                });
+            }
+            
+            if (closeMenuBtn) {
+                closeMenuBtn.addEventListener('click', () => {
+                    mainNav.classList.remove('active');
+                });
+            }
+            
+            // Add stagger animation delays
+            setTimeout(() => {
+                const animatedElements = document.querySelectorAll('.stagger-animation');
+                animatedElements.forEach((el, index) => {
+                    el.style.animationDelay = `${index * 0.1}s`;
+                });
+            }, 100);
+        });
+
+    </script>
+</body>
+</html>

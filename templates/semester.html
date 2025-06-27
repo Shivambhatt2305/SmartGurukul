@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Semesters - Engineering Learning Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            line-height: 1.6;
+            color: #1a202c;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-weight: 400;
+        }
+
+        .container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Professional Header */
+        .professional-header {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 0;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 2rem;
+            gap: 2rem;
+        }
+
+        .brand-section {
+            flex-shrink: 0;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo-icon {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 16px;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            animation: logoFloat 3s ease-in-out infinite;
+        }
+
+        .logo-image {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+            border-radius: 12px;
+        }
+
+        @keyframes logoFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .brand-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .brand-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+        }
+
+        .brand-subtitle {
+            font-size: 0.85rem;
+            color: #718096;
+            font-weight: 500;
+            margin-top: 2px;
+        }
+
+        .main-navigation {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(102, 126, 234, 0.08);
+            padding: 0.5rem;
+            border-radius: 50px;
+            position: relative;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            text-decoration: none;
+            color: #4a5568;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            z-index: 2;
+        }
+
+        .nav-item.active {
+            color: white;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .nav-item:hover:not(.active) {
+            color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .nav-icon {
+            font-size: 1.1rem;
+        }
+
+        .nav-text {
+            font-weight: 600;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .action-btn {
+            width: 44px;
+            height: 44px;
+            border: none;
+            border-radius: 12px;
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            font-size: 1.2rem;
+        }
+
+        .action-btn:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Mobile Navigation */
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #667eea;
+            z-index: 1001;
+        }
+
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 80%;
+            max-width: 320px;
+            height: 100vh;
+            background: white;
+            z-index: 1000;
+            box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+            transition: right 0.3s ease;
+            padding: 5rem 1.5rem 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .mobile-menu.active {
+            right: 0;
+        }
+
+        .mobile-nav-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border-radius: 12px;
+            text-decoration: none;
+            color: #4a5568;
+            font-weight: 500;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .mobile-nav-item.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .mobile-nav-item:hover:not(.active) {
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .mobile-nav-icon {
+            font-size: 1.2rem;
+            width: 30px;
+            text-align: center;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            display: none;
+        }
+
+        .overlay.active {
+            display: block;
+        }
+
+        .close-menu {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #667eea;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 2rem;
+        }
+
+        /* Professional Breadcrumb */
+        .professional-breadcrumb {
+            margin-bottom: 2rem;
+        }
+
+        .breadcrumb-container {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            padding: 1rem 1.5rem;
+            border-radius: 50px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            width: fit-content;
+        }
+
+        .breadcrumb-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+
+        .breadcrumb-item:hover {
+            color: white;
+        }
+
+        .breadcrumb-separator {
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: 300;
+        }
+
+        .breadcrumb-current {
+            color: white;
+            font-weight: 600;
+        }
+
+        .breadcrumb-icon {
+            font-size: 1rem;
+        }
+
+        /* Professional Page Header */
+        .professional-page-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 3rem;
+            margin-bottom: 3rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .page-header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 3rem;
+        }
+
+        .page-title-section {
+            flex: 1;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #1a202c;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .page-description {
+            font-size: 1.2rem;
+            color: #718096;
+            line-height: 1.6;
+            max-width: 600px;
+        }
+
+        .page-stats {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 16px;
+            color: white;
+            min-width: 100px;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .stat-number {
+            display: block;
+            font-size: 2rem;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            font-weight: 500;
+            margin-top: 0.5rem;
+        }
+
+        /* Professional Semester Container */
+        .professional-semester-container {
+            position: relative;
+        }
+
+        .semester-timeline {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            transform: translateX(-50%);
+            z-index: 1;
+        }
+
+        .timeline-line {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+            border-radius: 2px;
+            opacity: 0.3;
+        }
+
+        .professional-semester-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem 4rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .professional-semester-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .professional-semester-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .professional-semester-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        .semester-card-header {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .semester-number-badge {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 800;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .semester-info h3 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #1a202c;
+            margin-bottom: 0.5rem;
+        }
+
+        .semester-info p {
+            color: #718096;
+            font-size: 0.95rem;
+        }
+
+        .semester-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(226, 232, 240, 0.8);
+        }
+
+        .semester-stat {
+            text-align: center;
+        }
+
+        .semester-stat-number {
+            display: block;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .semester-stat-label {
+            font-size: 0.8rem;
+            color: #a0aec0;
+            font-weight: 500;
+            margin-top: 0.25rem;
+        }
+
+        /* Professional Footer */
+        .professional-footer {
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(20px);
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            margin-top: 4rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .professional-semester-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .semester-timeline {
+                display: none;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .page-header-content {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+            
+            .page-description {
+                max-width: 100%;
+            }
+            
+            .page-stats {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-wrap: wrap;
+                gap: 1rem;
+                padding: 1rem;
+            }
+            
+            .main-navigation {
+                display: none;
+            }
+            
+            .header-actions {
+                margin-left: auto;
+            }
+            
+            .mobile-menu-toggle {
+                display: block;
+            }
+            
+            .brand-title {
+                font-size: 1.2rem;
+            }
+            
+            .main-content {
+                padding: 1rem;
+            }
+            
+            .professional-page-header {
+                padding: 2rem 1.5rem;
+            }
+            
+            .page-title {
+                font-size: 2rem;
+            }
+            
+            .page-description {
+                font-size: 1rem;
+            }
+            
+            .stat-item {
+                padding: 1rem;
+                min-width: 90px;
+            }
+            
+            .stat-number {
+                font-size: 1.5rem;
+            }
+            
+            .professional-semester-card {
+                padding: 1.5rem;
+            }
+            
+            .semester-card-header {
+                gap: 1rem;
+                margin-bottom: 1.5rem;
+            }
+            
+            .semester-number-badge {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+            
+            .semester-info h3 {
+                font-size: 1.2rem;
+            }
+            
+            .breadcrumb-container {
+                padding: 0.75rem 1rem;
+                font-size: 0.8rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .page-stats {
+                flex-wrap: wrap;
+            }
+            
+            .stat-item {
+                flex: 1;
+                min-width: auto;
+            }
+            
+            .semester-stats {
+                flex-direction: column;
+                gap: 1rem;
+                padding-top: 1rem;
+            }
+            
+            .semester-stat {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                text-align: left;
+            }
+            
+            .breadcrumb-container {
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+            
+            .breadcrumb-separator {
+                display: none;
+            }
+            
+            .brand-title {
+                font-size: 1.1rem;
+            }
+            
+            .logo-container {
+                gap: 0.75rem;
+            }
+            
+            .logo-icon {
+                width: 50px;
+                height: 50px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .header-content {
+                padding: 0.75rem;
+            }
+            
+            .professional-page-header {
+                padding: 1.5rem 1rem;
+            }
+            
+            .page-title {
+                font-size: 1.7rem;
+            }
+            
+            .stat-item {
+                padding: 0.75rem;
+            }
+            
+            .stat-number {
+                font-size: 1.3rem;
+            }
+            
+            .stat-label {
+                font-size: 0.75rem;
+            }
+        }
+
+        /* Animations */
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stagger-animation {
+            animation-delay: calc(var(--stagger) * 0.1s);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Enhanced Professional Header -->
+        <header class="professional-header">
+            <div class="header-content">
+                <div class="brand-section">
+                    <div class="logo-container">
+                         <div class="logo-icon">🎓</div>
+                        <div class="brand-text">
+                            <h1 class="brand-title">Smart Gurukul</h1>
+                        </div>
+                    </div>
+                </div>
+                
+                <nav class="main-navigation">
+                    <a href="index.html" class="nav-item">
+                        <span class="nav-icon">🏠</span>
+                        <span class="nav-text">Home</span>
+                    </a>
+                    <a href="self-learning.html" class="nav-item">
+                        <span class="nav-icon">🤖</span>
+                        <span class="nav-text">AI Learning</span>
+                    </a>
+                    <a href="degree.html" class="nav-item active">
+                        <span class="nav-icon">🎯</span>
+                        <span class="nav-text">Programs</span>
+                    </a>
+                </nav>
+
+                <div class="header-actions">
+                    <button class="action-btn profile-btn">
+                        <span class="btn-icon">👤</span>
+                    </button>
+                    <button class="mobile-menu-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Mobile Navigation Menu -->
+        <div class="overlay"></div>
+        <div class="mobile-menu">
+            <button class="close-menu">
+                <i class="fas fa-times"></i>
+            </button>
+            <a href="index.html" class="mobile-nav-item">
+                <span class="mobile-nav-icon">🏠</span>
+                <span>Home</span>
+            </a>
+            <a href="self-learning.html" class="mobile-nav-item">
+                <span class="mobile-nav-icon">🤖</span>
+                <span>AI Learning</span>
+            </a>
+            <a href="degree.html" class="mobile-nav-item active">
+                <span class="mobile-nav-icon">🎯</span>
+                <span>Programs</span>
+            </a>
+            <a href="#" class="mobile-nav-item">
+                <span class="mobile-nav-icon">📚</span>
+                <span>Resources</span>
+            </a>
+            <a href="#" class="mobile-nav-item">
+                <span class="mobile-nav-icon">📊</span>
+                <span>Progress</span>
+            </a>
+            <a href="#" class="mobile-nav-item">
+                <span class="mobile-nav-icon">⚙️</span>
+                <span>Settings</span>
+            </a>
+        </div>
+
+        <main class="main-content">
+            <!-- Professional Breadcrumb -->
+            <div class="professional-breadcrumb">
+                <div class="breadcrumb-container">
+                    <a href="degree.html" class="breadcrumb-item">
+                        <span class="breadcrumb-icon">🎓</span>
+                        <span>Engineering Programs</span>
+                    </a>
+                    <span class="breadcrumb-separator">›</span>
+                    <span class="breadcrumb-current" id="current-degree">Information Technology</span>
+                    <span class="breadcrumb-separator">›</span>
+                    <span class="breadcrumb-current">Semesters</span>
+                </div>
+            </div>
+
+            <!-- Professional Page Header -->
+            <div class="professional-page-header">
+                <div class="page-header-content">
+                    <div class="page-title-section">
+                        <h2 class="page-title" id="degree-title">Information Technology - Academic Journey</h2>
+                        <p class="page-description">Choose your semester to explore comprehensive courses designed for engineering excellence</p>
+                    </div>
+                    <div class="page-stats">
+                        <div class="stat-item">
+                            <span class="stat-number">8</span>
+                            <span class="stat-label">Semesters</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">120+</span>
+                            <span class="stat-label">Credits</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">4</span>
+                            <span class="stat-label">Years</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Professional Semester Grid -->
+            <div class="professional-semester-container">
+                <div class="semester-timeline">
+                    <div class="timeline-line"></div>
+                </div>
+                <div class="professional-semester-grid" id="semester-grid">
+                    <!-- Semesters will be populated by JavaScript -->
+                </div>
+            </div>
+        </main>
+
+        <footer class="professional-footer">
+            <p>&copy; 2024 Engineering Learning Platform. Empowering Future Engineers.</p>
+            <p class="copyright">© AlLearning</p>
+        </footer>
+    </div>
+
+    <script>
+        // Global data structure for degrees
+        const learningData = {
+            degrees: {
+                ict: {
+                    name: "Information & Communication Technology",
+                    icon: "📡",
+                    semesters: 8,
+                    description: "Master modern communication systems, networking, and digital technologies",
+                    subjects: {
+                        1: [
+                            { name: "Digital Systems Fundamentals", icon: "💻", credits: 4, chapters: 12 },
+                            { name: "Programming Basics", icon: "⌨️", credits: 4, chapters: 14 },
+                            { name: "Mathematics for ICT", icon: "📊", credits: 3, chapters: 10 },
+                            { name: "Communication Skills", icon: "📢", credits: 2, chapters: 8 }
+                        ],
+                        2: [
+                            { name: "Network Fundamentals", icon: "🌐", credits: 4, chapters: 16 },
+                            { name: "Database Systems", icon: "🗄️", credits: 3, chapters: 12 },
+                            { name: "Web Technologies", icon: "🌍", credits: 4, chapters: 15 },
+                            { name: "Digital Electronics", icon: "⚡", credits: 3, chapters: 10 }
+                        ]
+                    }
+                },
+                it: {
+                    name: "Information Technology",
+                    icon: "💻",
+                    semesters: 8,
+                    description: "Comprehensive IT education covering software development, systems, and management",
+                    subjects: {
+                        1: [
+                            { name: "Programming Fundamentals", icon: "👨‍💻", credits: 4, chapters: 15 },
+                            { name: "Computer Systems Architecture", icon: "🖥️", credits: 3, chapters: 12 },
+                            { name: "IT Mathematics", icon: "🔢", credits: 3, chapters: 11 },
+                            { name: "Professional Communication", icon: "📝", credits: 2, chapters: 8 }
+                        ],
+                        2: [
+                            { name: "Object-Oriented Programming", icon: "🎯", credits: 4, chapters: 18 },
+                            { name: "Data Structures & Algorithms", icon: "🗂️", credits: 4, chapters: 16 },
+                            { name: "System Analysis & Design", icon: "📋", credits: 3, chapters: 12 },
+                            { name: "Computer Networks", icon: "🔗", credits: 3, chapters: 14 }
+                        ]
+                    }
+                },
+                mechanical: {
+                    name: "Mechanical Engineering",
+                    icon: "⚙️",
+                    semesters: 8,
+                    description: "Design, analyze, and manufacture mechanical systems and machines",
+                    subjects: {
+                        1: [
+                            { name: "Engineering Mathematics", icon: "📐", credits: 4, chapters: 20 },
+                            { name: "Engineering Physics", icon: "⚛️", credits: 4, chapters: 16 },
+                            { name: "Engineering Chemistry", icon: "🧪", credits: 3, chapters: 12 },
+                            { name: "Engineering Graphics", icon: "📏", credits: 3, chapters: 10 }
+                        ],
+                        2: [
+                            { name: "Mechanics of Materials", icon: "🔧", credits: 4, chapters: 18 },
+                            { name: "Thermodynamics", icon: "🌡️", credits: 4, chapters: 15 },
+                            { name: "Fluid Mechanics", icon: "💧", credits: 3, chapters: 14 },
+                            { name: "Manufacturing Processes", icon: "🏭", credits: 3, chapters: 12 }
+                        ]
+                    }
+                },
+                computer: {
+                    name: "Computer Engineering",
+                    icon: "🖥️",
+                    semesters: 8,
+                    description: "Bridge hardware and software with comprehensive computer systems knowledge",
+                    subjects: {
+                        1: [
+                            { name: "Digital Logic Design", icon: "🔌", credits: 4, chapters: 14 },
+                            { name: "Programming in C", icon: "💾", credits: 4, chapters: 16 },
+                            { name: "Engineering Mathematics", icon: "📊", credits: 4, chapters: 18 },
+                            { name: "Physics for Engineers", icon: "⚡", credits: 3, chapters: 12 }
+                        ],
+                        2: [
+                            { name: "Computer Architecture", icon: "🏗️", credits: 4, chapters: 15 },
+                            { name: "Data Structures", icon: "📚", credits: 4, chapters: 17 },
+                            { name: "Microprocessors", icon: "🔬", credits: 3, chapters: 13 },
+                            { name: "Circuit Analysis", icon: "⚡", credits: 3, chapters: 11 }
+                        ]
+                    }
+                },
+                ai: {
+                    name: "Artificial Intelligence Engineering",
+                    icon: "🤖",
+                    semesters: 8,
+                    description: "Cutting-edge AI technologies, machine learning, and intelligent systems",
+                    subjects: {
+                        1: [
+                            { name: "Introduction to AI", icon: "🧠", credits: 4, chapters: 12 },
+                            { name: "Python Programming", icon: "🐍", credits: 4, chapters: 15 },
+                            { name: "Mathematics for AI", icon: "🔢", credits: 4, chapters: 16 },
+                            { name: "Statistics & Probability", icon: "📈", credits: 3, chapters: 10 }
+                        ],
+                        2: [
+                            { name: "Machine Learning Fundamentals", icon: "🎯", credits: 4, chapters: 18 },
+                            { name: "Data Science & Analytics", icon: "📊", credits: 4, chapters: 16 },
+                            { name: "Neural Networks", icon: "🕸️", credits: 4, chapters: 14 },
+                            { name: "Computer Vision Basics", icon: "👁️", credits: 3, chapters: 12 }
+                        ]
+                    }
+                }
+            }
+        };
+
+        // Utility functions
+        function getUrlParams() {
+            const params = new URLSearchParams(window.location.search);
+            return {
+                degree: params.get('degree'),
+                semester: params.get('semester'),
+                subject: params.get('subject'),
+                chapter: params.get('chapter')
+            };
+        }
+
+        // Mobile menu toggle
+        function setupMobileMenu() {
+            const menuToggle = document.querySelector('.mobile-menu-toggle');
+            const closeMenu = document.querySelector('.close-menu');
+            const mobileMenu = document.querySelector('.mobile-menu');
+            const overlay = document.querySelector('.overlay');
+            
+            menuToggle.addEventListener('click', () => {
+                mobileMenu.classList.add('active');
+                overlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            });
+            
+            closeMenu.addEventListener('click', () => {
+                mobileMenu.classList.remove('active');
+                overlay.classList.remove('active');
+                document.body.style.overflow = '';
+            });
+            
+            overlay.addEventListener('click', () => {
+                mobileMenu.classList.remove('active');
+                overlay.classList.remove('active');
+                document.body.style.overflow = '';
+            });
+        }
+
+        // Semester page functions
+        function loadSemesters() {
+            const params = getUrlParams();
+            const degreeId = params.degree || 'it';
+            const degree = learningData.degrees[degreeId];
+
+            if (!degree) return;
+
+            // Update page title and breadcrumb
+            document.getElementById('degree-title').textContent = `${degree.name} - Academic Journey`;
+            document.getElementById('current-degree').textContent = degree.name;
+
+            // Generate semester cards
+            const semesterGrid = document.getElementById('semester-grid');
+            if (!semesterGrid) return;
+
+            semesterGrid.innerHTML = '';
+
+            for (let i = 1; i <= degree.semesters; i++) {
+                const semesterCard = document.createElement('div');
+                semesterCard.className = 'professional-semester-card fade-in-up stagger-animation';
+                semesterCard.style.setProperty('--stagger', i);
+                semesterCard.onclick = () => selectSemester(degreeId, i);
+
+                const subjectCount = degree.subjects[i] ? degree.subjects[i].length : 4;
+                const totalCredits = degree.subjects[i] ? degree.subjects[i].reduce((sum, subject) => sum + subject.credits, 0) : 12;
+
+                semesterCard.innerHTML = `
+                    <div class="semester-card-header">
+                        <div class="semester-number-badge">${i}</div>
+                        <div class="semester-info">
+                            <h3>Semester ${i}</h3>
+                            <p>${i <= 2 ? 'Foundation' : i <= 4 ? 'Core' : i <= 6 ? 'Advanced' : 'Specialization'} Level</p>
+                        </div>
+                    </div>
+                    <div class="semester-stats">
+                        <div class="semester-stat">
+                            <span class="semester-stat-number">${subjectCount}</span>
+                            <span class="semester-stat-label">Subjects</span>
+                        </div>
+                        <div class="semester-stat">
+                            <span class="semester-stat-number">${totalCredits}</span>
+                            <span class="semester-stat-label">Credits</span>
+                        </div>
+                        <div class="semester-stat">
+                            <span class="semester-stat-number">16</span>
+                            <span class="semester-stat-label">Weeks</span>
+                        </div>
+                    </div>
+                `;
+
+                semesterGrid.appendChild(semesterCard);
+            }
+        }
+
+        function selectSemester(degreeId, semesterNum) {
+            window.location.href = `subject.html?degree=${degreeId}&semester=${semesterNum}`;
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSemesters();
+            setupMobileMenu();
+            
+            // Add stagger animation delays
+            setTimeout(() => {
+                const animatedElements = document.querySelectorAll('.stagger-animation');
+                animatedElements.forEach((el, index) => {
+                    el.style.animationDelay = `${index * 0.1}s`;
+                });
+            }, 100);
+        });
+    </script>
+</body>
+</html>

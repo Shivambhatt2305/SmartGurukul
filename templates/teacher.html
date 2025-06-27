@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Gurukul - Teaching Assistant</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: clamp(8px, 2vw, 15px) clamp(10px, 3vw, 20px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+            position: relative;
+            min-height: 50px;
+        }
+
+        .header h1 {
+            font-size: clamp(1.1rem, 3vw, 1.5rem);
+            font-weight: 600;
+        }
+
+        .header h1 i {
+            margin-right: clamp(5px, 1vw, 10px);
+        }
+
+        .header-controls {
+            display: flex;
+            gap: clamp(8px, 2vw, 15px);
+            align-items: center;
+        }
+
+        /* Main Container */
+        .main-container {
+            display: flex;
+            height: calc(100vh - 55px);
+            flex-direction: row;
+            transition: flex-direction 0.3s ease;
+        }
+
+        /* Content Panel */
+        .content-panel {
+            flex: 1;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            border-right: 1px solid #e0e0e0;
+            min-width: 0;
+            overflow: hidden;
+        }
+
+        .content-header {
+            background: #f8f9fa;
+            padding: clamp(8px, 2vw, 15px);
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .content-info h3 {
+            color: #333;
+            font-size: clamp(0.9rem, 2.5vw, 1rem);
+            margin-bottom: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 300px;
+        }
+
+        .content-info p {
+            color: #666;
+            font-size: clamp(0.75rem, 2vw, 0.85rem);
+        }
+
+        .content-controls {
+            display: flex;
+            gap: clamp(5px, 1.5vw, 10px);
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        /* PDF Viewer Container */
+        .pdf-container {
+            flex: 1;
+            background: #2c3e50;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pdf-toolbar {
+            background: #34495e;
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .pdf-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .pdf-info {
+            font-size: 0.9rem;
+            color: #bdc3c7;
+        }
+
+        .pdf-viewer {
+            flex: 1;
+            background: #2c3e50;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pdf-embed {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: white;
+        }
+
+        .pdf-fallback {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #ecf0f1;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .pdf-fallback i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            color: #95a5a6;
+        }
+
+        .pdf-fallback h3 {
+            margin-bottom: 1rem;
+            color: #ecf0f1;
+        }
+
+        .pdf-fallback p {
+            color: #bdc3c7;
+            margin-bottom: 1rem;
+        }
+
+        .download-btn {
+            background: #3498db;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.3s ease;
+        }
+
+        .download-btn:hover {
+            background: #2980b9;
+        }
+
+        /* Loading state */
+        .content-loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #718096;
+            background: #f8f9fa;
+        }
+
+        .content-loading .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #e2e8f0;
+            border-top: 5px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Chat Panel */
+        .chat-panel {
+            width: clamp(300px, 40vw, 500px);
+            background: white;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            border-left: 1px solid #e0e0e0;
+        }
+
+        .chat-header {
+            background: #f8f9fa;
+            padding: clamp(10px, 3vw, 15px);
+            border-bottom: 1px solid #e9ecef;
+            flex-shrink: 0;
+        }
+
+        .chat-header h3 {
+            color: #333;
+            font-size: clamp(1rem, 2.5vw, 1.1rem);
+            margin-bottom: 5px;
+        }
+
+        .chat-header p {
+            color: #666;
+            font-size: clamp(0.8rem, 2vw, 0.9rem);
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: clamp(15px, 3vw, 20px);
+            background: #f8f9fa;
+            min-height: 0;
+        }
+
+        .chat-messages:empty::before {
+            content: "Ask questions about the chapter...";
+            color: #999;
+            font-style: italic;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            text-align: center;
+            padding: 20px;
+            font-size: clamp(0.9rem, 2.5vw, 1rem);
+        }
+
+        .message {
+            margin-bottom: clamp(10px, 2.5vw, 15px);
+            padding: clamp(10px, 2.5vw, 15px);
+            border-radius: clamp(12px, 3vw, 15px);
+            max-width: 85%;
+            word-wrap: break-word;
+            animation: fadeIn 0.3s ease;
+            line-height: 1.4;
+            font-size: clamp(0.85rem, 2.2vw, 0.95rem);
+        }
+
+        .message.user {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message.bot {
+            background: white;
+            color: #333;
+            border: 1px solid #e0e0e0;
+            border-bottom-left-radius: 5px;
+        }
+
+        .chat-input-container {
+            padding: clamp(15px, 3vw, 20px);
+            border-top: 1px solid #e9ecef;
+            background: white;
+            flex-shrink: 0;
+        }
+
+        .chat-input-wrapper {
+            display: flex;
+            gap: clamp(8px, 2vw, 10px);
+            align-items: flex-end;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: clamp(10px, 2.5vw, 15px);
+            border: 2px solid #e0e0e0;
+            border-radius: clamp(20px, 5vw, 25px);
+            font-size: clamp(0.85rem, 2.2vw, 0.9rem);
+            resize: none;
+            min-height: clamp(40px, 8vw, 45px);
+            max-height: 120px;
+            transition: border-color 0.3s ease;
+            font-family: inherit;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .send-btn {
+            width: clamp(40px, 8vw, 45px);
+            height: clamp(40px, 8vw, 45px);
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+            font-size: clamp(0.9rem, 2vw, 1rem);
+        }
+
+        .send-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: clamp(6px, 1.5vw, 10px) clamp(10px, 2.5vw, 15px);
+            border: none;
+            border-radius: clamp(15px, 4vw, 20px);
+            cursor: pointer;
+            font-size: clamp(0.75rem, 2vw, 0.85rem);
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: clamp(4px, 1vw, 6px);
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(86, 171, 47, 0.3);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(240, 147, 251, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .select {
+            padding: clamp(6px, 1.5vw, 8px);
+            border: 2px solid #e0e0e0;
+            border-radius: clamp(10px, 2vw, 15px);
+            font-size: clamp(0.75rem, 2vw, 0.85rem);
+            background: white;
+            cursor: pointer;
+            transition: border-color 0.3s ease;
+        }
+
+        .select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        /* Audio Player */
+        .audio-player {
+            position: fixed;
+            bottom: clamp(15px, 3vw, 20px);
+            right: clamp(15px, 3vw, 20px);
+            background: rgba(255,255,255,0.95);
+            border-radius: clamp(10px, 3vw, 15px);
+            padding: clamp(10px, 3vw, 15px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            display: none;
+            min-width: clamp(250px, 60vw, 300px);
+            max-width: 90vw;
+            z-index: 100;
+            border: 2px solid #667eea;
+        }
+
+        .audio-player.show {
+            display: block;
+        }
+
+        .audio-controls {
+            display: flex;
+            align-items: center;
+            gap: clamp(8px, 2vw, 10px);
+            margin-bottom: clamp(8px, 2vw, 10px);
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: clamp(4px, 1vw, 6px);
+            background: #ddd;
+            border-radius: clamp(2px, 0.5vw, 3px);
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.1s ease;
+        }
+
+        .time-display {
+            font-size: clamp(0.7rem, 1.8vw, 0.8rem);
+            color: #666;
+            min-width: clamp(60px, 15vw, 80px);
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: clamp(16px, 4vw, 20px);
+            height: clamp(16px, 4vw, 20px);
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: clamp(6px, 1vw, 8px);
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+
+        /* Responsive Design */
+        @media (min-width: 1440px) {
+            .content-panel { width: 65%; }
+            .chat-panel { width: 35%; }
+            .main-container { max-width: 1800px; margin: 0 auto; }
+        }
+
+        @media (min-width: 1024px) and (max-width: 1439px) {
+            .content-panel { width: 60%; }
+            .chat-panel { width: 40%; }
+        }
+
+        @media (min-width: 768px) and (max-width: 1023px) {
+            .main-container { flex-direction: row; }
+            .content-panel { width: 55%; }
+            .chat-panel { width: 45%; }
+            .audio-player { min-width: 280px; right: 15px; bottom: 15px; }
+        }
+
+        @media (min-width: 480px) and (max-width: 767px) {
+            .main-container { flex-direction: column; }
+            .content-panel { width: 100%; height: 65%; border-right: none; border-bottom: 1px solid #e0e0e0; }
+            .chat-panel { width: 100%; height: 35%; border-left: none; border-top: 1px solid #e0e0e0; }
+            .audio-player { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); right: auto; min-width: 280px; max-width: calc(100vw - 40px); }
+            .header h1 { font-size: 1.2rem; }
+            .content-controls { justify-content: center; }
+        }
+
+        @media (max-width: 479px) {
+            .main-container { flex-direction: column; }
+            .content-panel { width: 100%; height: 60%; border-right: none; border-bottom: 1px solid #e0e0e0; }
+            .chat-panel { width: 100%; height: 40%; border-left: none; border-top: 1px solid #e0e0e0; }
+            .header { padding: 8px 15px; }
+            .header h1 { font-size: 1rem; }
+            .header h1 i { margin-right: 5px; }
+            .content-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+            .content-controls { width: 100%; justify-content: space-between; }
+            .btn { padding: 6px 10px; font-size: 0.7rem; }
+            .btn i { margin-right: 3px; }
+            .audio-player { position: fixed; bottom: 70px; left: 10px; right: 10px; transform: none; min-width: auto; max-width: none; width: calc(100vw - 20px); }
+            .audio-controls { gap: 8px; }
+            .time-display { font-size: 0.65rem; min-width: 50px; }
+            .message { max-width: 95%; font-size: 0.85rem; }
+            .chat-input { font-size: 0.85rem; padding: 10px 12px; }
+            .send-btn { width: 38px; height: 38px; }
+        }
+
+        @media (max-width: 319px) {
+            .header h1 { font-size: 0.9rem; }
+            .btn { padding: 5px 8px; font-size: 0.65rem; gap: 2px; }
+            .chat-input { padding: 8px 10px; font-size: 0.8rem; }
+            .send-btn { width: 35px; height: 35px; font-size: 0.85rem; }
+            .message { padding: 8px 10px; font-size: 0.8rem; }
+        }
+
+        @media (max-height: 500px) and (orientation: landscape) {
+            .main-container { flex-direction: row; }
+            .content-panel { width: 70%; height: 100%; }
+            .chat-panel { width: 30%; height: 100%; }
+            .header { padding: 5px 15px; min-height: 40px; }
+            .main-container { height: calc(100vh - 45px); }
+            .audio-player { bottom: 10px; right: 10px; min-width: 200px; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        @media (prefers-contrast: high) {
+            .header { background: #000; color: #fff; }
+            .btn-primary { background: #000; color: #fff; }
+            .message.user { background: #000; color: #fff; }
+            .send-btn { background: #000; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <h1><i class="fas fa-graduation-cap"></i> Smart Gurukul</h1>
+        <div class="header-controls">
+            <button class="btn btn-primary" id="new-selection-btn" onclick="showSelectionScreen()" style="display: none;">
+                <i class="fas fa-plus"></i> New Chapter
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Content Panel -->
+        <div class="content-panel">
+            <!-- Content Header -->
+            <div class="content-header">
+                <div class="content-info">
+                    <h3 id="content-title">Chapter Title</h3>
+                    <p id="content-info">Select a chapter to begin</p>
+                </div>
+                <div class="content-controls">
+                    <select id="content-language-select" class="select" onchange="reteachChapter()">
+                        <option value="en">English</option>
+                    </select>
+                    <button class="btn btn-primary" id="play-btn" onclick="playTeachingAudio()" disabled>
+                        <i class="fas fa-play"></i> Play Audio
+                    </button>
+                    <button class="btn btn-warning" id="stop-btn" onclick="stopAudio()" disabled>
+                        <i class="fas fa-stop"></i> Stop
+                    </button>
+                </div>
+            </div>
+
+            <!-- PDF Container -->
+            <div class="pdf-container" id="pdf-container">
+                <!-- PDF Toolbar -->
+                <div class="pdf-toolbar">
+                    <div class="pdf-controls">
+                        <button class="btn btn-primary" onclick="zoomIn()" style="padding: 5px 10px;">
+                            <i class="fas fa-search-plus"></i>
+                        </button>
+                        <button class="btn btn-primary" onclick="zoomOut()" style="padding: 5px 10px;">
+                            <i class="fas fa-search-minus"></i>
+                        </button>
+                        <button class="btn btn-primary" onclick="resetZoom()" style="padding: 5px 10px;">
+                            <i class="fas fa-expand-arrows-alt"></i>
+                        </button>
+                    </div>
+                    <div class="pdf-info" id="pdf-info">
+                        PDF Document
+                    </div>
+                </div>
+
+                <!-- PDF Viewer -->
+                <div class="pdf-viewer" id="pdf-viewer">
+                    <div class="content-loading">
+                        <div class="spinner"></div>
+                        <p>Please select a subject and chapter to start learning.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Audio Player -->
+            <div class="audio-player" id="audio-player">
+                <div class="audio-controls">
+                    <button class="btn btn-primary" id="play-pause-btn" onclick="togglePlayPause()" style="padding: 5px 10px;">
+                        <i class="fas fa-play"></i>
+                    </button>
+                    <div class="progress-bar" onclick="seekAudio(event)">
+                        <div class="progress-fill" id="progress-fill"></div>
+                    </div>
+                    <div class="time-display" id="time-display">0:00 / 0:00</div>
+                </div>
+                <div style="font-size: 0.8rem; color: #666; text-align: center;">
+                    Playing: <span id="current-playing">Chapter Content</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Panel -->
+        <div class="chat-panel">
+            <div class="chat-header">
+                <h3><i class="fas fa-robot"></i> AI Teacher Assistant</h3>
+                <p>Ask detailed questions about your chapter</p>
+            </div>
+            <div class="chat-messages" id="chat-messages"></div>
+            <div class="chat-input-container">
+                <div class="chat-input-wrapper">
+                    <textarea class="chat-input" id="chat-input" placeholder="Ask a question about the chapter..." rows="1"></textarea>
+                    <button class="send-btn" id="send-btn" onclick="sendMessage()" disabled>
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentSubject = '';
+        let currentChapter = '';
+        let currentLanguage = 'en';
+        let currentAudio = null;
+        let chapterContent = '';
+        let currentPdfUrl = '';
+
+        // API Base URL
+        const API_BASE_URL = 'http://localhost:5000';
+
+        // DOM elements
+        const contentTitle = document.getElementById('content-title');
+        const contentInfo = document.getElementById('content-info');
+        const pdfContainer = document.getElementById('pdf-container');
+        const pdfViewer = document.getElementById('pdf-viewer');
+        const pdfInfo = document.getElementById('pdf-info');
+        const contentLanguageSelect = document.getElementById('content-language-select');
+        const playBtn = document.getElementById('play-btn');
+        const stopBtn = document.getElementById('stop-btn');
+        const audioPlayer = document.getElementById('audio-player');
+        const playPauseBtn = document.getElementById('play-pause-btn');
+        const progressFill = document.getElementById('progress-fill');
+        const timeDisplay = document.getElementById('time-display');
+        const currentPlaying = document.getElementById('current-playing');
+        const chatInput = document.getElementById('chat-input');
+        const sendBtn = document.getElementById('send-btn');
+        const chatMessages = document.getElementById('chat-messages');
+        const newSelectionBtn = document.getElementById('new-selection-btn');
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSupportedLanguages();
+            
+            // Check for URL parameters and auto-load chapter
+            checkUrlParameters();
+            
+            chatInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+            chatInput.addEventListener('input', () => {
+                chatInput.style.height = 'auto';
+                chatInput.style.height = Math.min(chatInput.scrollHeight, 120) + 'px';
+            });
+        });
+
+        // Check URL parameters and auto-load chapter
+        function checkUrlParameters() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const degree = urlParams.get('degree');
+            const semester = urlParams.get('semester');
+            const subject = urlParams.get('subject');
+            const chapter = urlParams.get('chapter');
+
+            if (subject && chapter) {
+                // Immediately set current values and load chapter
+                currentSubject = subject;
+                currentChapter = chapter;
+                currentLanguage = 'en';
+                
+                // Load chapter content immediately
+                autoLoadChapter(subject, chapter);
+            } else {
+                // Show default message if no parameters
+                pdfViewer.innerHTML = `
+                    <div class="content-loading">
+                        <i class="fas fa-book-open" style="font-size: 4rem; color: #95a5a6; margin-bottom: 1rem;"></i>
+                        <h3 style="color: #2c3e50; margin-bottom: 1rem;">Welcome to Smart Gurukul</h3>
+                        <p style="color: #7f8c8d; margin-bottom: 1rem;">Please select a chapter from the chapter selection page to start learning.</p>
+                        <a href="chapter.html" class="download-btn">
+                            <i class="fas fa-arrow-left"></i> Go to Chapter Selection
+                        </a>
+                    </div>
+                `;
+            }
+        }
+
+        // Auto-load chapter from URL parameters
+        async function autoLoadChapter(subjectName, chapterName) {
+            try {
+                console.log(`Auto-loading: ${subjectName} - ${chapterName}`);
+                
+                showLoadingState('Loading PDF document...');
+                
+                // Call the API to get chapter content
+                const response = await fetch(`${API_BASE_URL}/get-chapter-content`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        subject: subjectName,
+                        chapter: chapterName
+                    })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    newSelectionBtn.style.display = 'block';
+                    contentTitle.textContent = `${chapterName} (${subjectName})`;
+                    contentInfo.textContent = `Original PDF Document | Language: English`;
+                    
+                    // Store the PDF URL and text content
+                    currentPdfUrl = `${API_BASE_URL}${data.pdf_url}`;
+                    chapterContent = data.raw_text;
+                    
+                    // Display the PDF
+                    displayPDF(currentPdfUrl, `${chapterName}.pdf`);
+                    
+                    contentLanguageSelect.value = currentLanguage;
+                    sendBtn.disabled = false;
+                    playBtn.disabled = false;
+                    stopBtn.disabled = true;
+
+                    addMessage('bot', `I've loaded the original PDF document for ${chapterName}. You can view the document on the left and ask any questions about its content!`);
+                } else {
+                    showErrorState('Error Loading Chapter', data.error || 'Failed to load chapter content.', 'Please check if the chapter file exists in the database folder.');
+                }
+            } catch (error) {
+                console.error('Error auto-loading chapter:', error);
+                showErrorState('Connection Error', 'Failed to connect to the server. Please ensure the Flask app is running on port 5000.', `Error: ${error.message}`);
+            }
+        }
+
+        // Display PDF in viewer
+        function displayPDF(pdfUrl, filename) {
+            pdfInfo.textContent = filename;
+            
+            // Try to embed PDF
+            const embed = document.createElement('embed');
+            embed.src = pdfUrl;
+            embed.type = 'application/pdf';
+            embed.className = 'pdf-embed';
+            embed.style.width = '100%';
+            embed.style.height = '100%';
+            
+            // Fallback for browsers that don't support PDF embedding
+            embed.onerror = () => {
+                showPDFFallback(pdfUrl, filename);
+            };
+            
+            pdfViewer.innerHTML = '';
+            pdfViewer.appendChild(embed);
+            
+            // Also provide fallback after a short delay if PDF doesn't load
+            setTimeout(() => {
+                if (embed.offsetHeight === 0) {
+                    showPDFFallback(pdfUrl, filename);
+                }
+            }, 2000);
+        }
+
+        // Show PDF fallback with download option
+        function showPDFFallback(pdfUrl, filename) {
+            pdfViewer.innerHTML = `
+                <div class="pdf-fallback">
+                    <i class="fas fa-file-pdf"></i>
+                    <h3>PDF Viewer Not Available</h3>
+                    <p>Your browser doesn't support embedded PDF viewing.</p>
+                    <p>You can download the PDF file to view it:</p>
+                    <a href="${pdfUrl}" target="_blank" class="download-btn">
+                        <i class="fas fa-download"></i> Download ${filename}
+                    </a>
+                    <br><br>
+                    <a href="${pdfUrl}" target="_blank" class="download-btn" style="background: #27ae60;">
+                        <i class="fas fa-external-link-alt"></i> Open in New Tab
+                    </a>
+                </div>
+            `;
+        }
+
+        // PDF Controls
+        function zoomIn() {
+            const embed = pdfViewer.querySelector('.pdf-embed');
+            if (embed) {
+                const currentZoom = embed.style.transform || 'scale(1)';
+                const scale = parseFloat(currentZoom.match(/scale$$([\d.]+)$$/)?.[1] || '1');
+                embed.style.transform = `scale(${Math.min(scale * 1.2, 3)})`;
+                embed.style.transformOrigin = 'top left';
+            }
+        }
+
+        function zoomOut() {
+            const embed = pdfViewer.querySelector('.pdf-embed');
+            if (embed) {
+                const currentZoom = embed.style.transform || 'scale(1)';
+                const scale = parseFloat(currentZoom.match(/scale$$([\d.]+)$$/)?.[1] || '1');
+                embed.style.transform = `scale(${Math.max(scale / 1.2, 0.5)})`;
+                embed.style.transformOrigin = 'top left';
+            }
+        }
+
+        function resetZoom() {
+            const embed = pdfViewer.querySelector('.pdf-embed');
+            if (embed) {
+                embed.style.transform = 'scale(1)';
+            }
+        }
+
+        // Load supported languages
+        async function loadSupportedLanguages() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/supported-languages`);
+                const data = await response.json();
+                if (data.success) {
+                    const languages = data.languages;
+                    contentLanguageSelect.innerHTML = '';
+                    languages.forEach(lang => {
+                        const option = document.createElement('option');
+                        option.value = lang.code;
+                        option.textContent = lang.name + (lang.tts_supported ? '' : ' (No TTS)');
+                        contentLanguageSelect.appendChild(option);
+                    });
+                } else {
+                    console.error('Failed to load languages:', data.error);
+                    setDefaultLanguages();
+                }
+            } catch (error) {
+                console.error('Error fetching languages:', error);
+                setDefaultLanguages();
+            }
+        }
+
+        // Set default languages if API fails
+        function setDefaultLanguages() {
+            const defaultLanguages = [
+                { code: 'en', name: 'English' },
+                { code: 'hi', name: 'Hindi' },
+                { code: 'es', name: 'Spanish' },
+                { code: 'fr', name: 'French' }
+            ];
+            
+            contentLanguageSelect.innerHTML = '';
+            
+            defaultLanguages.forEach(lang => {
+                const option = document.createElement('option');
+                option.value = lang.code;
+                option.textContent = lang.name;
+                contentLanguageSelect.appendChild(option);
+            });
+        }
+
+        // Show loading state
+        function showLoadingState(message = 'Loading PDF document...') {
+            pdfViewer.innerHTML = `
+                <div class="content-loading">
+                    <div class="spinner"></div>
+                    <p>${message}</p>
+                </div>
+            `;
+        }
+
+        // Show error state
+        function showErrorState(title, message, details) {
+            pdfViewer.innerHTML = `
+                <div class="pdf-fallback">
+                    <i class="fas fa-exclamation-triangle" style="color: #e74c3c;"></i>
+                    <h3 style="color: #e74c3c;">${title}</h3>
+                    <p>${message}</p>
+                    <p style="font-size: 0.9rem; color: #95a5a6;">${details}</p>
+                    <div style="margin-top: 1rem; padding: 1rem; background: rgba(52, 73, 94, 0.1); border-radius: 8px; text-align: left;">
+                        <strong>Troubleshooting:</strong>
+                        <ul style="margin-top: 0.5rem; text-align: left;">
+                            <li>Make sure you have created the 'database' folder</li>
+                            <li>Add your PDF files in the correct folder structure</li>
+                            <li>Run 'python app.py' to start the server</li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Reteach chapter with new language (for audio)
+        async function reteachChapter() {
+            const newLanguage = contentLanguageSelect.value;
+            if (!currentSubject || !currentChapter || newLanguage === currentLanguage) return;
+
+            currentLanguage = newLanguage;
+            contentInfo.textContent = `Original PDF Document | Language: ${newLanguage}`;
+        }
+
+        // Play teaching audio
+        async function playTeachingAudio() {
+            if (!currentSubject || !currentChapter) {
+                alert('Please select a chapter first.');
+                return;
+            }
+
+            playBtn.disabled = true;
+            stopBtn.disabled = false;
+            playBtn.innerHTML = '<div class="loading"></div> Loading audio...';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/teach-chapter`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        subject: currentSubject,
+                        chapter: currentChapter,
+                        language: currentLanguage
+                    })
+                });
+                
+                const data = await response.json();
+                if (data.success && data.audio_data) {
+                    playResponseAudio(data.audio_data, `Teaching: ${currentChapter}`);
+                } else {
+                    addMessage('bot', 'Audio not available for this language.');
+                }
+            } catch (error) {
+                console.error('Audio generation error:', error);
+                addMessage('bot', 'Failed to generate audio. Please try again.');
+            }
+
+            playBtn.disabled = false;
+            stopBtn.disabled = true;
+            playBtn.innerHTML = '<i class="fas fa-play"></i> Play Audio';
+        }
+
+        // Stop audio
+        function stopAudio() {
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio = null;
+                audioPlayer.classList.remove('show');
+                playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+                playBtn.disabled = false;
+                stopBtn.disabled = true;
+                playBtn.innerHTML = '<i class="fas fa-play"></i> Play Audio';
+            }
+        }
+
+        // Play response audio
+        async function playResponseAudio(audioData, playingText) {
+            try {
+                const audioBlob = new Blob([Uint8Array.from(atob(audioData), c => c.charCodeAt(0))], { type: 'audio/mp3' });
+                const audioUrl = URL.createObjectURL(audioBlob);
+                
+                currentAudio = new Audio(audioUrl);
+                audioPlayer.classList.add('show');
+                currentPlaying.textContent = playingText;
+
+                currentAudio.onloadedmetadata = () => {
+                    updateTimeDisplay();
+                };
+                
+                currentAudio.ontimeupdate = () => {
+                    updateProgress();
+                };
+                
+                currentAudio.onended = () => {
+                    URL.revokeObjectURL(audioUrl);
+                    audioPlayer.classList.remove('show');
+                    playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+                    playBtn.disabled = false;
+                    stopBtn.disabled = true;
+                    playBtn.innerHTML = '<i class="fas fa-play"></i> Play Audio';
+                };
+                
+                currentAudio.onerror = () => {
+                    URL.revokeObjectURL(audioUrl);
+                    alert('Failed to play audio.');
+                    audioPlayer.classList.remove('show');
+                    playBtn.disabled = false;
+                    stopBtn.disabled = true;
+                    playBtn.innerHTML = '<i class="fas fa-play"></i> Play Audio';
+                };
+                
+                currentAudio.play();
+                playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                playBtn.disabled = true;
+                stopBtn.disabled = false;
+            } catch (error) {
+                console.error('Audio playback error:', error);
+                alert('Failed to play audio.');
+                playBtn.disabled = false;
+                stopBtn.disabled = true;
+                playBtn.innerHTML = '<i class="fas fa-play"></i> Play Audio';
+            }
+        }
+
+        // Audio player controls
+        function togglePlayPause() {
+            if (!currentAudio) return;
+            
+            if (currentAudio.paused) {
+                currentAudio.play();
+                playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+            } else {
+                currentAudio.pause();
+                playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+            }
+        }
+
+        function seekAudio(event) {
+            if (!currentAudio) return;
+            
+            const progressBar = event.currentTarget;
+            const clickX = event.offsetX;
+            const width = progressBar.offsetWidth;
+            const duration = currentAudio.duration;
+            
+            currentAudio.currentTime = (clickX / width) * duration;
+        }
+
+        function updateProgress() {
+            if (!currentAudio) return;
+            
+            const progress = (currentAudio.currentTime / currentAudio.duration) * 100;
+            progressFill.style.width = progress + '%';
+            updateTimeDisplay();
+        }
+
+        function updateTimeDisplay() {
+            if (!currentAudio) return;
+            
+            const current = formatTime(currentAudio.currentTime);
+            const duration = formatTime(currentAudio.duration);
+            timeDisplay.textContent = `${current} / ${duration}`;
+        }
+
+        function formatTime(seconds) {
+            if (isNaN(seconds)) return '0:00';
+            
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // Send message
+        async function sendMessage() {
+            const question = chatInput.value.trim();
+            if (!question || !currentSubject || !currentChapter) return;
+
+            addMessage('user', question);
+            chatInput.value = '';
+            chatInput.style.height = 'auto';
+            sendBtn.disabled = true;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/ask`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        question,
+                        subject: currentSubject,
+                        chapter: currentChapter,
+                        language: currentLanguage
+                    })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    addMessage('bot', data.answer);
+                    if (data.audio_data) {
+                        playResponseAudio(data.audio_data, `Answer to: ${question.substring(0, 20)}...`);
+                    }
+                } else {
+                    addMessage('bot', 'Sorry, I couldn\'t process your question. Please try again.');
+                }
+            } catch (error) {
+                console.error('Chat error:', error);
+                addMessage('bot', 'Failed to get a response. Please check your connection to the server.');
+            }
+
+            sendBtn.disabled = false;
+        }
+
+        // Add message to chat
+        function addMessage(sender, content) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            messageDiv.innerHTML = content;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Show selection screen
+        function showSelectionScreen() {
+            window.location.href = "chapter.html";
+        }
+    </script>
+</body>
+</html>

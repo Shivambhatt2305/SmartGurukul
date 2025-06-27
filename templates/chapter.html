@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapters - Engineering Learning Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            line-height: 1.6;
+            color: #1a202c;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-weight: 400;
+        }
+
+        .container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding-top: 80px;
+        }
+
+        /* Header Styles */
+        .professional-header {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 0;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .professional-header.hidden {
+            transform: translateY(-100%);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 1.5rem;
+            gap: 1rem;
+        }
+
+        .brand-section {
+            flex-shrink: 0;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            font-size: 2rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+            animation: logoFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes logoFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .brand-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .brand-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+        }
+
+        .brand-subtitle {
+            font-size: 0.75rem;
+            color: #718096;
+            font-weight: 500;
+            margin-top: 2px;
+        }
+
+        .main-navigation {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(102, 126, 234, 0.08);
+            padding: 0.5rem;
+            border-radius: 50px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            text-decoration: none;
+            color: #4a5568;
+            font-weight: 500;
+            font-size: 0.85rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .nav-item.active {
+            color: white;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .nav-item:hover:not(.active) {
+            color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .nav-icon {
+            font-size: 1rem;
+        }
+
+        .nav-text {
+            font-weight: 600;
+        }
+
+        .search-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 0.5rem 1rem;
+            border: 1px solid rgba(102, 126, 234, 0.2);
+        }
+
+        .search-input {
+            border: none;
+            background: transparent;
+            font-size: 0.85rem;
+            color: #1a202c;
+            outline: none;
+            width: 120px;
+        }
+
+        .search-input::placeholder {
+            color: #718096;
+        }
+
+        .search-btn {
+            background: transparent;
+            border: none;
+            color: #667eea;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .search-btn:hover {
+            color: #764ba2;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .action-btn {
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            font-size: 1.1rem;
+        }
+
+        .action-btn:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .hamburger-menu {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            z-index: 1001;
+        }
+
+        .hamburger-menu span {
+            width: 24px;
+            height: 3px;
+            background: #667eea;
+            margin: 3px 0;
+            border-radius: 3px;
+            transition: all 0.3s ease;
+        }
+
+        .hamburger-menu.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .hamburger-menu.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger-menu.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -7px);
+        }
+
+        .nav-menu {
+            display: none;
+            position: fixed;
+            top: 80px;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            padding: 1.5rem;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+            z-index: 999;
+            transform: translateY(-100%);
+            transition: transform 0.3s ease-in-out;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+        }
+
+        .nav-menu.active {
+            display: flex;
+            transform: translateY(0);
+        }
+
+        .nav-menu .main-navigation {
+            width: 100%;
+            flex-direction: column;
+            background: none;
+            border-radius: 0;
+            padding: 0;
+        }
+
+        .nav-menu .nav-item {
+            width: 100%;
+            justify-content: flex-start;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+        }
+
+        .nav-menu .search-container {
+            width: 100%;
+            justify-content: space-between;
+        }
+
+        .nav-menu .search-input {
+            width: 100%;
+        }
+
+        .nav-menu .header-actions {
+            width: 100%;
+            justify-content: flex-start;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 2rem;
+        }
+
+        /* Breadcrumb */
+        .professional-breadcrumb {
+            margin-bottom: 2rem;
+        }
+
+        .breadcrumb-container {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            padding: 1rem 1.5rem;
+            border-radius: 50px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            width: fit-content;
+            flex-wrap: wrap;
+        }
+
+        .breadcrumb-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+
+        .breadcrumb-item:hover {
+            color: white;
+        }
+
+        .breadcrumb-separator {
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: 300;
+        }
+
+        .breadcrumb-current {
+            color: white;
+            font-weight: 600;
+        }
+
+        .breadcrumb-icon {
+            font-size: 1rem;
+        }
+
+        /* Page Header */
+        .professional-page-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 3rem;
+            margin-bottom: 3rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            text-align: center;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #1a202c;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .page-description {
+            font-size: 1.2rem;
+            color: #718096;
+            line-height: 1.6;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Chapter Container */
+        .professional-chapter-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 3rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .chapter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 2px solid rgba(102, 126, 234, 0.1);
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #1a202c;
+        }
+
+        .chapter-stats {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 1rem 1.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            color: white;
+            min-width: 80px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .stat-number {
+            display: block;
+            font-size: 1.5rem;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            opacity: 0.9;
+            font-weight: 500;
+            margin-top: 0.25rem;
+        }
+
+        /* Chapter Grid */
+        .professional-chapter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .professional-chapter-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 100%);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .professional-chapter-card:hover {
+            transform: scale(1.03);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .professional-chapter-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .chapter-card-header {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .chapter-number-badge {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 800;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            flex-shrink: 0;
+        }
+
+        .chapter-details h3 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #1a202c;
+            margin-bottom: 0.75rem;
+            line-height: 1.3;
+        }
+
+        .chapter-details p {
+            color: #718096;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .chapter-card-footer {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(226, 232, 240, 0.8);
+        }
+
+        .chapter-action-btn {
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .chapter-action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        /* AI Tooltip */
+        .ai-tooltip {
+            display: none;
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(102, 126, 234, 0.95);
+            color: white;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            width: 200px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+            opacity: 0;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .professional-chapter-card:hover .ai-tooltip {
+            display: block;
+            opacity: 1;
+            transform: translateX(-50%) translateY(-10px);
+        }
+
+        /* Footer */
+        .professional-footer {
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(20px);
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            margin-top: 4rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .professional-chapter-grid {
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding-top: 80px;
+            }
+
+            .professional-header {
+                position: fixed;
+            }
+
+            .header-content {
+                padding: 0.5rem 1rem;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .main-navigation,
+            .search-container,
+            .header-actions {
+                display: none;
+            }
+
+            .hamburger-menu {
+                display: flex;
+            }
+
+            .main-content {
+                padding: 1rem;
+            }
+
+            .professional-page-header,
+            .professional-chapter-container {
+                padding: 2rem 1.5rem;
+            }
+
+            .page-title {
+                font-size: 2rem;
+            }
+
+            .chapter-header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+
+            .chapter-stats {
+                justify-content: center;
+                gap: 1rem;
+                width: 100%;
+            }
+
+            .professional-chapter-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .chapter-card-footer {
+                justify-content: center;
+            }
+
+            .chapter-action-btn {
+                width: 100%;
+                text-align: center;
+            }
+
+            .ai-tooltip {
+                width: 90%;
+                left: 50%;
+                bottom: auto;
+                top: 100%;
+                transform: translateX(-50%) translateY(10px);
+            }
+
+            .professional-chapter-card:hover .ai-tooltip {
+                transform: translateX(-50%) translateY(15px);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .logo-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 1.5rem;
+            }
+
+            .brand-title {
+                font-size: 1rem;
+            }
+
+            .brand-subtitle {
+                font-size: 0.7rem;
+            }
+
+            .professional-page-header,
+            .professional-chapter-container {
+                padding: 2rem 1rem;
+            }
+
+            .page-title {
+                font-size: 1.8rem;
+            }
+
+            .professional-chapter-card {
+                padding: 2rem 1.5rem;
+            }
+
+            .chapter-number-badge {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+
+            .chapter-details h3 {
+                font-size: 1.2rem;
+            }
+        }
+
+        /* Animations */
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .stagger-animation {
+            animation-delay: calc(var(--stagger) * 0.1s);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Enhanced Professional Header -->
+        <header class="professional-header">
+            <div class="header-content">
+                <div class="brand-section">
+                    <div class="logo-container">
+                        <div class="logo-icon">🎓</div>
+                        <div class="brand-text">
+                            <h1 class="brand-title">Smart Gurukul</h1>
+                        </div>
+                    </div>
+                </div>
+                <button class="hamburger-menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <div class="nav-menu">
+                    <nav class="main-navigation">
+                        <a href="index.html" class="nav-item">
+                            <span class="nav-icon">🏠</span>
+                            <span class="nav-text">Home</span>
+                        </a>
+                        <a href="self-learning.html" class="nav-item">
+                            <span class="nav-icon">🤖</span>
+                            <span class="nav-text">AI Learning</span>
+                        </a>
+                        <a href="degree.html" class="nav-item active">
+                            <span class="nav-icon">🎯</span>
+                            <span class="nav-text">Programs</span>
+                        </a>
+                    </nav>
+                    <div class="search-container">
+                        <input type="text" class="search-input" placeholder="Search chapters...">
+                        <button class="search-btn">🔍</button>
+                    </div>
+                    <div class="header-actions">
+                        <button class="action-btn profile-btn" title="Profile">👤</button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <!-- Professional Breadcrumb -->
+            <div class="professional-breadcrumb">
+                <div class="breadcrumb-container">
+                    <a href="degree.html" class="breadcrumb-item">
+                        <span class="breadcrumb-icon">🎓</span>
+                        <span>Programs</span>
+                    </a>
+                    <span class="breadcrumb-separator">›</span>
+                    <a href="semester.html" class="breadcrumb-item" id="degree-link">
+                        <span class="breadcrumb-icon">📚</span>
+                        <span>Information Technology</span>
+                    </a>
+                    <span class="breadcrumb-separator">›</span>
+                    <a href="subject.html" class="breadcrumb-item" id="semester-link">
+                        <span class="breadcrumb-icon">📖</span>
+                        <span>Semester 1</span>
+                    </a>
+                    <span class="breadcrumb-separator">›</span>
+                    <span class="breadcrumb-current" id="current-subject">Programming Fundamentals</span>
+                    <span class="breadcrumb-separator">›</span>
+                    <span class="breadcrumb-current">Chapters</span>
+                </div>
+            </div>
+
+            <!-- Professional Page Header -->
+            <div class="professional-page-header">
+                <h2 class="page-title" id="subject-title">Programming Fundamentals - Chapters</h2>
+                <p class="page-description">Select a chapter to start learning with expert teachers and comprehensive content</p>
+            </div>
+
+            <!-- Professional Chapter Grid -->
+            <div class="professional-chapter-container">
+                <div class="chapter-header">
+                    <h3 class="section-title">Course Chapters</h3>
+                    <div class="chapter-stats">
+                        <div class="stat-item">
+                            <span class="stat-number" id="total-chapters">6</span>
+                            <span class="stat-label">Chapters</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">5.5</span>
+                            <span class="stat-label">Hours</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="professional-chapter-grid" id="chapter-grid">
+                    <!-- Chapters will be populated by JavaScript -->
+                </div>
+            </div>
+        </main>
+
+        <footer class="professional-footer">
+            <p>© 2025 Engineering Learning Platform. Empowering Future Engineers.</p>
+        </footer>
+    </div>
+
+    <script>
+        const learningData = {
+            degrees: {
+                ict: { name: "Information & Communication Technology", icon: "📡", semesters: 8, description: "Master modern communication systems, networking, and digital technologies" },
+                it: { name: "Information Technology", icon: "💻", semesters: 8, description: "Comprehensive IT education covering software development, systems, and management" },
+                mechanical: { name: "Mechanical Engineering", icon: "⚙️", semesters: 8, description: "Design, analyze, and manufacture mechanical systems and machines" },
+                computer: { name: "Computer Engineering", icon: "🖥️", semesters: 8, description: "Bridge hardware and software with comprehensive computer systems knowledge" },
+                ai: { name: "Artificial Intelligence Engineering", icon: "🤖", semesters: 8, description: "Cutting-edge AI technologies, machine learning, and intelligent systems" }
+            },
+            chapters: {
+                "Programming Fundamentals": [
+                    { name: "Introduction to C Programming", description: "Learn the basic concepts of programming and computational thinking" },
+                    { name: "Variables and Data Types", description: "Understanding different data types and how to store information" },
+                    { name: "Control Structures", description: "Master loops, conditionals, and program flow control" },
+                    { name: "Functions and Methods", description: "Create reusable code blocks and understand function parameters" },
+                    { name: "Arrays and Lists", description: "Work with collections of data and array manipulation" },
+                    { name: "Object-Oriented Programming", description: "Learn classes, objects, inheritance, and OOP principles" }
+                ],
+                "Digital Logic Design": [
+                    { name: "Number Systems", description: "Binary, decimal, hexadecimal number systems and conversions" },
+                    { name: "Boolean Algebra", description: "Mathematical foundation for digital logic operations" },
+                    { name: "Logic Gates", description: "AND, OR, NOT gates and their combinations" },
+                    { name: "Combinational Circuits", description: "Design and analysis of combinational logic circuits" }
+                ],
+                "Introduction to AI": [
+                    { name: "What is Artificial Intelligence?", description: "Understanding AI concepts and applications in modern world" },
+                    { name: "History of AI", description: "Evolution of AI from early concepts to modern breakthroughs" },
+                    { name: "AI Applications", description: "Real-world applications of AI in various industries" },
+                    { name: "Types of AI Systems", description: "Classification of AI systems and their capabilities" }
+                ],
+                "Engineering Mathematics": [
+                    { name: "Calculus Fundamentals", description: "Derivatives, integrals, and their engineering applications" },
+                    { name: "Linear Algebra", description: "Matrices, vectors, and linear transformations" },
+                    { name: "Differential Equations", description: "Solving differential equations in engineering contexts" },
+                    { name: "Complex Numbers", description: "Complex number operations and engineering applications" }
+                ],
+                "Computer Systems Architecture": [
+                    { name: "CPU Architecture", description: "Understanding processor design and instruction execution" },
+                    { name: "Memory Systems", description: "RAM, cache, and storage hierarchy in computer systems" },
+                    { name: "Input/Output Systems", description: "How computers interact with external devices" },
+                    { name: "System Performance", description: "Measuring and optimizing computer system performance" }
+                ],
+                "Digital Systems Fundamentals": [
+                    { name: "Digital vs Analog", description: "Understanding the difference between digital and analog systems" },
+                    { name: "Binary Number System", description: "Working with binary numbers and digital representation" },
+                    { name: "Logic Circuits", description: "Building and analyzing basic logic circuits" },
+                    { name: "Digital Design Principles", description: "Advanced concepts in digital system design" }
+                ]
+            }
+        };
+
+        function getUrlParams() {
+            return new URLSearchParams(window.location.search);
+        }
+
+        function toggleNavMenu() {
+            const hamburger = document.querySelector('.hamburger-menu');
+            const navMenu = document.querySelector('.nav-menu');
+            if (hamburger && navMenu) {
+                hamburger.classList.toggle('active');
+                navMenu.classList.toggle('active');
+            }
+        }
+
+        let lastScrollY = window.scrollY;
+        function handleScroll() {
+            if (window.innerWidth > 768) return;
+            const header = document.querySelector('.professional-header');
+            const navMenu = document.querySelector('.nav-menu');
+            const currentScrollY = window.scrollY;
+            if (currentScrollY > lastScrollY && currentScrollY > 50) {
+                header.classList.add('hidden');
+                if (navMenu.classList.contains('active')) {
+                    toggleNavMenu();
+                }
+            } else if (currentScrollY < lastScrollY) {
+                header.classList.remove('hidden');
+            }
+            lastScrollY = currentScrollY;
+        }
+
+        function getAIRecommendation(chapterName) {
+            const allChapters = Object.values(learningData.chapters).flat();
+            const currentChapter = allChapters.find(ch => ch.name === chapterName);
+            if (!currentChapter) return "Explore related topics to deepen your understanding.";
+            const keywords = currentChapter.description.toLowerCase().split(' ');
+            const relatedChapter = allChapters.find(ch => 
+                ch.name !== chapterName && 
+                ch.description.toLowerCase().split(' ').some(word => keywords.includes(word))
+            );
+            return relatedChapter 
+                ? `AI Suggestion: Try "${relatedChapter.name}" next to expand your knowledge!`
+                : "AI Suggestion: Review this chapter to master core concepts.";
+        }
+
+        function searchChapters() {
+            const searchInput = document.querySelector('.search-input').value.toLowerCase();
+            const chapterCards = document.querySelectorAll('.professional-chapter-card');
+            chapterCards.forEach(card => {
+                const chapterTitle = card.querySelector('h3').textContent.toLowerCase();
+                const chapterDescription = card.querySelector('p').textContent.toLowerCase();
+                card.style.display = chapterTitle.includes(searchInput) || chapterDescription.includes(searchInput) ? 'block' : 'none';
+            });
+        }
+
+        function loadChapters() {
+            const params = getUrlParams();
+            const degreeId = params.get('degree') || 'it';
+            const semesterNum = parseInt(params.get('semester')) || 1;
+            const subjectName = params.get('subject') || 'Programming Fundamentals';
+            const degree = learningData.degrees[degreeId];
+            if (!degree) return;
+
+            document.getElementById('subject-title').textContent = `${subjectName} - Chapters`;
+            document.getElementById('current-subject').textContent = subjectName;
+            document.getElementById('degree-link').innerHTML = `<span class="breadcrumb-icon">${degree.icon}</span>${degree.name}`;
+            document.getElementById('degree-link').href = `semester.html?degree=${degreeId}`;
+            document.getElementById('semester-link').innerHTML = `<span class="breadcrumb-icon">📖</span>Semester ${semesterNum}`;
+            document.getElementById('semester-link').href = `subject.html?degree=${degreeId}&semester=${semesterNum}`;
+
+            const chapterGrid = document.getElementById('chapter-grid');
+            if (!chapterGrid) return;
+            chapterGrid.innerHTML = '';
+
+            const chapters = learningData.chapters[subjectName] || learningData.chapters['Programming Fundamentals'];
+            document.getElementById('total-chapters').textContent = chapters.length;
+
+            chapters.forEach((chapter, index) => {
+                const chapterCard = document.createElement('div');
+                chapterCard.className = 'professional-chapter-card fade-in-up stagger-animation';
+                chapterCard.style.setProperty('--stagger', index);
+                chapterCard.onclick = () => selectChapter(degreeId, semesterNum, subjectName, chapter.name);
+                const aiRecommendation = getAIRecommendation(chapter.name);
+                chapterCard.innerHTML = `
+                    <div class="chapter-card-header">
+                        <div class="chapter-number-badge">${index + 1}</div>
+                        <div class="chapter-details">
+                            <h3>${chapter.name}</h3>
+                            <p>${chapter.description}</p>
+                        </div>
+                    </div>
+                    <div class="chapter-card-footer">
+                        <button class="chapter-action-btn">Start Chapter</button>
+                    </div>
+                    <div class="ai-tooltip">${aiRecommendation}</div>
+                `;
+                chapterGrid.appendChild(chapterCard);
+            });
+        }
+
+        function selectChapter(degreeId, semesterNum, subjectName, chapterName) {
+            toggleNavMenu();
+            window.location.href = `teacher.html?degree=${degreeId}&semester=${semesterNum}&subject=${encodeURIComponent(subjectName)}&chapter=${encodeURIComponent(chapterName)}`;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadChapters();
+            const hamburger = document.querySelector('.hamburger-menu');
+            if (hamburger) {
+                hamburger.addEventListener('click', toggleNavMenu);
+            }
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                item.addEventListener('click', toggleNavMenu);
+            });
+            window.addEventListener('scroll', handleScroll);
+            const searchInput = document.querySelector('.search-input');
+            if (searchInput) {
+                searchInput.addEventListener('input', searchChapters);
+            }
+        });
+    </script>
+</body>
+</html>
