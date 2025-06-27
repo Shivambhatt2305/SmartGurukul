@@ -100,19 +100,23 @@ def format_pdf_content(text):
     paragraphs = text.split('\n\n')
     formatted_content = []
     
+    # Define regex patterns outside f-strings
+    number_pattern = r'^\d+\.?\s'
+    digit_pattern = r'^\d+\.'
+    
     for para in paragraphs:
         para = para.strip()
         if not para:
             continue
             
         # Check if it looks like a heading (short line, all caps, or starts with numbers)
-        if len(para) < 100 and (para.isupper() or re.match(r'^\d+\.?\s', para) or para.endswith(':')):
+        if len(para) < 100 and (para.isupper() or re.match(number_pattern, para) or para.endswith(':')):
             if para.isupper() or len(para.split()) <= 5:
                 formatted_content.append(f"<h2>{para}</h2>")
             else:
                 formatted_content.append(f"<h3>{para}</h3>")
         # Check for bullet points or numbered lists
-        elif para.startswith(('•', '-', '*')) or re.match(r'^\d+\.', para):
+        elif para.startswith(('•', '-', '*')) or re.match(digit_pattern, para):
             items = para.split('\n')
             list_items = []
             for item in items:
@@ -220,8 +224,17 @@ def format_teacher_response(response):
     """Format response into clean HTML."""
     if not response:
         return "<p>No content available.</p>"
+    
     paragraphs = response.split('\n\n')
     formatted_response = []
+    
+    # Define regex patterns outside f-strings
+    bullet_pattern = r'^[•\-\*]\s*'
+    number_remove_pattern = r'^\d+\.\s*'
+    number_match_pattern = r'^\d+\.'
+    bold_pattern = r'\*\*(.*?)\*\*'
+    italic_pattern = r'\*(.*?)\*'
+    
     for para in paragraphs:
         para = para.strip()
         if not para:
@@ -235,12 +248,16 @@ def format_teacher_response(response):
         elif para.startswith('- ') or para.startswith('* '):
             items = [f"<li>{line[2:].strip()}</li>" for line in para.split('\n') if line.startswith(('- ', '* '))]
             formatted_response.append(f"<ul>{''.join(items)}</ul>")
-        elif re.match(r'^\d+\.', para):
-            items = [f"<li>{re.sub(r'^\d+\.\s*', '', line.strip())}</li>" for line in para.split('\n') if re.match(r'^\d+\.', line)]
+        elif re.match(number_match_pattern, para):
+            items = []
+            for line in para.split('\n'):
+                if re.match(number_match_pattern, line):
+                    clean_line = re.sub(number_remove_pattern, '', line.strip())
+                    items.append(f"<li>{clean_line}</li>")
             formatted_response.append(f"<ol>{''.join(items)}</ol>")
         else:
-            para = re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', para)
-            para = re.sub(r'\*(.*?)\*', r'<em>\1</em>', para)
+            para = re.sub(bold_pattern, r'<strong>\1</strong>', para)
+            para = re.sub(italic_pattern, r'<em>\1</em>', para)
             formatted_response.append(f"<p>{para}</p>")
     return ''.join(formatted_response) or "<p>No content available.</p>"
 
