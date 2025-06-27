@@ -3,2081 +3,1208 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Gurukul - Document Reader</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.min.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>Engineering Learning Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f5f7fa;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        /* Header - Enhanced Responsive */
-        .header {
+            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            line-height: 1.6;
+            color: #1a202c;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: clamp(8px, 2vw, 15px) clamp(10px, 3vw, 20px);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            z-index: 1000;
-            position: relative;
-            min-height: 50px;
+            min-height: 100vh;
+            font-weight: 400;
         }
 
-        .header h1 {
-            font-size: clamp(1.1rem, 3vw, 1.5rem);
+        .container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Professional Header */
+        .professional-header {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 0;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 2rem;
+            gap: 2rem;
+        }
+
+        .brand-section {
+            flex-shrink: 0;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo-icon {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 16px;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            animation: logoFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes logoFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .brand-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .brand-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+        }
+
+        .brand-subtitle {
+            font-size: 0.85rem;
+            color: #718096;
+            font-weight: 500;
+            margin-top: 2px;
+        }
+
+        .main-navigation {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(102, 126, 234, 0.08);
+            padding: 0.5rem;
+            border-radius: 50px;
+            position: relative;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            text-decoration: none;
+            color: #4a5568;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            z-index: 2;
+        }
+
+        .nav-item.active {
+            color: white;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .nav-item:hover:not(.active) {
+            color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .nav-icon {
+            font-size: 1.1rem;
+        }
+
+        .nav-text {
             font-weight: 600;
         }
 
-        .header h1 i {
-            margin-right: clamp(5px, 1vw, 10px);
-        }
-
-        .header-controls {
+        .header-actions {
             display: flex;
-            gap: clamp(8px, 2vw, 15px);
             align-items: center;
+            gap: 0.5rem;
         }
 
-        /* Main Container - Fully Responsive */
-        .main-container {
+        .action-btn {
+            width: 44px;
+            height: 44px;
+            border: none;
+            border-radius: 12px;
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            cursor: pointer;
             display: flex;
-            height: calc(100vh - 55px);
-            flex-direction: row;
-            transition: flex-direction 0.3s ease;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            font-size: 1.2rem;
         }
 
-        /* Upload Screen - Enhanced Mobile */
-        .upload-screen {
+        .action-btn:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        .mobile-menu-toggle span {
+            width: 25px;
+            height: 3px;
+            background: #667eea;
+            margin: 3px 0;
+            transition: 0.3s;
+            border-radius: 2px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 3rem 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            text-align: center;
+            margin-bottom: 6rem;
+            padding: 4rem 0;
+        }
+
+        .hero-section h1 {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            color: white;
+            font-weight: 800;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            animation: fadeInUp 1s ease-out;
+            line-height: 1.1;
+        }
+
+        .hero-section p {
+            font-size: 1.4rem;
+            color: rgba(255, 255, 255, 0.9);
+            max-width: 700px;
+            margin: 0 auto 3rem;
+            animation: fadeInUp 1s ease-out 0.2s both;
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeInUp 1s ease-out 0.4s both;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Learning Options */
+        .learning-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 3rem;
+            margin-bottom: 6rem;
+        }
+
+        .option-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 3rem;
+            border-radius: 25px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .option-card::before {
+            content: "";
             position: absolute;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
+            right: 0;
+            height: 4px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 999;
-            transition: all 0.5s ease;
-            padding: clamp(20px, 5vw, 40px);
         }
 
-        .upload-screen.hidden {
-            opacity: 0;
-            visibility: hidden;
+        .option-card:hover {
+            transform: translateY(-15px) scale(1.02);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.15);
         }
 
-        .upload-area {
-            background: rgba(255,255,255,0.95);
-            border-radius: clamp(15px, 3vw, 20px);
-            padding: clamp(30px, 8vw, 60px);
+        .card-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+
+        .option-card h3 {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: #2d3748;
+            font-weight: 700;
+        }
+
+        .option-card p {
+            color: #718096;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+            line-height: 1.7;
+        }
+
+        /* Features Section */
+        .features-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            padding: 4rem 3rem;
+            margin-bottom: 6rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .section-header {
             text-align: center;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            border: 3px dashed #ddd;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            width: min(90vw, 500px);
-            max-width: 100%;
+            margin-bottom: 4rem;
         }
 
-        .upload-area:hover {
-            border-color: #667eea;
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #1a202c;
+            margin-bottom: 1rem;
+        }
+
+        .section-subtitle {
+            font-size: 1.2rem;
+            color: #718096;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 3rem;
+        }
+
+        .feature-card {
+            text-align: center;
+            padding: 2rem;
+            border-radius: 20px;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+            border: 1px solid rgba(102, 126, 234, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.1);
         }
 
-        .upload-icon {
-            font-size: clamp(2.5rem, 8vw, 4rem);
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
             color: #667eea;
-            margin-bottom: clamp(15px, 3vw, 20px);
         }
 
-        .upload-area h2 {
-            color: #333;
-            margin-bottom: clamp(8px, 2vw, 10px);
-            font-size: clamp(1.2rem, 4vw, 1.5rem);
+        .feature-card h4 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #1a202c;
+            margin-bottom: 1rem;
         }
 
-        .upload-area p {
-            color: #666;
-            font-size: clamp(0.9rem, 3vw, 1.1rem);
-            line-height: 1.4;
+        .feature-card p {
+            color: #718096;
+            line-height: 1.6;
         }
 
-        #file-input {
-            display: none;
+        /* Why Us Section */
+        .why-us-section {
+            margin-bottom: 6rem;
         }
 
-        /* Document Panel - Fully Responsive */
-        .document-panel {
-            flex: 1;
-            background: white;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            border-right: 1px solid #e0e0e0;
-            min-width: 0;
-            overflow: hidden;
-        }
-
-        .document-header {
-            background: #f8f9fa;
-            padding: clamp(8px, 2vw, 15px);
-            border-bottom: 1px solid #e9ecef;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-shrink: 0;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .document-info h3 {
-            color: #333;
-            font-size: clamp(0.9rem, 2.5vw, 1rem);
-            margin-bottom: 3px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 200px;
-        }
-
-        .document-info p {
-            color: #666;
-            font-size: clamp(0.75rem, 2vw, 0.85rem);
-        }
-
-        .document-controls {
-            display: flex;
-            gap: clamp(5px, 1.5vw, 10px);
-            flex-wrap: wrap;
+        .why-us-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
             align-items: center;
         }
 
-        /* Language Dropdown */
-        .language-select {
-            padding: clamp(6px, 1.5vw, 8px);
-            border: 2px solid #e0e0e0;
-            border-radius: clamp(10px, 2vw, 15px);
-            font-size: clamp(0.75rem, 2vw, 0.85rem);
-            background: white;
-            cursor: pointer;
-            transition: border-color 0.3s ease;
+        .why-us-text {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 3rem;
+            border-radius: 25px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
-        .language-select:focus {
-            outline: none;
-            border-color: #667eea;
+        .why-us-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
         }
 
-        /* Document Viewer - Mobile Optimized */
-        .document-viewer {
-            flex: 1;
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .pdf-container {
-            width: 100%;
-            flex: 1;
-            overflow: auto;
-            background: #f5f5f5;
-            padding: clamp(5px, 2vw, 10px);
-            position: relative;
-        }
-
-        .pdf-page {
-            margin: clamp(5px, 2vw, 10px) auto;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-            background: white;
-            border-radius: clamp(4px, 1vw, 8px);
-            overflow: hidden;
-            max-width: 100%;
-        }
-
-        .pdf-canvas {
-            display: block;
-            width: 100%;
-            height: auto;
-            max-width: 100%;
-        }
-
-        /* Chat Panel - Responsive */
-        .chat-panel {
-            width: clamp(300px, 40vw, 500px);
-            background: white;
-            display: flex;
-            flex-direction: column;
-            min-width: 0;
-            border-left: 1px solid #e0e0e0;
-        }
-
-        .chat-header {
-            background: #f8f9fa;
-            padding: clamp(10px, 3vw, 15px);
-            border-bottom: 1px solid #e9ecef;
-            flex-shrink: 0;
-        }
-
-        .chat-header h3 {
-            color: #333;
-            font-size: clamp(1rem, 2.5vw, 1.1rem);
-            margin-bottom: 5px;
-        }
-
-        .chat-header p {
-            color: #666;
-            font-size: clamp(0.8rem, 2vw, 0.9rem);
-        }
-
-        .chat-messages {
-            flex: 1;
-            overflow-y: auto;
-            padding: clamp(15px, 3vw, 20px);
-            background: #f8f9fa;
-            min-height: 0;
-        }
-
-        .chat-messages:empty::before {
-            content: "Ask questions about the document...";
-            color: #999;
-            font-style: italic;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 2rem;
+            border-radius: 20px;
             text-align: center;
-            padding: 20px;
-            font-size: clamp(0.9rem, 2.5vw, 1rem);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
         }
 
-        .message {
-            margin-bottom: clamp(10px, 2.5vw, 15px);
-            padding: clamp(10px, 2.5vw, 15px);
-            border-radius: clamp(12px, 3vw, 15px);
-            max-width: 85%;
-            word-wrap: break-word;
-            animation: fadeIn 0.3s ease;
-            line-height: 1.4;
-            font-size: clamp(0.85rem, 2.2vw, 0.95rem);
+        .stat-card:hover {
+            transform: translateY(-5px);
         }
 
-        .message.user {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            margin-left: auto;
-            border-bottom-right-radius: 5px;
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #667eea;
+            display: block;
+            margin-bottom: 0.5rem;
         }
 
-        .message.bot {
-            background: white;
-            color: #333;
-            border: 1px solid #e0e0e0;
-            border-bottom-left-radius: 5px;
+        .stat-label {
+            color: #718096;
+            font-weight: 600;
         }
 
-        .chat-input-container {
-            padding: clamp(15px, 3vw, 20px);
-            border-top: 1px solid #e9ecef;
-            background: white;
-            flex-shrink: 0;
+        /* About Us Section */
+        .about-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            padding: 4rem 3rem;
+            margin-bottom: 6rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
-        .chat-input-wrapper {
+        .about-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .about-text h3 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1a202c;
+            margin-bottom: 1.5rem;
+        }
+
+        .about-text p {
+            color: #718096;
+            margin-bottom: 1.5rem;
+            line-height: 1.7;
+        }
+
+        .about-image {
+            text-align: center;
+            font-size: 8rem;
+            color: #667eea;
+            opacity: 0.8;
+        }
+
+        /* Contact Section */
+        .contact-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            padding: 4rem 3rem;
+            margin-bottom: 6rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .contact-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+        }
+
+        .contact-info h4 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #1a202c;
+            margin-bottom: 1rem;
+        }
+
+        .contact-item {
             display: flex;
-            gap: clamp(8px, 2vw, 10px);
-            align-items: flex-end;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: rgba(102, 126, 234, 0.05);
+            border-radius: 12px;
+            border: 1px solid rgba(102, 126, 234, 0.1);
         }
 
-        .chat-input {
-            flex: 1;
-            padding: clamp(10px, 2.5vw, 15px);
-            border: 2px solid #e0e0e0;
-            border-radius: clamp(20px, 5vw, 25px);
-            font-size: clamp(0.85rem, 2.2vw, 0.9rem);
-            resize: none;
-            min-height: clamp(40px, 8vw, 45px);
-            max-height: 120px;
-            transition: border-color 0.3s ease;
+        .contact-icon {
+            font-size: 1.5rem;
+            color: #667eea;
+        }
+
+        .contact-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #1a202c;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            padding: 1rem;
+            border: 2px solid rgba(102, 126, 234, 0.2);
+            border-radius: 12px;
             font-family: inherit;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.8);
         }
 
-        .chat-input:focus {
+        .form-group input:focus,
+        .form-group textarea:focus {
             outline: none;
             border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
-        .send-btn {
-            width: clamp(40px, 8vw, 45px);
-            height: clamp(40px, 8vw, 45px);
-            border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-            flex-shrink: 0;
-            font-size: clamp(0.9rem, 2vw, 1rem);
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
         }
 
-        .send-btn:hover {
-            transform: scale(1.1);
-        }
-
-        .send-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none !important;
-        }
-
-        /* Buttons - Responsive */
+        /* Enhanced Buttons */
         .btn {
-            padding: clamp(6px, 1.5vw, 10px) clamp(10px, 2.5vw, 15px);
+            padding: 1rem 2rem;
             border: none;
-            border-radius: clamp(15px, 4vw, 20px);
+            border-radius: 50px;
             cursor: pointer;
-            font-size: clamp(0.75rem, 2vw, 0.85rem);
-            font-weight: 500;
+            font-size: 1.1rem;
+            font-weight: 600;
             transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: clamp(4px, 1vw, 6px);
             text-decoration: none;
-            white-space: nowrap;
+            display: inline-block;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
+            transition: left 0.3s ease;
+        }
+
+        .btn:hover::before {
+            left: 100%;
         }
 
         .btn-primary {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
         }
 
         .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
         }
 
-        .btn-success {
-            background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
-            color: white;
-        }
-
-        .btn-success:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(86, 171, 47, 0.3);
-        }
-
-        .btn-warning {
+        .btn-secondary {
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
             color: white;
+            box-shadow: 0 8px 25px rgba(245, 87, 108, 0.3);
         }
 
-        .btn-warning:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(240, 147, 251, 0.3);
+        .btn-secondary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(245, 87, 108, 0.4);
         }
 
-        .btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none !important;
-        }
-
-        /* Bottom Controls - Mobile Optimized */
-        .bottom-controls {
-            position: absolute;
-            bottom: clamp(10px, 3vw, 20px);
-            left: clamp(10px, 3vw, 20px);
-            display: flex;
-            gap: clamp(8px, 2vw, 15px);
-            z-index: 100;
-            flex-wrap: wrap;
-        }
-
-        /* Audio Player - Responsive */
-        .audio-player {
-            position: absolute;
-            bottom: clamp(15px, 3vw, 20px);
-            right: clamp(15px, 3vw, 20px);
-            background: rgba(255,255,255,0.95);
-            border-radius: clamp(10px, 3vw, 15px);
-            padding: clamp(10px, 3vw, 15px);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            display: none;
-            min-width: clamp(250px, 60vw, 300px);
-            max-width: 90vw;
-            z-index: 100;
+        .btn-outline {
+            background: transparent;
+            color: #667eea;
             border: 2px solid #667eea;
         }
 
-        .audio-player.show {
-            display: block;
-        }
-
-        .audio-controls {
-            display: flex;
-            align-items: center;
-            gap: clamp(8px, 2vw, 10px);
-            margin-bottom: clamp(8px, 2vw, 10px);
-        }
-
-        .progress-bar {
-            flex: 1;
-            height: clamp(4px, 1vw, 6px);
-            background: #ddd;
-            border-radius: clamp(2px, 0.5vw, 3px);
-            overflow: hidden;
-            cursor: pointer;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            width: 0%;
-            transition: width 0.1s ease;
-        }
-
-        .time-display {
-            font-size: clamp(0.7rem, 1.8vw, 0.8rem);
-            color: #666;
-            min-width: clamp(60px, 15vw, 80px);
-        }
-
-        /* Page Navigation - Mobile Enhanced */
-        .page-navigation {
-            position: absolute;
-            bottom: clamp(15px, 3vw, 20px);
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(255,255,255,0.95);
-            border-radius: clamp(20px, 5vw, 25px);
-            padding: clamp(6px, 1.5vw, 10px) clamp(10px, 3vw, 15px);
-            display: flex;
-            align-items: center;
-            gap: clamp(10px, 3vw, 15px);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            z-index: 100;
-        }
-
-        .page-info {
-            font-size: clamp(0.8rem, 2vw, 0.9rem);
-            color: #333;
-            font-weight: 500;
-            white-space: nowrap;
-        }
-
-        .page-btn {
-            background: none;
-            border: none;
-            color: #667eea;
-            cursor: pointer;
-            font-size: clamp(1rem, 2.5vw, 1.2rem);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: clamp(25px, 6vw, 30px);
-            height: clamp(25px, 6vw, 30px);
-            border-radius: 50%;
-            transition: all 0.3s ease;
-        }
-
-        .page-btn:hover {
-            background: #f0f4ff;
-        }
-
-        .page-btn:disabled {
-            color: #ccc;
-            cursor: not-allowed;
-        }
-
-        /* Resize Handle - Hide on Mobile */
-        .resize-handle {
-            width: 5px;
-            background: #e0e0e0;
-            cursor: col-resize;
-            position: relative;
-            transition: background-color 0.3s ease;
-            display: block;
-        }
-
-        .resize-handle:hover {
+        .btn-outline:hover {
             background: #667eea;
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.3);
         }
 
-        .resize-handle::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 3px;
-            height: 30px;
-            background: #ccc;
-            border-radius: 2px;
+        /* Professional Footer */
+        .professional-footer {
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(20px);
+            color: white;
+            padding: 3rem 2rem 2rem;
+            margin-top: auto;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        /* Loading Animation */
-        .loading {
-            display: inline-block;
-            width: clamp(16px, 4vw, 20px);
-            height: clamp(16px, 4vw, 20px);
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #667eea;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+            margin-bottom: 2rem;
         }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .footer-section h4 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: white;
+        }
+
+        .footer-section p,
+        .footer-section a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            line-height: 1.6;
+            transition: color 0.3s ease;
+        }
+
+        .footer-section a:hover {
+            color: white;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .learning-options {
+                grid-template-columns: 1fr;
+                max-width: 600px;
+                margin: 0 auto 6rem;
+            }
+
+            .features-grid {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            }
+
+            .why-us-content,
+            .about-content,
+            .contact-content {
+                grid-template-columns: 1fr;
+                gap: 3rem;
+            }
+
+            .why-us-stats {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-wrap: wrap;
+                gap: 1rem;
+                padding: 1rem;
+            }
+
+            .main-navigation {
+                display: none;
+                width: 100%;
+                order: 3;
+                flex-direction: column;
+                background: rgba(255, 255, 255, 0.95);
+                border-radius: 15px;
+                padding: 1rem;
+                margin-top: 1rem;
+            }
+
+            .main-navigation.active {
+                display: flex;
+            }
+
+            .mobile-menu-toggle {
+                display: flex;
+                order: 2;
+            }
+
+            .brand-title {
+                font-size: 1.2rem;
+            }
+
+            .main-content {
+                padding: 2rem 1rem;
+            }
+
+            .hero-section {
+                padding: 2rem 0;
+                margin-bottom: 4rem;
+            }
+
+            .hero-section h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero-section p {
+                font-size: 1.2rem;
+            }
+
+            .hero-cta {
+                flex-direction: column;
+                align-items: center;
+                gap: 1rem;
+            }
+
+            .learning-options,
+            .features-section,
+            .about-section,
+            .contact-section {
+                margin-bottom: 4rem;
+            }
+
+            .features-section,
+            .about-section,
+            .contact-section {
+                padding: 3rem 2rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .why-us-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .option-card {
+                padding: 2rem;
+            }
+
+            .option-card h3 {
+                font-size: 1.5rem;
+            }
+
+            .option-card p {
+                font-size: 1rem;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .professional-header {
+                padding: 0.5rem;
+            }
+
+            .logo-container {
+                gap: 0.75rem;
+            }
+
+            .logo-icon {
+                width: 50px;
+                height: 50px;
+                font-size: 2rem;
+            }
+
+            .brand-title {
+                font-size: 1.1rem;
+            }
+
+            .brand-subtitle {
+                font-size: 0.8rem;
+            }
+
+            .hero-section h1 {
+                font-size: 2rem;
+            }
+
+            .hero-section p {
+                font-size: 1.1rem;
+            }
+
+            .option-card,
+            .features-section,
+            .about-section,
+            .contact-section {
+                padding: 1.5rem;
+            }
+
+            .card-icon {
+                font-size: 3rem;
+            }
+
+            .btn {
+                padding: 0.8rem 1.5rem;
+                font-size: 1rem;
+            }
+
+            .why-us-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .about-image {
+                font-size: 6rem;
+            }
+
+            .professional-footer {
+                padding: 2rem 1rem 1rem;
+            }
+        }
+
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Loading animation */
+        .fade-in {
+            animation: fadeIn 0.8s ease-out;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Scrollbar Styling */
-        ::-webkit-scrollbar {
-            width: clamp(6px, 1vw, 8px);
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #c1c1c1;
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: #a8a8a8;
-        }
-
-        /* Current page highlight */
-        .pdf-page.current-page {
-            border: 3px solid #667eea;
-        }
-
-        /* COMPREHENSIVE RESPONSIVE BREAKPOINTS */
-
-        /* Large Desktop (1440px+) */
-        @media (min-width: 1440px) {
-            .document-panel {
-                width: 65%;
-            }
-            .chat-panel {
-                width: 35%;
-            }
-            .main-container {
-                max-width: 1800px;
-                margin: 0 auto;
-            }
-        }
-
-        /* Standard Desktop (1024px - 1439px) */
-        @media (min-width: 1024px) and (max-width: 1439px) {
-            .document-panel {
-                width: 60%;
-            }
-            .chat-panel {
-                width: 40%;
-            }
-        }
-
-        /* Tablet Landscape (768px - 1023px) */
-        @media (min-width: 768px) and (max-width: 1023px) {
-            .main-container {
-                flex-direction: row;
-            }
-            
-            .document-panel {
-                width: 55%;
-            }
-            
-            .chat-panel {
-                width: 45%;
-            }
-            
-            .resize-handle {
-                display: block;
-            }
-            
-            .bottom-controls {
-                bottom: 15px;
-                left: 15px;
-            }
-            
-            .page-navigation {
-                bottom: 15px;
-            }
-            
-            .audio-player {
-                min-width: 280px;
-                right: 15px;
-                bottom: 15px;
-            }
-        }
-
-        /* Tablet Portrait & Large Mobile (480px - 767px) */
-        @media (min-width: 480px) and (max-width: 767px) {
-            .main-container {
-                flex-direction: column;
-            }
-            
-            .document-panel {
-                width: 100%;
-                height: 65%;
-                border-right: none;
-                border-bottom: 1px solid #e0e0e0;
-            }
-            
-            .chat-panel {
-                width: 100%;
-                height: 35%;
-                border-left: none;
-                border-top: 1px solid #e0e0e0;
-            }
-            
-            .resize-handle {
-                display: none;
-            }
-            
-            .bottom-controls {
-                position: relative;
-                bottom: auto;
-                left: auto;
-                padding: 15px;
-                background: rgba(255,255,255,0.9);
-                border-top: 1px solid #e9ecef;
-                justify-content: center;
-                backdrop-filter: blur(10px);
-            }
-
-            .page-navigation {
-                position: relative;
-                bottom: auto;
-                left: auto;
-                transform: none;
-                margin: 10px auto;
-            }
-            
-            .audio-player {
-                position: fixed;
-                bottom: 80px;
-                left: 50%;
-                transform: translateX(-50%);
-                right: auto;
-                min-width: 280px;
-                max-width: calc(100vw - 40px);
-            }
-            
-            .header h1 {
-                font-size: 1.2rem;
-            }
-            
-            .document-controls {
-                justify-content: center;
-            }
-        }
-
-        /* Small Mobile (320px - 479px) */
-        @media (max-width: 479px) {
-            .main-container {
-                flex-direction: column;
-            }
-            
-            .document-panel {
-                width: 100%;
-                height: 60%;
-                border-right: none;
-                border-bottom: 1px solid #e0e0e0;
-            }
-            
-            .chat-panel {
-                width: 100%;
-                height: 40%;
-                border-left: none;
-                border-top: 1px solid #e0e0e0;
-            }
-            
-            .resize-handle {
-                display: none;
-            }
-            
-            .header {
-                padding: 8px 15px;
-            }
-            
-            .header h1 {
-                font-size: 1rem;
-            }
-            
-            .header h1 i {
-                margin-right: 5px;
-            }
-            
-            .document-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 10px;
-            }
-            
-            .document-controls {
-                width: 100%;
-                justify-content: space-between;
-            }
-            
-            .btn {
-                padding: 6px 10px;
-                font-size: 0.7rem;
-            }
-            
-            .btn i {
-                margin-right: 3px;
-            }
-            
-            .bottom-controls {
-                position: relative;
-                bottom: auto;
-                left: auto;
-                padding: 10px;
-                background: rgba(255,255,255,0.95);
-                border-top: 1px solid #e9ecef;
-                justify-content: space-around;
-                backdrop-filter: blur(10px);
-                flex-wrap: nowrap;
-                overflow-x: auto;
-            }
-
-            .page-navigation {
-                position: relative;
-                bottom: auto;
-                left: auto;
-                transform: none;
-                margin: 8px auto;
-                padding: 6px 12px;
-            }
-            
-            .audio-player {
-                position: fixed;
-                bottom: 70px;
-                left: 10px;
-                right: 10px;
-                transform: none;
-                min-width: auto;
-                max-width: none;
-                width: calc(100vw - 20px);
-            }
-            
-            .audio-controls {
-                gap: 8px;
-            }
-            
-            .time-display {
-                font-size: 0.65rem;
-                min-width: 50px;
-            }
-            
-            .message {
-                max-width: 95%;
-                font-size: 0.85rem;
-            }
-            
-            .chat-input {
-                font-size: 0.85rem;
-                padding: 10px 12px;
-            }
-            
-            .send-btn {
-                width: 38px;
-                height: 38px;
-            }
-            
-            .upload-area {
-                padding: 25px 20px;
-            }
-            
-            .upload-icon {
-                font-size: 2.5rem;
-            }
-            
-            .upload-area h2 {
-                font-size: 1.1rem;
-            }
-            
-            .upload-area p {
-                font-size: 0.9rem;
-            }
-        }
-
-        /* Ultra Small Mobile (below 320px) */
-        @media (max-width: 319px) {
-            .header h1 {
-                font-size: 0.9rem;
-            }
-            
-            .btn {
-                padding: 5px 8px;
-                font-size: 0.65rem;
-                gap: 2px;
-            }
-            
-            .bottom-controls {
-                padding: 8px;
-                gap: 5px;
-            }
-            
-            .chat-input {
-                padding: 8px 10px;
-                font-size: 0.8rem;
-            }
-            
-            .send-btn {
-                width: 35px;
-                height: 35px;
-                font-size: 0.85rem;
-            }
-            
-            .message {
-                padding: 8px 10px;
-                font-size: 0.8rem;
-            }
-            
-            .upload-area {
-                padding: 20px 15px;
-            }
-        }
-
-        /* Landscape Mode Adjustments */
-        @media (max-height: 500px) and (orientation: landscape) {
-            .main-container {
-                flex-direction: row;
-            }
-            
-            .document-panel {
-                width: 70%;
-                height: 100%;
-            }
-            
-            .chat-panel {
-                width: 30%;
-                height: 100%;
-            }
-            
-            .header {
-                padding: 5px 15px;
-                min-height: 40px;
-            }
-            
-            .main-container {
-                height: calc(100vh - 45px);
-            }
-            
-            .bottom-controls {
-                bottom: 10px;
-                left: 10px;
-            }
-            
-            .page-navigation {
-                bottom: 10px;
-            }
-            
-            .audio-player {
-                bottom: 10px;
-                right: 10px;
-                min-width: 200px;
-            }
-        }
-
-        /* High DPI / Retina Display Adjustments */
-        @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
-            .pdf-canvas {
-                image-rendering: -webkit-optimize-contrast;
-                image-rendering: crisp-edges;
-            }
-        }
-
-        /* Touch Device Optimizations */
-        @media (hover: none) and (pointer: coarse) {
-            .btn:hover {
-                transform: none;
-                box-shadow: none;
-            }
-            
-            .send-btn:hover {
-                transform: none;
-            }
-            
-            .page-btn:hover {
-                background: none;
-            }
-            
-            .resize-handle:hover {
-                background: #e0e0e0;
-            }
-            
-            /* Increase touch targets */
-            .btn {
-                min-height: 44px;
-                min-width: 44px;
-            }
-            
-            .page-btn {
-                min-width: 44px;
-                min-height: 44px;
-            }
-            
-            .send-btn {
-                min-width: 44px;
-                min-height: 44px;
-            }
-        }
-
-        /* Print Styles */
-        @media print {
-            .header,
-            .chat-panel,
-            .bottom-controls,
-            .page-navigation,
-            .audio-player,
-            .resize-handle {
-                display: none !important;
-            }
-            
-            .main-container {
-                flex-direction: column;
-            }
-            
-            .document-panel {
-                width: 100% !important;
-                height: auto !important;
-            }
-            
-            .pdf-container {
-                overflow: visible !important;
-            }
-            
-            .pdf-page {
-                break-inside: avoid;
-                margin: 10px 0;
-            }
-        }
-
-        /* Accessibility Improvements */
-        @media (prefers-reduced-motion: reduce) {
-            * {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-            }
-        }
-
-        @media (prefers-contrast: high) {
-            .header {
-                background: #000;
-                color: #fff;
-            }
-            
-            .btn-primary {
-                background: #000;
-                color: #fff;
-            }
-            
-            .message.user {
-                background: #000;
-                color: #fff;
-            }
-            
-            .send-btn {
-                background: #000;
-            }
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <div class="header">
-        <h1><i class="fas fa-graduation-cap"></i> Smart Gurukul</h1>
-        <div class="header-controls">
-            <button class="btn btn-primary" id="new-doc-btn" onclick="showUploadScreen()" style="display: none;">
-                <i class="fas fa-plus"></i> New Document
-            </button>
-        </div>
-    </div>
-
-    <!-- Upload Screen -->
-    <div class="upload-screen" id="upload-screen">
-        <div class="upload-area" onclick="document.getElementById('file-input').click()">
-            <div class="upload-icon">
-                <i class="fas fa-cloud-upload-alt"></i>
-            </div>
-            <h2>Upload Your Document</h2>
-            <p>Click here or drag and drop your PDF file to get started</p>
-            <input type="file" id="file-input" accept=".pdf" />
-        </div>
-    </div>
-
-    <!-- Main Container -->
-    <div class="main-container">
-        <!-- Document Panel -->
-        <div class="document-panel">
-            <!-- Document Header -->
-            <div class="document-header">
-                <div class="document-info">
-                    <h3 id="document-name">Document Name</h3>
-                    <p id="document-stats">Ready to load...</p>
-                </div>
-                <div class="document-controls">
-                    <select id="language-select" class="language-select" onchange="changeLanguage()">
-                        <option value="en">English</option>
-                        <option value="es">Spanish</option>
-                        <option value="fr">French</option>
-                        <option value="de">German</option>
-                        <option value="hi">Hindi</option>
-                        <option value="zh-cn">Chinese (Simplified)</option>
-                        <option value="ja">Japanese</option>
-                        <option value="ko">Korean</option>
-                        <option value="ru">Russian</option>
-                        <option value="pt">Portuguese</option>
-                        <option value="it">Italian</option>
-                        <option value="ar">Arabic</option>
-                        <option value="bn">Bengali</option>
-                        <option value="ur">Urdu</option>
-                        <option value="tr">Turkish</option>
-                        <option value="nl">Dutch</option>
-                    </select>
-                    <button class="btn btn-primary" id="read-btn" onclick="readDocument()" disabled>
-                        <i class="fas fa-play"></i> Read Aloud
-                    </button>
-                    <button class="btn btn-warning" id="stop-btn" onclick="stopReading()" disabled>
-                        <i class="fas fa-stop"></i> Stop
-                    </button>
-                </div>
-            </div>
-
-            <!-- Document Viewer -->
-            <div class="document-viewer">
-                <div class="pdf-container" id="pdf-container"></div>
-                
-                <!-- Page Navigation -->
-                <div class="page-navigation" id="page-navigation" style="display: none;">
-                    <button class="page-btn" id="prev-btn" onclick="goToPreviousPage()">
-                        <i class="fas fa-chevron-left"></i>
-                    </button>
-                    <div class="page-info" id="page-info">Page 1 of 1</div>
-                    <button class="page-btn" id="next-btn" onclick="goToNextPage()">
-                        <i class="fas fa-chevron-right"></i>
-                    </button>
-                </div>
-
-                <!-- Audio Player -->
-                <div class="audio-player" id="audio-player">
-                    <div class="audio-controls">
-                        <button class="btn btn-primary" id="play-pause-btn" onclick="togglePlayPause()" style="padding: 5px 10px;">
-                            <i class="fas fa-play"></i>
-                        </button>
-                        <div class="progress-bar" onclick="seekAudio(event)">
-                            <div class="progress-fill" id="progress-fill"></div>
+    <div class="container">
+        <!-- Enhanced Professional Header -->
+        <header class="professional-header">
+            <div class="header-content">
+                <div class="brand-section">
+                    <div class="logo-container">
+                        <div class="logo-icon">🎓</div>
+                        <div class="brand-text">
+                            <h1 class="brand-title">Smart Gurukul</h1>
                         </div>
-                        <div class="time-display" id="time-display">0:00 / 0:00</div>
-                    </div>
-                    <div style="font-size: 0.8rem; color: #666; text-align: center;">
-                        Reading Page: <span id="current-reading-page">1</span>
                     </div>
                 </div>
-            </div>
+                
+                <div class="mobile-menu-toggle" onclick="toggleMobileMenu()">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
 
-            <!-- Bottom Controls -->
-            <div class="bottom-controls">
-                <button class="btn btn-success" id="download-btn" onclick="downloadDocument()" disabled>
-                    <i class="fas fa-download"></i> Download
-                </button>
-                <button class="btn btn-warning" id="summary-btn" onclick="generateSummary()" disabled>
-                    <i class="fas fa-file-alt"></i> Summary
-                </button>
-            </div>
-        </div>
+                <nav class="main-navigation" id="main-navigation">
+                    <a href="#home" class="nav-item active">
+                        <span class="nav-icon">🏠</span>
+                        <span class="nav-text">Home</span>
+                    </a>
+                    <a href="#features" class="nav-item">
+                        <span class="nav-icon">⭐</span>
+                        <span class="nav-text">Features</span>
+                    </a>
+                    <a href="#about" class="nav-item">
+                        <span class="nav-icon">ℹ️</span>
+                        <span class="nav-text">About</span>
+                    </a>
+                    <a href="#contact" class="nav-item">
+                        <span class="nav-icon">📞</span>
+                        <span class="nav-text">Contact</span>
+                    </a>
+                    <a href="self-learning.html" class="nav-item">
+                        <span class="nav-icon">🤖</span>
+                        <span class="nav-text">AI Learning</span>
+                    </a>
+                    <a href="degree.html" class="nav-item">
+                        <span class="nav-icon">🎯</span>
+                        <span class="nav-text">Programs</span>
+                    </a>
+                </nav>
 
-        <!-- Resize Handle -->
-        <div class="resize-handle" id="resize-handle"></div>
-
-        <!-- Chat Panel -->
-        <div class="chat-panel">
-            <div class="chat-header">
-                <h3><i class="fas fa-robot"></i> AI Teacher Assistant</h3>
-                <p>Ask detailed questions about your document</p>
-            </div>
-            
-            <div class="chat-messages" id="chat-messages"></div>
-            
-            <div class="chat-input-container">
-                <div class="chat-input-wrapper">
-                    <textarea 
-                        class="chat-input" 
-                        id="chat-input" 
-                        placeholder="Ask a question about the document..."
-                        rows="1"
-                    ></textarea>
-                    <button class="send-btn" id="send-btn" onclick="sendMessage()" disabled>
-                        <i class="fas fa-paper-plane"></i>
+                <div class="header-actions">
+                    <button class="action-btn profile-btn">
+                        <span class="btn-icon">👤</span>
                     </button>
                 </div>
             </div>
-        </div>
+        </header>
+
+        <main class="main-content">
+            <!-- Hero Section -->
+            <section id="home" class="hero-section">
+                <h1>Transform Your Future with Engineering Excellence</h1>
+                <p>Embark on a journey of innovation and discovery with our world-class engineering programs designed for the next generation of engineers</p>
+                <div class="hero-cta">
+                    <button class="btn btn-primary" onclick="selectStructuredLearning()">Start Learning Today</button>
+                    <button class="btn btn-outline" onclick="scrollToSection('about')">Learn More</button>
+                </div>
+            </section>
+
+            <!-- Learning Options -->
+            <section class="learning-options">
+                <div class="option-card">
+                    <div class="card-icon">📚</div>
+                    <h3>AI-Powered Self Learning</h3>
+                    <p>Upload your own documents and experience personalized learning with cutting-edge AI technology that adapts to your pace and style</p>
+                    <button class="btn btn-primary" onclick="selectSelfLearning()">Start AI Learning</button>
+                </div>
+
+                <div class="option-card">
+                    <div class="card-icon">🎓</div>
+                    <h3>Engineering Excellence Program</h3>
+                    <p>Follow our structured engineering curriculum designed by industry experts with hands-on projects and real-world applications</p>
+                    <button class="btn btn-secondary" onclick="selectStructuredLearning()">Explore Engineering</button>
+                </div>
+            </section>
+
+            <!-- Features Section -->
+            <section id="features" class="features-section">
+                <div class="section-header">
+                    <h2 class="section-title">Why Choose Our Platform?</h2>
+                    <p class="section-subtitle">Discover the features that make our engineering education platform stand out from the rest</p>
+                </div>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🤖</div>
+                        <h4>AI-Powered Learning</h4>
+                        <p>Advanced artificial intelligence adapts to your learning style and provides personalized recommendations for optimal progress.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">👨‍🏫</div>
+                        <h4>Expert Instructors</h4>
+                        <p>Learn from industry professionals and academic experts with years of real-world engineering experience.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🛠️</div>
+                        <h4>Hands-on Projects</h4>
+                        <p>Apply theoretical knowledge through practical projects that simulate real engineering challenges and scenarios.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📱</div>
+                        <h4>Mobile Learning</h4>
+                        <p>Access your courses anytime, anywhere with our fully responsive platform optimized for all devices.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🏆</div>
+                        <h4>Industry Recognition</h4>
+                        <p>Earn certificates and credentials recognized by leading engineering companies and institutions worldwide.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🌐</div>
+                        <h4>Global Community</h4>
+                        <p>Connect with fellow engineering students and professionals from around the world in our vibrant learning community.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Why Us Section -->
+            <section class="why-us-section">
+                <div class="why-us-content">
+                    <div class="why-us-text">
+                        <h2 class="section-title">Why Choose Us?</h2>
+                        <p>We're not just another online learning platform. We're your partner in engineering excellence, committed to providing the highest quality education that prepares you for real-world challenges.</p>
+                        <p>Our innovative approach combines cutting-edge technology with proven educational methodologies to create an unparalleled learning experience.</p>
+                        <button class="btn btn-primary" onclick="selectStructuredLearning()">Start Your Journey</button>
+                    </div>
+                    <div class="why-us-stats">
+                        <div class="stat-card">
+                            <span class="stat-number">50K+</span>
+                            <span class="stat-label">Students Enrolled</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-number">95%</span>
+                            <span class="stat-label">Success Rate</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-number">200+</span>
+                            <span class="stat-label">Expert Instructors</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-number">24/7</span>
+                            <span class="stat-label">Support Available</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- About Us Section -->
+            <section id="about" class="about-section">
+                <div class="section-header">
+                    <h2 class="section-title">About Us</h2>
+                    <p class="section-subtitle">Pioneering the future of engineering education through innovation and excellence</p>
+                </div>
+                <div class="about-content">
+                    <div class="about-text">
+                        <h3>Our Mission</h3>
+                        <p>We are dedicated to revolutionizing engineering education by providing accessible, high-quality learning experiences that prepare students for the challenges of tomorrow's technological landscape.</p>
+                        <p>Founded by a team of passionate educators and industry experts, our platform combines traditional engineering principles with modern teaching methodologies and cutting-edge technology.</p>
+                        <p>We believe that every aspiring engineer deserves access to world-class education, regardless of their location or background. That's why we've created a platform that breaks down barriers and opens doors to engineering excellence.</p>
+                    </div>
+                    <div class="about-image">
+                        🏗️
+                    </div>
+                </div>
+            </section>
+
+            <!-- Contact Section -->
+            <section id="contact" class="contact-section">
+                <div class="section-header">
+                    <h2 class="section-title">Contact Us</h2>
+                    <p class="section-subtitle">Get in touch with our team for any questions or support</p>
+                </div>
+                <div class="contact-content">
+                    <div class="contact-info">
+                        <h4>Get in Touch</h4>
+                        <div class="contact-item">
+                            <span class="contact-icon">📧</span>
+                            <div>
+                                <strong>Email</strong><br>
+                                info@engineeringplatform.com
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <span class="contact-icon">📞</span>
+                            <div>
+                                <strong>Phone</strong><br>
+                                +1 (555) 123-4567
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <span class="contact-icon">📍</span>
+                            <div>
+                                <strong>Address</strong><br>
+                                123 Engineering Way, Tech City, TC 12345
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <span class="contact-icon">🕒</span>
+                            <div>
+                                <strong>Support Hours</strong><br>
+                                24/7 Online Support Available
+                            </div>
+                        </div>
+                    </div>
+                    <form class="contact-form" onsubmit="submitContactForm(event)">
+                        <div class="form-group">
+                            <label for="name">Full Name</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="subject">Subject</label>
+                            <input type="text" id="subject" name="subject" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="message">Message</label>
+                            <textarea id="message" name="message" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Send Message</button>
+                    </form>
+                </div>
+            </section>
+        </main>
+
+        <!-- Enhanced Footer -->
+        <footer class="professional-footer">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Engineering Learning Platform</h4>
+                    <p>Empowering the next generation of engineers through innovative education and cutting-edge technology.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <p><a href="#home">Home</a></p>
+                    <p><a href="#features">Features</a></p>
+                    <p><a href="#about">About Us</a></p>
+                    <p><a href="#contact">Contact</a></p>
+                </div>
+                <div class="footer-section">
+                    <h4>Programs</h4>
+                    <p><a href="degree.html">Engineering Degrees</a></p>
+                    <p><a href="self-learning.html">AI Learning</a></p>
+                    <p><a href="#">Certifications</a></p>
+                    <p><a href="#">Workshops</a></p>
+                </div>
+                <div class="footer-section">
+                    <h4>Support</h4>
+                    <p><a href="#">Help Center</a></p>
+                    <p><a href="#">Documentation</a></p>
+                    <p><a href="#">Community</a></p>
+                    <p><a href="#">Privacy Policy</a></p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Engineering Learning Platform. All rights reserved. Empowering Future Engineers.</p>
+            </div>
+        </footer>
     </div>
 
     <script>
-        // Global variables
-        let currentPDF = null;
-        let documentPages = [];
-        let documentText = '';
-        let currentPage = 0;
-        let totalPages = 0;
-        let currentAudio = null;
-        let isReading = false;
-        let originalFile = null;
-        let pageRenderQueue = [];
-        let isRendering = false;
-        let isResizing = false;
-        let selectedLanguage = 'en';
-
-        // PDF.js setup
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.worker.min.js';
-
-        // DOM elements
-        const fileInput = document.getElementById('file-input');
-        const uploadScreen = document.getElementById('upload-screen');
-        const uploadArea = document.querySelector('.upload-area');
-        const documentName = document.getElementById('document-name');
-        const documentStats = document.getElementById('document-stats');
-        const pdfContainer = document.getElementById('pdf-container');
-        const pageNavigation = document.getElementById('page-navigation');
-        const pageInfo = document.getElementById('page-info');
-        const prevBtn = document.getElementById('prev-btn');
-        const nextBtn = document.getElementById('next-btn');
-        const readBtn = document.getElementById('read-btn');
-        const stopBtn = document.getElementById('stop-btn');
-        const downloadBtn = document.getElementById('download-btn');
-        const summaryBtn = document.getElementById('summary-btn');
-        const sendBtn = document.getElementById('send-btn');
-        const chatInput = document.getElementById('chat-input');
-        const chatMessages = document.getElementById('chat-messages');
-        const audioPlayer = document.getElementById('audio-player');
-        const playPauseBtn = document.getElementById('play-pause-btn');
-        const progressFill = document.getElementById('progress-fill');
-        const timeDisplay = document.getElementById('time-display');
-        const currentReadingPage = document.getElementById('current-reading-page');
-        const newDocBtn = document.getElementById('new-doc-btn');
-        const documentPanel = document.querySelector('.document-panel');
-        const chatPanel = document.querySelector('.chat-panel');
-        const resizeHandle = document.getElementById('resize-handle');
-        const languageSelect = document.getElementById('language-select');
-
-        // Responsive layout detection
-        function isMobile() {
-            return window.innerWidth <= 767;
+        // Homepage functions
+        function selectSelfLearning() {
+            window.location.href = "self-learning.html";
         }
 
-        function isTablet() {
-            return window.innerWidth > 767 && window.innerWidth <= 1023;
+        function selectStructuredLearning() {
+            window.location.href = "degree.html";
         }
 
-        // Initialize resize functionality (desktop only)
-        function initializeResize() {
-            if (isMobile()) return;
-
-            let startX, startDocumentWidth, startChatWidth;
-
-            resizeHandle.addEventListener('mousedown', (e) => {
-                if (isMobile()) return;
-                
-                isResizing = true;
-                startX = e.clientX;
-                startDocumentWidth = documentPanel.offsetWidth;
-                startChatWidth = chatPanel.offsetWidth;
-                
-                document.addEventListener('mousemove', handleResize);
-                document.addEventListener('mouseup', stopResize);
-                document.body.style.cursor = 'col-resize';
-                e.preventDefault();
+        function scrollToSection(sectionId) {
+            document.getElementById(sectionId).scrollIntoView({ 
+                behavior: 'smooth' 
             });
-
-            function handleResize(e) {
-                if (!isResizing || isMobile()) return;
-                
-                const deltaX = e.clientX - startX;
-                const containerWidth = document.querySelector('.main-container').offsetWidth;
-                
-                const newDocumentWidth = startDocumentWidth + deltaX;
-                const newChatWidth = startChatWidth - deltaX;
-                
-                const minDocumentWidth = 400;
-                const minChatWidth = 300;
-                const maxDocumentWidth = containerWidth - minChatWidth - 5;
-                const maxChatWidth = containerWidth - minDocumentWidth - 5;
-                
-                if (newDocumentWidth >= minDocumentWidth && 
-                    newDocumentWidth <= maxDocumentWidth &&
-                    newChatWidth >= minChatWidth && 
-                    newChatWidth <= maxChatWidth) {
-                    
-                    const documentPercentage = (newDocumentWidth / containerWidth) * 100;
-                    const chatPercentage = (newChatWidth / containerWidth) * 100;
-                    
-                    documentPanel.style.width = `${documentPercentage}%`;
-                    chatPanel.style.width = `${chatPercentage}%`;
-                }
-            }
-
-            function stopResize() {
-                isResizing = false;
-                document.removeEventListener('mousemove', handleResize);
-                document.removeEventListener('mouseup', stopResize);
-                document.body.style.cursor = '';
-            }
         }
 
-        // Handle window resize
-        function handleWindowResize() {
-            if (isMobile()) {
-                documentPanel.style.width = '';
-                chatPanel.style.width = '';
-            }
-            
-            if (currentPDF) {
-                debounce(reRenderVisiblePages, 300)();
-            }
+        function toggleMobileMenu() {
+            const nav = document.getElementById('main-navigation');
+            nav.classList.toggle('active');
         }
 
-        // Re-render visible pages on resize
-        function reRenderVisiblePages() {
-            const pages = document.querySelectorAll('.pdf-page');
-            pages.forEach(pageDiv => {
-                const pageNum = parseInt(pageDiv.dataset.pageNumber);
-                const canvas = pageDiv.querySelector('canvas');
-                if (canvas && currentPDF) {
-                    currentPDF.getPage(pageNum).then(page => {
-                        const viewport = page.getViewport({ scale: getOptimalScale() });
-                        canvas.width = viewport.width;
-                        canvas.height = viewport.height;
-                        
-                        const renderContext = {
-                            canvasContext: canvas.getContext('2d'),
-                            viewport: viewport
-                        };
-                        
-                        page.render(renderContext);
+        function submitContactForm(event) {
+            event.preventDefault();
+            alert('Thank you for your message! We will get back to you soon.');
+            event.target.reset();
+        }
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
                     });
                 }
             });
-        }
+        });
 
-        // Get optimal scale based on screen size
-        function getOptimalScale() {
-            const containerWidth = pdfContainer.offsetWidth - 20;
-            const baseScale = containerWidth / 600;
-            
-            if (isMobile()) {
-                return Math.max(0.8, Math.min(baseScale, 1.2));
-            } else if (isTablet()) {
-                return Math.max(1.0, Math.min(baseScale, 1.4));
-            } else {
-                return Math.max(1.2, Math.min(baseScale, 1.6));
-            }
-        }
-
-        // Initialize on load
+        // Add animations on load
         document.addEventListener('DOMContentLoaded', () => {
-            initializeResize();
-            console.log('Smart Gurukul Document Reader initialized with comprehensive responsive design');
-            
-            window.addEventListener('resize', debounce(handleWindowResize, 250));
-            
-            window.addEventListener('orientationchange', () => {
-                setTimeout(handleWindowResize, 100);
+            const cards = document.querySelectorAll('.option-card, .feature-card, .stat-card');
+            cards.forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.1}s`;
+                card.style.animation = 'fadeInUp 0.8s ease-out forwards';
+            });
+
+            // Intersection Observer for scroll animations
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('fade-in');
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('section').forEach(section => {
+                observer.observe(section);
             });
         });
 
-        // Touch gesture handling for mobile
-        let touchStartX = 0;
-        let touchStartY = 0;
-
-        pdfContainer.addEventListener('touchstart', (e) => {
-            touchStartX = e.touches[0].clientX;
-            touchStartY = e.touches[0].clientY;
-        }, { passive: true });
-
-        pdfContainer.addEventListener('touchmove', (e) => {
-            if (!isMobile()) return;
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', (e) => {
+            const nav = document.getElementById('main-navigation');
+            const toggle = document.querySelector('.mobile-menu-toggle');
             
-            const touchX = e.touches[0].clientX;
-            const touchY = e.touches[0].clientY;
-            const deltaX = touchStartX - touchX;
-            const deltaY = touchStartY - touchY;
-            
-            if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
-                if (deltaX > 0 && currentPage < totalPages - 1) {
-                    goToNextPage();
-                } else if (deltaX < 0 && currentPage > 0) {
-                    goToPreviousPage();
-                }
-                touchStartX = touchX;
-                touchStartY = touchY;
-            }
-        }, { passive: true });
-
-        // Drag and drop functionality
-        uploadArea.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadArea.style.borderColor = '#667eea';
-            uploadArea.style.transform = 'translateY(-5px)';
-        });
-
-        uploadArea.addEventListener('dragleave', () => {
-            uploadArea.style.borderColor = '#ddd';
-            uploadArea.style.transform = 'translateY(0)';
-        });
-
-        uploadArea.addEventListener('drop', (e) => {
-            e.preventDefault();
-            uploadArea.style.borderColor = '#ddd';
-            uploadArea.style.transform = 'translateY(0)';
-            const files = e.dataTransfer.files;
-            if (files.length > 0) {
-                handleFile(files[0]);
+            if (!nav.contains(e.target) && !toggle.contains(e.target)) {
+                nav.classList.remove('active');
             }
         });
-
-        fileInput.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
-                handleFile(e.target.files[0]);
-            }
-        });
-
-        // Language change handler
-        function changeLanguage() {
-            selectedLanguage = languageSelect.value;
-            console.log(`Language changed to: ${selectedLanguage}`);
-            if (currentPDF && documentText) {
-                // Re-upload the PDF to reprocess with the new language
-                handleFile(originalFile);
-            }
-        }
-
-        // File handling
-        async function handleFile(file) {
-            if (file.type !== 'application/pdf') {
-                alert('Please upload a PDF file only.');
-                return;
-            }
-
-            originalFile = file;
-            const fileName = file.name;
-            const fileSize = (file.size / 1024 / 1024).toFixed(2) + ' MB';
-            
-            documentName.textContent = fileName;
-            documentStats.textContent = `Size: ${fileSize} | Loading...`;
-            
-            uploadScreen.classList.add('hidden');
-            newDocBtn.style.display = 'block';
-            
-            try {
-                const formData = new FormData();
-                formData.append('pdf_file', file);
-                formData.append('language', selectedLanguage);
-                
-                const response = await fetch('http://localhost:5000/upload-pdf', {
-                    method: 'POST',
-                    body: formData
-                });
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.success) {
-                        documentText = data.translated_text || data.original_text;
-                        if (data.audio_data) {
-                            playResponseAudio(data.audio_data);
-                        }
-                    } else {
-                        alert(data.error || 'Failed to process PDF.');
-                    }
-                } else {
-                    alert('Failed to upload PDF.');
-                }
-            } catch (error) {
-                console.error('PDF upload error:', error);
-                alert('Failed to upload PDF. Please check your connection.');
-            }
-            
-            loadPDF(file);
-        }
-
-        // Load and render PDF
-        function loadPDF(file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const typedarray = new Uint8Array(e.target.result);
-                pdfjsLib.getDocument(typedarray).promise.then(function(pdf) {
-                    currentPDF = pdf;
-                    totalPages = pdf.numPages;
-                    documentPages = [];
-                    
-                    pdfContainer.innerHTML = '';
-                    
-                    const pagesContainer = document.createElement('div');
-                    pagesContainer.style.display = 'flex';
-                    pagesContainer.style.flexDirection = 'column';
-                    pagesContainer.style.alignItems = 'center';
-                    pagesContainer.style.gap = 'clamp(5px, 2vw, 10px)';
-                    pdfContainer.appendChild(pagesContainer);
-                    
-                    pageNavigation.style.display = 'flex';
-                    updatePageNavigation();
-                    
-                    for (let i = 1; i <= totalPages; i++) {
-                        pageRenderQueue.push(i);
-                    }
-                    
-                    renderNextPage(pagesContainer);
-                    
-                    extractAllText(pdf);
-                    
-                    documentStats.textContent = `Size: ${(file.size / 1024 / 1024).toFixed(2)} MB | Pages: ${totalPages}`;
-                    
-                    readBtn.disabled = false;
-                    downloadBtn.disabled = false;
-                    summaryBtn.disabled = false;
-                    sendBtn.disabled = false;
-                    
-                    addMessage('bot', 'Document loaded successfully! I\'m ready to provide detailed explanations about any part of the content. Ask me anything!');
-                    
-                }).catch(function(error) {
-                    console.error('PDF loading error:', error);
-                    alert('Failed to load PDF. Please try another file.');
-                });
-            };
-            reader.readAsArrayBuffer(file);
-        }
-
-        // Render pages one by one
-        async function renderNextPage(container) {
-            if (pageRenderQueue.length === 0 || isRendering) {
-                return;
-            }
-            
-            isRendering = true;
-            const pageNum = pageRenderQueue.shift();
-            
-            try {
-                const page = await currentPDF.getPage(pageNum);
-                const viewport = page.getViewport({ scale: getOptimalScale() });
-                
-                const pageDiv = document.createElement('div');
-                pageDiv.className = 'pdf-page';
-                pageDiv.id = `page-${pageNum}`;
-                pageDiv.dataset.pageNumber = pageNum;
-                
-                const canvas = document.createElement('canvas');
-                const context = canvas.getContext('2d');
-                canvas.height = viewport.height;
-                canvas.width = viewport.width;
-                canvas.className = 'pdf-canvas';
-                
-                pageDiv.appendChild(canvas);
-                container.appendChild(pageDiv);
-                
-                const renderContext = {
-                    canvasContext: context,
-                    viewport: viewport
-                };
-                
-                await page.render(renderContext).promise;
-                
-                const pageNumberDiv = document.createElement('div');
-                pageNumberDiv.style.position = 'absolute';
-                pageNumberDiv.style.bottom = 'clamp(8px, 2vw, 10px)';
-                pageNumberDiv.style.right = 'clamp(8px, 2vw, 10px)';
-                pageNumberDiv.style.background = 'rgba(0,0,0,0.7)';
-                pageNumberDiv.style.color = 'white';
-                pageNumberDiv.style.padding = 'clamp(4px, 1vw, 5px) clamp(8px, 2vw, 10px)';
-                pageNumberDiv.style.borderRadius = 'clamp(12px, 3vw, 15px)';
-                pageNumberDiv.style.fontSize = 'clamp(0.7rem, 1.8vw, 0.8rem)';
-                pageNumberDiv.style.fontWeight = '500';
-                pageNumberDiv.textContent = `Page ${pageNum}`;
-                pageDiv.style.position = 'relative';
-                pageDiv.appendChild(pageNumberDiv);
-                
-                isRendering = false;
-                
-                if (pageRenderQueue.length > 0) {
-                    setTimeout(() => renderNextPage(container), isMobile() ? 50 : 10);
-                }
-            } catch (error) {
-                console.error('Error rendering page:', error);
-                isRendering = false;
-                if (pageRenderQueue.length > 0) {
-                    setTimeout(() => renderNextPage(container), isMobile() ? 50 : 10);
-                }
-            }
-        }
-
-        // Extract text from all pages
-        async function extractAllText(pdf) {
-            documentPages = [];
-            let fullText = '';
-            
-            for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-                try {
-                    const page = await pdf.getPage(pageNum);
-                    const textContent = await page.getTextContent();
-                    const pageText = textContent.items.map(item => item.str).join(' ');
-                    
-                    documentPages.push({
-                        pageNumber: pageNum,
-                        content: pageText
-                    });
-                    
-                    fullText += pageText + '\n\n';
-                } catch (error) {
-                    console.error(`Error extracting text from page ${pageNum}:`, error);
-                }
-            }
-            
-            documentText = fullText;
-        }
-
-        // Page navigation
-        function updatePageNavigation() {
-            pageInfo.textContent = `Page ${currentPage + 1} of ${totalPages}`;
-            prevBtn.disabled = currentPage === 0;
-            nextBtn.disabled = currentPage === totalPages - 1;
-        }
-
-        function goToPreviousPage() {
-            if (currentPage > 0) {
-                currentPage--;
-                scrollToPage(currentPage + 1);
-                updatePageNavigation();
-            }
-        }
-
-        function goToNextPage() {
-            if (currentPage < totalPages - 1) {
-                currentPage++;
-                scrollToPage(currentPage + 1);
-                updatePageNavigation();
-            }
-        }
-
-        function scrollToPage(pageNumber) {
-            const pageElement = document.getElementById(`page-${pageNumber}`);
-            if (pageElement) {
-                document.querySelectorAll('.pdf-page').forEach(page => {
-                    page.classList.remove('current-page');
-                });
-                
-                pageElement.classList.add('current-page');
-                
-                pageElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-        }
-
-        // PDF container scroll event
-        pdfContainer.addEventListener('scroll', debounce(function() {
-            const pages = document.querySelectorAll('.pdf-page');
-            let maxVisiblePage = null;
-            let maxVisibleArea = 0;
-            
-            pages.forEach(page => {
-                const rect = page.getBoundingClientRect();
-                const containerRect = pdfContainer.getBoundingClientRect();
-                
-                const visibleTop = Math.max(rect.top, containerRect.top);
-                const visibleBottom = Math.min(rect.bottom, containerRect.bottom);
-                const visibleHeight = Math.max(0, visibleBottom - visibleTop);
-                const visibleArea = visibleHeight * rect.width;
-                
-                if (visibleArea > maxVisibleArea) {
-                    maxVisibleArea = visibleArea;
-                    maxVisiblePage = page;
-                }
-            });
-            
-            if (maxVisiblePage) {
-                const pageNumber = parseInt(maxVisiblePage.dataset.pageNumber);
-                if (pageNumber && pageNumber !== currentPage + 1) {
-                    currentPage = pageNumber - 1;
-                    updatePageNavigation();
-                    
-                    pages.forEach(p => p.classList.remove('current-page'));
-                    
-                    maxVisiblePage.classList.add('current-page');
-                }
-            }
-        }, 100));
-
-        // Debounce function
-        function debounce(func, wait) {
-            let timeout;
-            return function() {
-                const context = this;
-                const args = arguments;
-                clearTimeout(timeout);
-                timeout = setTimeout(() => func.apply(context, args), wait);
-            };
-        }
-
-        // Text-to-Speech functionality
-        async function readDocument() {
-            if (!documentText) {
-                alert('No document content to read.');
-                return;
-            }
-
-            if (isReading) return;
-
-            isReading = true;
-            readBtn.disabled = true;
-            stopBtn.disabled = false;
-            readBtn.innerHTML = '<div class="loading"></div> Preparing...';
-            
-            await readFromPage(currentPage);
-        }
-
-        async function readFromPage(pageIndex) {
-            if (pageIndex >= documentPages.length || !isReading) {
-                resetTTSButtons();
-                return;
-            }
-
-            const page = documentPages[pageIndex];
-            currentPage = pageIndex;
-            currentReadingPage.textContent = page.pageNumber;
-            
-            updatePageNavigation();
-            scrollToPage(page.pageNumber);
-
-            try {
-                const response = await fetch('http://localhost:5000/tts', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        text: page.content,
-                        page: page.pageNumber,
-                        language: selectedLanguage
-                    })
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.success) {
-                        await playServerAudio(data.audio_data, pageIndex);
-                        return;
-                    } else {
-                        console.error('Server TTS failed:', data.error);
-                        alert(`TTS failed for ${selectedLanguage}: ${data.error}`);
-                    }
-                } else {
-                    const errorData = await response.json();
-                    console.error('Server TTS failed:', errorData.error || response.statusText);
-                    alert(`TTS failed for ${selectedLanguage}: ${errorData.error || 'Server error'}`);
-                }
-            } catch (error) {
-                console.error('Server TTS failed:', error);
-                alert(`TTS service unavailable for ${selectedLanguage}. Falling back to browser TTS. Error: ${error.message}`);
-            }
-
-            // Fallback to browser TTS
-            useBrowserTTS(page.content, pageIndex);
-        }
-
-        async function playServerAudio(audioData, pageIndex) {
-            return new Promise((resolve) => {
-                const audioBlob = new Blob([Uint8Array.from(atob(audioData), c => c.charCodeAt(0))], { type: 'audio/mp3' });
-                const audioUrl = URL.createObjectURL(audioBlob);
-                
-                currentAudio = new Audio(audioUrl);
-                audioPlayer.classList.add('show');
-                
-                currentAudio.onloadedmetadata = () => {
-                    updateTimeDisplay();
-                };
-                
-                currentAudio.ontimeupdate = () => {
-                    updateProgress();
-                };
-                
-                currentAudio.onended = () => {
-                    URL.revokeObjectURL(audioUrl);
-                    resolve();
-                    setTimeout(() => {
-                        if (isReading) {
-                            readFromPage(pageIndex + 1);
-                        }
-                    }, 500);
-                };
-                
-                currentAudio.onerror = () => {
-                    URL.revokeObjectURL(audioUrl);
-                    useBrowserTTS(documentPages[pageIndex].content, pageIndex);
-                    resolve();
-                };
-                
-                currentAudio.play();
-                playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
-            });
-        }
-
-        function useBrowserTTS(text, pageIndex) {
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = selectedLanguage || 'en-US';
-            utterance.rate = 0.9;
-            utterance.pitch = 1;
-            
-            utterance.onend = () => {
-                setTimeout(() => {
-                    if (isReading) {
-                        readFromPage(pageIndex + 1);
-                    }
-                }, 500);
-            };
-            
-            utterance.onerror = () => {
-                resetTTSButtons();
-                alert('Text-to-speech failed. Please try again.');
-            };
-            
-            speechSynthesis.speak(utterance);
-        }
-
-        // Audio player controls
-        function togglePlayPause() {
-            if (!currentAudio) return;
-            
-            if (currentAudio.paused) {
-                currentAudio.play();
-                playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
-            } else {
-                currentAudio.pause();
-                playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-            }
-        }
-
-        function seekAudio(event) {
-            if (!currentAudio) return;
-            
-            const progressBar = event.currentTarget;
-            const clickX = event.offsetX;
-            const width = progressBar.offsetWidth;
-            const duration = currentAudio.duration;
-            
-            currentAudio.currentTime = (clickX / width) * duration;
-        }
-
-        function updateProgress() {
-            if (!currentAudio) return;
-            
-            const progress = (currentAudio.currentTime / currentAudio.duration) * 100;
-            progressFill.style.width = progress + '%';
-            updateTimeDisplay();
-        }
-
-        function updateTimeDisplay() {
-            if (!currentAudio) return;
-            
-            const current = formatTime(currentAudio.currentTime);
-            const duration = formatTime(currentAudio.duration);
-            timeDisplay.textContent = `${current} / ${duration}`;
-        }
-
-        function formatTime(seconds) {
-            if (isNaN(seconds)) return '0:00';
-            
-            const mins = Math.floor(seconds / 60);
-            const secs = Math.floor(seconds % 60);
-            return `${mins}:${secs.toString().padStart(2, '0')}`;
-        }
-
-        function stopReading() {
-            isReading = false;
-            
-            if (currentAudio) {
-                currentAudio.pause();
-                currentAudio = null;
-            }
-            
-            speechSynthesis.cancel();
-            audioPlayer.classList.remove('show');
-            
-            document.querySelectorAll('.pdf-page').forEach(page => {
-                page.classList.remove('current-page');
-            });
-            
-            resetTTSButtons();
-        }
-
-        function resetTTSButtons() {
-            isReading = false;
-            readBtn.disabled = false;
-            stopBtn.disabled = true;
-            readBtn.innerHTML = '<i class="fas fa-play"></i> Read Aloud';
-            playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-        }
-
-        // Download functionality
-        function downloadDocument() {
-            if (!originalFile) {
-                alert('No document to download.');
-                return;
-            }
-            
-            const url = URL.createObjectURL(originalFile);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = originalFile.name;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }
-
-        // Summary functionality
-        async function generateSummary() {
-            if (!documentText) {
-                alert('No document content to summarize.');
-                return;
-            }
-
-            summaryBtn.disabled = true;
-            summaryBtn.innerHTML = '<div class="loading"></div> Generating...';
-
-            try {
-                const response = await fetch('http://localhost:5000/ask', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        question: 'Please provide a comprehensive summary of this document with key points and important information.',
-                        context: documentText,
-                        language: selectedLanguage
-                    })
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    const summary = data.answer || 'Could not generate summary.';
-                    
-                    const summaryContent = `DOCUMENT SUMMARY\n\nDocument: ${originalFile.name}\nGenerated: ${new Date().toLocaleString()}\n\n${summary}`;
-                    const blob = new Blob([summaryContent], { type: 'text/plain' });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `${originalFile.name.replace('.pdf', '')}_summary.txt`;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
-                    
-                    addMessage('bot', 'Summary generated and downloaded successfully!');
-                } else {
-                    alert('Failed to generate summary. Please try again.');
-                }
-            } catch (error) {
-                console.error('Summary error:', error);
-                alert('Failed to generate summary. Please check your connection.');
-            }
-
-            summaryBtn.disabled = false;
-            summaryBtn.innerHTML = '<i class="fas fa-file-alt"></i> Summary';
-        }
-
-        // Chat functionality
-        chatInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendMessage();
-            }
-        });
-
-        chatInput.addEventListener('input', () => {
-            chatInput.style.height = 'auto';
-            chatInput.style.height = Math.min(chatInput.scrollHeight, 120) + 'px';
-        });
-
-        async function sendMessage() {
-            const question = chatInput.value.trim();
-            if (!question || !documentText) return;
-
-            addMessage('user', question);
-            chatInput.value = '';
-            chatInput.style.height = 'auto';
-            sendBtn.disabled = true;
-
-            try {
-                const response = await fetch('http://localhost:5000/ask', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        question: question,
-                        context: documentText,
-                        language: selectedLanguage
-                    })
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.success) {
-                        addMessage('bot', data.answer);
-                        if (data.audio_data) {
-                            playResponseAudio(data.audio_data);
-                        }
-                    } else {
-                        addMessage('bot', 'Sorry, I couldn\'t process your question. Please try again.');
-                    }
-                } else {
-                    addMessage('bot', 'Error communicating with the server. Please try again.');
-                }
-            } catch (error) {
-                console.error('Chat error:', error);
-                addMessage('bot', 'Failed to get a response. Please check your connection.');
-            }
-
-            sendBtn.disabled = false;
-        }
-
-        function addMessage(sender, content) {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${sender}`;
-            messageDiv.innerHTML = content;
-            chatMessages.appendChild(messageDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-
-        async function playResponseAudio(audioData) {
-            try {
-                const audioBlob = new Blob([Uint8Array.from(atob(audioData), c => c.charCodeAt(0))], { type: 'audio/mp3' });
-                const audioUrl = URL.createObjectURL(audioBlob);
-                
-                currentAudio = new Audio(audioUrl);
-                audioPlayer.classList.add('show');
-                
-                currentAudio.onloadedmetadata = () => {
-                    updateTimeDisplay();
-                };
-                
-                currentAudio.ontimeupdate = () => {
-                    updateProgress();
-                };
-                
-                currentAudio.onended = () => {
-                    URL.revokeObjectURL(audioUrl);
-                    audioPlayer.classList.remove('show');
-                    playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-                };
-                
-                currentAudio.onerror = () => {
-                    URL.revokeObjectURL(audioUrl);
-                    alert('Failed to play audio response.');
-                };
-                
-                currentAudio.play();
-                playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
-            } catch (error) {
-                console.error('Audio playback error:', error);
-                alert('Failed to play audio response.');
-            }
-        }
-
-        function showUploadScreen() {
-            uploadScreen.classList.remove('hidden');
-            newDocBtn.style.display = 'none';
-            currentPDF = null;
-            documentPages = [];
-            documentText = '';
-            currentPage = 0;
-            totalPages = 0;
-            originalFile = null;
-            pdfContainer.innerHTML = '';
-            pageNavigation.style.display = 'none';
-            documentName.textContent = 'Document Name';
-            documentStats.textContent = 'Ready to load...';
-            readBtn.disabled = true;
-            stopBtn.disabled = true;
-            downloadBtn.disabled = true;
-            summaryBtn.disabled = true;
-            sendBtn.disabled = true;
-            chatMessages.innerHTML = '';
-        }
-        // [Previous JavaScript code remains the same until the readDocument function]
-
-        async function readDocument() {
-            if (!documentText) {
-                alert('No document content to read.');
-                return;
-            }
-
-            if (isReading) return;
-
-            isReading = true;
-            readBtn.disabled = true;
-            stopBtn.disabled = false;
-            readBtn.innerHTML = '<div class="loading"></div> Preparing...';
-            
-            try {
-                const response = await fetch('http://localhost:5000/tts', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        text: documentPages[currentPage].content,
-                        language: selectedLanguage
-                    })
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.success) {
-                        await playServerAudio(data.audio_data, currentPage);
-                        return;
-                    } else {
-                        console.error('Server TTS failed:', data.error);
-                        alert(`TTS failed for ${selectedLanguage}: ${data.error}`);
-                    }
-                } else {
-                    const errorData = await response.json();
-                    console.error('Server TTS failed:', errorData.error || response.statusText);
-                    alert(`TTS failed for ${selectedLanguage}: ${errorData.error || 'Server error'}`);
-                }
-            } catch (error) {
-                console.error('Server TTS failed:', error);
-                alert(`TTS service unavailable for ${selectedLanguage}. Falling back to browser TTS. Error: ${error.message}`);
-            }
-
-            // Fallback to browser TTS
-            useBrowserTTS(documentPages[currentPage].content, currentPage);
-        }
-
-        // [Rest of the JavaScript code remains exactly the same]
     </script>
 </body>
 </html>
