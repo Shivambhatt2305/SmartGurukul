@@ -133,7 +133,7 @@ python-dateutil==2.9.0.post0
 python-docx==1.1.2
 python-dotenv==1.0.1
 pytz==2024.1
-pywin32==306; sys_platform == 'win32'
+pywin32==306; sys_platform == 'win32' and python_version < '3.12'
 PyYAML==6.0.2
 qrcode==8.1
 regex==2024.9.11
@@ -160,7 +160,6 @@ statsmodels==0.14.4
 tensorboard==2.18.0
 tensorboard-data-server==0.7.2
 tensorflow==2.18.0
-tensorflow_intel==2.18.0
 termcolor==2.5.0
 textblob==0.18.0.post0
 textstat==0.7.4
