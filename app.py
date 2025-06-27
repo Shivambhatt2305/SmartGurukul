@@ -479,7 +479,6 @@ def health_check():
     })
 
 @app.route('/')
-@app.route('/')
 def index():
     """Serve the main teacher interface."""
     return render_template('teacher.html')  # Serve teacher.html directly
@@ -488,43 +487,43 @@ def index():
 def static_files(filename):
     """Serve static files (CSS, JS, images)."""
     return send_from_directory(app.static_folder, filename)
-@app.route('/api/status')
-def api_status():
-    return jsonify({
-        'endpoints': {
-            'GET /health': 'Health check',
-            'GET /subjects': 'List all available subjects',
-            'GET /supported-languages': 'List supported languages',
-            'POST /ask': 'Ask questions about a chapter',
-            'POST /chapters': 'Get chapters for a subject',
-            'POST /get-chapter-content': 'Get PDF content for a chapter',
-            'POST /teach-chapter': 'Get chapter content with audio'
-        },
-        'features': [
-            'Support for 75+ languages',
-            'Text-to-speech in 50+ languages',
-            'PDF content extraction',
-            'AI-powered question answering',
-            'Subject and chapter organization'
-        ],
-        'message': 'API is running successfully',
-        'service': 'Smart Gurukul Teaching Assistant',
-        'status': 'online',
-        'version': '2.0.0'
-    })
+# @app.route('/api/status')
+# def api_status():
+#     return jsonify({
+#         'endpoints': {
+#             'GET /health': 'Health check',
+#             'GET /subjects': 'List all available subjects',
+#             'GET /supported-languages': 'List supported languages',
+#             'POST /ask': 'Ask questions about a chapter',
+#             'POST /chapters': 'Get chapters for a subject',
+#             'POST /get-chapter-content': 'Get PDF content for a chapter',
+#             'POST /teach-chapter': 'Get chapter content with audio'
+#         },
+#         'features': [
+#             'Support for 75+ languages',
+#             'Text-to-speech in 50+ languages',
+#             'PDF content extraction',
+#             'AI-powered question answering',
+#             'Subject and chapter organization'
+#         ],
+#         'message': 'API is running successfully',
+#         'service': 'Smart Gurukul Teaching Assistant',
+#         'status': 'online',
+#         'version': '2.0.0'
+#     })
 
 
-@app.route('/get-pdf/<subject>/<chapter>')
-def get_pdf(subject, chapter):
-    """Serve PDF file directly."""
-    try:
-        pdf_path = os.path.join(DATABASE_DIR, subject, f"{chapter}.pdf")
-        if not os.path.exists(pdf_path):
-            return jsonify({'error': 'PDF not found'}), 404
-        return send_file(pdf_path, mimetype='application/pdf')
-    except Exception as e:
-        logger.error(f"Error serving PDF: {str(e)}")
-        return jsonify({'error': str(e)}), 500
+# @app.route('/get-pdf/<subject>/<chapter>')
+# def get_pdf(subject, chapter):
+#     """Serve PDF file directly."""
+#     try:
+#         pdf_path = os.path.join(DATABASE_DIR, subject, f"{chapter}.pdf")
+#         if not os.path.exists(pdf_path):
+#             return jsonify({'error': 'PDF not found'}), 404
+#         return send_file(pdf_path, mimetype='application/pdf')
+#     except Exception as e:
+#         logger.error(f"Error serving PDF: {str(e)}")
+#         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     print("🚀 Starting Smart Gurukul Teaching Assistant...")
