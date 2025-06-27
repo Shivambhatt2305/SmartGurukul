@@ -479,40 +479,15 @@ def health_check():
     })
 
 @app.route('/')
+@app.route('/')
 def index():
-    """Serve the main UI or return JSON response."""
-    try:
-        # Try to serve the HTML file if it exists
-        if os.path.exists('teacher.html'):
-            return send_file('teacher.html')
-        else:
-            # Return a JSON response with API information
-            return jsonify({
-                'service': 'Smart Gurukul Teaching Assistant',
-                'version': '2.0.0',
-                'status': 'online',
-                'message': 'API is running successfully',
-                'endpoints': {
-                    'GET /subjects': 'List all available subjects',
-                    'POST /chapters': 'Get chapters for a subject',
-                    'POST /get-chapter-content': 'Get PDF content for a chapter',
-                    'POST /teach-chapter': 'Get chapter content with audio',
-                    'POST /ask': 'Ask questions about a chapter',
-                    'GET /supported-languages': 'List supported languages',
-                    'GET /health': 'Health check'
-                },
-                'features': [
-                    'Support for 75+ languages',
-                    'Text-to-speech in 50+ languages',
-                    'PDF content extraction',
-                    'AI-powered question answering',
-                    'Subject and chapter organization'
-                ]
-            })
-    except Exception as e:
-        logger.error(f"Error in index route: {str(e)}")
-        return jsonify({'error': 'Internal server error', 'message': str(e)}), 500
-        
+    """Serve the main teacher interface."""
+    return render_template('teacher.html')  # Serve teacher.html directly
+
+@app.route('/static/<path:filename>')
+def static_files(filename):
+    """Serve static files (CSS, JS, images)."""
+    return send_from_directory(app.static_folder, filename)
 @app.route('/api/status')
 def api_status():
     return jsonify({
