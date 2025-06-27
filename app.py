@@ -477,8 +477,38 @@ def health_check():
 
 @app.route('/')
 def index():
-    """Serve the main UI."""
-    return send_file('teacher.html')
+    """Serve the main UI or return JSON response."""
+    try:
+        # Try to serve the HTML file if it exists
+        if os.path.exists('teacher.html'):
+            return send_file('teacher.html')
+        else:
+            # Return a JSON response with API information
+            return jsonify({
+                'service': 'Smart Gurukul Teaching Assistant',
+                'version': '2.0.0',
+                'status': 'online',
+                'message': 'API is running successfully',
+                'endpoints': {
+                    'GET /subjects': 'List all available subjects',
+                    'POST /chapters': 'Get chapters for a subject',
+                    'POST /get-chapter-content': 'Get PDF content for a chapter',
+                    'POST /teach-chapter': 'Get chapter content with audio',
+                    'POST /ask': 'Ask questions about a chapter',
+                    'GET /supported-languages': 'List supported languages',
+                    'GET /health': 'Health check'
+                },
+                'features': [
+                    'Support for 75+ languages',
+                    'Text-to-speech in 50+ languages',
+                    'PDF content extraction',
+                    'AI-powered question answering',
+                    'Subject and chapter organization'
+                ]
+            })
+    except Exception as e:
+        logger.error(f"Error in index route: {str(e)}")
+        return jsonify({'error': 'Internal server error', 'message': str(e)}), 500
 
 @app.route('/get-pdf/<subject>/<chapter>')
 def get_pdf(subject, chapter):
