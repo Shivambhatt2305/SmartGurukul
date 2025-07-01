@@ -11,11 +11,8 @@ import PyPDF2
 import json
 from pathlib import Path
 
-app = Flask(__name__, 
-            static_folder='static',
-            template_folder='templates')
+app = Flask(__name__)
 CORS(app)
-
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -63,7 +60,6 @@ GTTS_LANGUAGE_MAP = {
 }
 
 # --- HELPER FUNCTIONS ---
-
 def is_language_supported(language_code):
     """Check if a language is supported for translation and TTS."""
     return language_code in LANGUAGE_NAMES
@@ -103,23 +99,19 @@ def format_pdf_content(text):
     paragraphs = text.split('\n\n')
     formatted_content = []
     
-    # Define regex patterns outside f-strings
-    number_pattern = r'^\d+\.?\s'
-    digit_pattern = r'^\d+\.'
-    
     for para in paragraphs:
         para = para.strip()
         if not para:
             continue
             
         # Check if it looks like a heading (short line, all caps, or starts with numbers)
-        if len(para) < 100 and (para.isupper() or re.match(number_pattern, para) or para.endswith(':')):
+        if len(para) < 100 and (para.isupper() or re.match(r'^\d+\.?\s', para) or para.endswith(':')):
             if para.isupper() or len(para.split()) <= 5:
                 formatted_content.append(f"<h2>{para}</h2>")
             else:
                 formatted_content.append(f"<h3>{para}</h3>")
         # Check for bullet points or numbered lists
-        elif para.startswith(('•', '-', '*')) or re.match(digit_pattern, para):
+        elif para.startswith(('•', '-', '*')) or re.match(r'^\d+\.', para):
             items = para.split('\n')
             list_items = []
             for item in items:
@@ -181,63 +173,55 @@ def generate_audio_for_text(text, language_code):
         logger.error(f"Audio generation error for {language_code}: {str(e)}")
         return None
 
-def generate_multilingual_response(question, context, target_language):
-    """Generate a response to a question in the target language."""
+def generate_voice_response(question, context, target_language):
+    """Generate a conversational response optimized for voice interaction."""
     try:
         language_name = get_language_name(target_language)
-        prompt = f"""You are an expert multilingual teacher. Respond to the following question ENTIRELY in {language_name} based on the provided context.
+        prompt = f"""You are a friendly AI teacher having a voice conversation with a student. The student just interrupted your explanation by saying "Hey Teacher" and asked a question. Respond ENTIRELY in {language_name}.
 
 Document Context:
 ---
-{context[:10000]}  # Limit to avoid API token limits
+{context[:8000]}
 ---
 
 Student's Question: {question}
 
-CRITICAL INSTRUCTIONS:
+INSTRUCTIONS for VOICE RESPONSE:
 1. Respond COMPLETELY in {language_name}
-2. If the answer is found in the context, explain it thoroughly
-3. If the answer is NOT in the context, state this clearly in {language_name} and provide a general explanation
-4. Be encouraging, clear, patient, and educational
-5. Use appropriate formatting and structure
-6. Keep the response concise but comprehensive (2-4 paragraphs)
-7. Use natural, fluent {language_name}
-8. End with an encouraging note
+2. Start with a friendly acknowledgment like "Yes, I'm here to help!" or "Great question!"
+3. Keep the response conversational and concise (2-3 short paragraphs maximum)
+4. If the answer is in the context, explain it clearly and simply
+5. If not in the context, acknowledge this and provide helpful general guidance
+6. End with encouragement like "Does that help?" or "Any other questions?"
+7. Use natural speech patterns - this will be spoken aloud
+8. Be warm, encouraging, and supportive like a real teacher
+9. Avoid complex formatting or technical jargon
 
 Response:"""
+
         response = model.generate_content(prompt)
         if not response.text:
             raise ValueError("Empty response from Gemini API")
+        
         answer_text = response.text.strip()
-        prefixes_to_remove = [
-            f"Response in {language_name}:",
-            f"Answer in {language_name}:",
-            "Response:"
-        ]
-        for prefix in prefixes_to_remove:
-            if answer_text.startswith(prefix):
-                answer_text = answer_text[len(prefix):].strip()
-        logger.info(f"Generated response in {language_name}")
+        
+        # Clean up formatting for voice
+        answer_text = re.sub(r'\*\*(.*?)\*\*', r'\1', answer_text)  # Remove bold
+        answer_text = re.sub(r'\*(.*?)\*', r'\1', answer_text)      # Remove italic
+        answer_text = re.sub(r'#{1,6}\s*', '', answer_text)         # Remove headers
+        
+        logger.info(f"Generated voice response in {language_name}")
         return answer_text
     except Exception as e:
-        logger.error(f"Response generation error: {str(e)}")
-        return f"I apologize, but I couldn't generate a response in {language_name}. Please try again."
+        logger.error(f"Voice response generation error: {str(e)}")
+        return "I'm here to help! Could you please repeat your question? I want to make sure I understand what you're asking about."
 
 def format_teacher_response(response):
     """Format response into clean HTML."""
     if not response:
         return "<p>No content available.</p>"
-    
     paragraphs = response.split('\n\n')
     formatted_response = []
-    
-    # Define regex patterns outside f-strings
-    bullet_pattern = r'^[•\-\*]\s*'
-    number_remove_pattern = r'^\d+\.\s*'
-    number_match_pattern = r'^\d+\.'
-    bold_pattern = r'\*\*(.*?)\*\*'
-    italic_pattern = r'\*(.*?)\*'
-    
     for para in paragraphs:
         para = para.strip()
         if not para:
@@ -251,21 +235,16 @@ def format_teacher_response(response):
         elif para.startswith('- ') or para.startswith('* '):
             items = [f"<li>{line[2:].strip()}</li>" for line in para.split('\n') if line.startswith(('- ', '* '))]
             formatted_response.append(f"<ul>{''.join(items)}</ul>")
-        elif re.match(number_match_pattern, para):
-            items = []
-            for line in para.split('\n'):
-                if re.match(number_match_pattern, line):
-                    clean_line = re.sub(number_remove_pattern, '', line.strip())
-                    items.append(f"<li>{clean_line}</li>")
+        elif re.match(r'^\d+\.', para):
+            items = [f"<li>{re.sub(r'^\d+\.\s*', '', line).strip()}</li>" for line in para.split('\n') if re.match(r'^\d+\.', line)]
             formatted_response.append(f"<ol>{''.join(items)}</ol>")
         else:
-            para = re.sub(bold_pattern, r'<strong>\1</strong>', para)
-            para = re.sub(italic_pattern, r'<em>\1</em>', para)
+            para = re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', para)
+            para = re.sub(r'\*(.*?)\*', r'<em>\1</em>', para)
             formatted_response.append(f"<p>{para}</p>")
     return ''.join(formatted_response) or "<p>No content available.</p>"
 
 # --- API ENDPOINTS ---
-
 @app.route('/subjects', methods=['GET'])
 def get_subjects():
     """List all available subjects in the database."""
@@ -335,25 +314,20 @@ def get_chapter_content():
         data = request.get_json()
         subject = data.get('subject', '').strip()
         chapter = data.get('chapter', '').strip()
-
         if not subject or not chapter:
             return jsonify({'success': False, 'error': 'Subject and chapter are required'}), 400
-
         chapter_path = os.path.join(DATABASE_DIR, subject, f"{chapter}.pdf")
         logger.info(f"Looking for PDF at: {chapter_path}")
         
         if not os.path.exists(chapter_path):
             logger.error(f"Chapter file not found: {chapter_path}")
             return jsonify({'success': False, 'error': f'Chapter "{chapter}" not found for subject "{subject}"'}), 404
-
         # Extract text for chat functionality
         chapter_text = extract_pdf_text(chapter_path)
         if not chapter_text:
             return jsonify({'success': False, 'error': 'Could not extract text from the chapter PDF'}), 500
-
         # Provide PDF URL for embedding
         pdf_url = f"/get-pdf/{subject}/{chapter}"
-
         return jsonify({
             'success': True,
             'subject': subject,
@@ -374,23 +348,18 @@ def teach_chapter():
         subject = data.get('subject', '').strip()
         chapter = data.get('chapter', '').strip()
         target_language = data.get('language', 'en').lower().strip()
-
         if not subject or not chapter:
             return jsonify({'success': False, 'error': 'Subject and chapter are required'}), 400
         if not is_language_supported(target_language):
             return jsonify({'success': False, 'error': f'Language "{target_language}" is not supported'}), 400
-
         chapter_path = os.path.join(DATABASE_DIR, subject, f"{chapter}.pdf")
         if not os.path.exists(chapter_path):
             return jsonify({'success': False, 'error': f'Chapter "{chapter}" not found for subject "{subject}"'}), 404
-
         chapter_text = extract_pdf_text(chapter_path)
         if not chapter_text:
             return jsonify({'success': False, 'error': 'Could not extract text from the chapter PDF'}), 500
-
         formatted_content = format_pdf_content(chapter_text)
         audio_data = generate_audio_for_text(chapter_text, target_language)
-
         return jsonify({
             'success': True,
             'subject': subject,
@@ -405,16 +374,110 @@ def teach_chapter():
         logger.error(f"Error in /teach-chapter: {str(e)}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
-@app.route('/ask', methods=['POST'])
-def ask():
-    """Handle student questions about a chapter."""
+@app.route('/voice-ask', methods=['POST'])
+def voice_ask():
+    """Handle voice questions from students - optimized for interruption flow."""
     try:
         data = request.get_json()
         question = data.get('question', '').strip()
         subject = data.get('subject', '').strip()
         chapter = data.get('chapter', '').strip()
         target_language = data.get('language', 'en').lower().strip()
+        
+        logger.info(f"Voice question received: {question}")
+        
+        if not question:
+            error_msg = "I'm listening! Please ask your question."
+            audio_data = generate_audio_for_text(error_msg, target_language)
+            return jsonify({
+                'success': True, 
+                'answer': f'<p>{error_msg}</p>',
+                'audio_data': audio_data,
+                'has_audio': audio_data is not None,
+                'is_voice_response': True
+            })
+        
+        if not is_language_supported(target_language):
+            error_msg = f'Sorry, I don\'t support {target_language} language yet.'
+            audio_data = generate_audio_for_text(error_msg, target_language)
+            return jsonify({
+                'success': False, 
+                'answer': f'<p>{error_msg}</p>',
+                'audio_data': audio_data,
+                'has_audio': audio_data is not None
+            })
+        
+        if not subject or not chapter:
+            error_msg = "Please select a chapter first, then I can answer your questions about it."
+            audio_data = generate_audio_for_text(error_msg, target_language)
+            return jsonify({
+                'success': True, 
+                'answer': f'<p>{error_msg}</p>',
+                'audio_data': audio_data,
+                'has_audio': audio_data is not None,
+                'is_voice_response': True
+            })
+        
+        chapter_path = os.path.join(DATABASE_DIR, subject, f"{chapter}.pdf")
+        if not os.path.exists(chapter_path):
+            error_msg = f'I don\'t have access to that chapter. Please check if the file exists.'
+            audio_data = generate_audio_for_text(error_msg, target_language)
+            return jsonify({
+                'success': False, 
+                'answer': f'<p>{error_msg}</p>',
+                'audio_data': audio_data,
+                'has_audio': audio_data is not None
+            })
+        
+        chapter_text = extract_pdf_text(chapter_path)
+        if not chapter_text:
+            error_msg = 'I\'m having trouble reading that chapter. Please try again.'
+            audio_data = generate_audio_for_text(error_msg, target_language)
+            return jsonify({
+                'success': False, 
+                'answer': f'<p>{error_msg}</p>',
+                'audio_data': audio_data,
+                'has_audio': audio_data is not None
+            })
+        
+        # Generate voice-optimized response
+        answer_text = generate_voice_response(question, chapter_text, target_language)
+        formatted_answer = format_teacher_response(answer_text)
+        audio_data = generate_audio_for_text(answer_text, target_language)
+        
+        return jsonify({
+            'success': True,
+            'answer': formatted_answer,
+            'audio_data': audio_data,
+            'language': target_language,
+            'language_name': get_language_name(target_language),
+            'has_audio': audio_data is not None,
+            'is_voice_response': True
+        })
+    except Exception as e:
+        logger.error(f"Error in /voice-ask: {str(e)}")
+        error_msg = "I'm having trouble processing your question. Could you please try again?"
+        try:
+            audio_data = generate_audio_for_text(error_msg, target_language)
+        except:
+            audio_data = None
+        return jsonify({
+            'success': False, 
+            'answer': f'<p>{error_msg}</p>',
+            'audio_data': audio_data,
+            'has_audio': audio_data is not None,
+            'is_voice_response': True
+        })
 
+@app.route('/ask', methods=['POST'])
+def ask():
+    """Handle regular text questions about a chapter."""
+    try:
+        data = request.get_json()
+        question = data.get('question', '').strip()
+        subject = data.get('subject', '').strip()
+        chapter = data.get('chapter', '').strip()
+        target_language = data.get('language', 'en').lower().strip()
         if not question:
             error_msg = "Please ask a valid question."
             return jsonify({'success': False, 'answer': f'<p>{error_msg}</p>'}), 400
@@ -422,19 +485,17 @@ def ask():
             return jsonify({'success': False, 'answer': f'<p>Language "{target_language}" is not supported.</p>'}), 400
         if not subject or not chapter:
             return jsonify({'success': False, 'error': 'Subject and chapter are required'}), 400
-
         chapter_path = os.path.join(DATABASE_DIR, subject, f"{chapter}.pdf")
         if not os.path.exists(chapter_path):
             return jsonify({'success': False, 'error': f'Chapter "{chapter}" not found for subject "{subject}"'}), 404
-
         chapter_text = extract_pdf_text(chapter_path)
         if not chapter_text:
             return jsonify({'success': False, 'error': 'Could not extract text from the chapter PDF'}), 500
-
-        answer_text = generate_multilingual_response(question, chapter_text, target_language)
+        
+        # Use voice response for consistency
+        answer_text = generate_voice_response(question, chapter_text, target_language)
         formatted_answer = format_teacher_response(answer_text)
         audio_data = generate_audio_for_text(answer_text, target_language)
-
         return jsonify({
             'success': True,
             'answer': formatted_answer,
@@ -475,58 +536,30 @@ def health_check():
         'database_exists': os.path.exists(DATABASE_DIR),
         'supported_languages': len(LANGUAGE_NAMES),
         'tts_languages': len(GTTS_LANGUAGE_MAP),
-        'version': '2.0.0'
+        'version': '2.2.0',
+        'voice_enabled': True,
+        'wake_word': 'Hey Teacher'
     })
 
 @app.route('/')
 def index():
-    """Serve the main teacher interface."""
-    return render_template('teacher.html')  # Serve teacher.html directly
+    """Serve the main UI."""
+    return send_file('teacher.html')
 
-@app.route('/static/<path:filename>')
-def static_files(filename):
-    """Serve static files (CSS, JS, images)."""
-    return send_from_directory(app.static_folder, filename)
-# @app.route('/api/status')
-# def api_status():
-#     return jsonify({
-#         'endpoints': {
-#             'GET /health': 'Health check',
-#             'GET /subjects': 'List all available subjects',
-#             'GET /supported-languages': 'List supported languages',
-#             'POST /ask': 'Ask questions about a chapter',
-#             'POST /chapters': 'Get chapters for a subject',
-#             'POST /get-chapter-content': 'Get PDF content for a chapter',
-#             'POST /teach-chapter': 'Get chapter content with audio'
-#         },
-#         'features': [
-#             'Support for 75+ languages',
-#             'Text-to-speech in 50+ languages',
-#             'PDF content extraction',
-#             'AI-powered question answering',
-#             'Subject and chapter organization'
-#         ],
-#         'message': 'API is running successfully',
-#         'service': 'Smart Gurukul Teaching Assistant',
-#         'status': 'online',
-#         'version': '2.0.0'
-#     })
-
-
-# @app.route('/get-pdf/<subject>/<chapter>')
-# def get_pdf(subject, chapter):
-#     """Serve PDF file directly."""
-#     try:
-#         pdf_path = os.path.join(DATABASE_DIR, subject, f"{chapter}.pdf")
-#         if not os.path.exists(pdf_path):
-#             return jsonify({'error': 'PDF not found'}), 404
-#         return send_file(pdf_path, mimetype='application/pdf')
-#     except Exception as e:
-#         logger.error(f"Error serving PDF: {str(e)}")
-#         return jsonify({'error': str(e)}), 500
+@app.route('/get-pdf/<subject>/<chapter>')
+def get_pdf(subject, chapter):
+    """Serve PDF file directly."""
+    try:
+        pdf_path = os.path.join(DATABASE_DIR, subject, f"{chapter}.pdf")
+        if not os.path.exists(pdf_path):
+            return jsonify({'error': 'PDF not found'}), 404
+        return send_file(pdf_path, mimetype='application/pdf')
+    except Exception as e:
+        logger.error(f"Error serving PDF: {str(e)}")
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    print("🚀 Starting Smart Gurukul Teaching Assistant...")
+    print("🚀 Starting Smart Gurukul Teaching Assistant with Enhanced Voice Support...")
     print(f"📚 Database directory: {os.path.abspath(DATABASE_DIR)}")
     print(f"📁 Database exists: {os.path.exists(DATABASE_DIR)}")
     
@@ -543,12 +576,15 @@ if __name__ == '__main__':
     
     print(f"🌍 Supporting {len(LANGUAGE_NAMES)} languages")
     print(f"🔊 TTS available for {len(GTTS_LANGUAGE_MAP)} languages")
+    print("🎤 Enhanced voice interaction with 'Hey Teacher' wake word")
+    print("⚡ Instant audio interruption and seamless Q&A flow")
     print("\n📋 Available endpoints:")
     print("- GET  /subjects: List available subjects")
     print("- POST /chapters: List chapters for a subject")
     print("- POST /get-chapter-content: Get original PDF content")
     print("- POST /teach-chapter: Get chapter content with audio")
-    print("- POST /ask: Answer questions about a chapter")
+    print("- POST /ask: Answer text questions about a chapter")
+    print("- POST /voice-ask: Answer voice questions with optimized responses")
     print("- GET  /supported-languages: List supported languages")
     print("- GET  /health: Health check")
     print("- GET  /: Main UI")
