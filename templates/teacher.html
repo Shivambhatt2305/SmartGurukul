@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Gurukul - Teaching Assistant</title>
+    <title>Smart Gurukul - Voice-Enhanced Teaching Assistant</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -13,7 +13,7 @@
             height: 100vh;
             overflow: hidden;
         }
-
+        
         /* Header */
         .header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -27,20 +27,66 @@
             position: relative;
             min-height: 50px;
         }
-
         .header h1 {
             font-size: clamp(1.1rem, 3vw, 1.5rem);
             font-weight: 600;
         }
-
         .header h1 i {
             margin-right: clamp(5px, 1vw, 10px);
         }
-
         .header-controls {
             display: flex;
             gap: clamp(8px, 2vw, 15px);
             align-items: center;
+        }
+        
+        /* Enhanced Voice Status Indicator */
+        .voice-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 15px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        .voice-status.listening {
+            background: rgba(46, 204, 113, 0.3);
+            border-color: rgba(46, 204, 113, 0.5);
+            animation: pulse 2s infinite;
+        }
+        .voice-status.processing {
+            background: rgba(241, 196, 15, 0.3);
+            border-color: rgba(241, 196, 15, 0.5);
+        }
+        .voice-status.speaking {
+            background: rgba(231, 76, 60, 0.3);
+            border-color: rgba(231, 76, 60, 0.5);
+            animation: speaking 1s infinite;
+        }
+        .voice-status.wake-detected {
+            background: rgba(155, 89, 182, 0.4);
+            border-color: rgba(155, 89, 182, 0.6);
+            animation: wake-pulse 0.8s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+        }
+        
+        @keyframes speaking {
+            0%, 100% { transform: scale(1); }
+            25% { transform: scale(1.02); }
+            75% { transform: scale(0.98); }
+        }
+        
+        @keyframes wake-pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(155, 89, 182, 0.7); }
+            50% { transform: scale(1.08); box-shadow: 0 0 0 10px rgba(155, 89, 182, 0); }
         }
 
         /* Main Container */
@@ -62,7 +108,6 @@
             min-width: 0;
             overflow: hidden;
         }
-
         .content-header {
             background: #f8f9fa;
             padding: clamp(8px, 2vw, 15px);
@@ -74,7 +119,6 @@
             flex-wrap: wrap;
             gap: 10px;
         }
-
         .content-info h3 {
             color: #333;
             font-size: clamp(0.9rem, 2.5vw, 1rem);
@@ -84,12 +128,10 @@
             text-overflow: ellipsis;
             max-width: 300px;
         }
-
         .content-info p {
             color: #666;
             font-size: clamp(0.75rem, 2vw, 0.85rem);
         }
-
         .content-controls {
             display: flex;
             gap: clamp(5px, 1.5vw, 10px);
@@ -97,7 +139,48 @@
             align-items: center;
         }
 
-        /* PDF Viewer Container */
+        /* Enhanced Voice Controls */
+        .voice-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .voice-btn {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            font-size: 1.3rem;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .voice-btn.mic-btn {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+        }
+        .voice-btn.mic-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
+        }
+        .voice-btn.mic-btn.listening {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            animation: pulse 2s infinite;
+        }
+        .voice-btn.mic-btn.processing {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            animation: spin 1s linear infinite;
+        }
+        .voice-btn.mic-btn.wake-detected {
+            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+            animation: wake-pulse 0.8s infinite;
+        }
+
+        /* PDF Container */
         .pdf-container {
             flex: 1;
             background: #2c3e50;
@@ -106,7 +189,6 @@
             position: relative;
             overflow: hidden;
         }
-
         .pdf-toolbar {
             background: #34495e;
             padding: 10px 15px;
@@ -116,32 +198,27 @@
             color: white;
             flex-shrink: 0;
         }
-
         .pdf-controls {
             display: flex;
             gap: 10px;
             align-items: center;
         }
-
         .pdf-info {
             font-size: 0.9rem;
             color: #bdc3c7;
         }
-
         .pdf-viewer {
             flex: 1;
             background: #2c3e50;
             position: relative;
             overflow: hidden;
         }
-
         .pdf-embed {
             width: 100%;
             height: 100%;
             border: none;
             background: white;
         }
-
         .pdf-fallback {
             display: flex;
             flex-direction: column;
@@ -152,23 +229,19 @@
             text-align: center;
             padding: 2rem;
         }
-
         .pdf-fallback i {
             font-size: 4rem;
             margin-bottom: 1rem;
             color: #95a5a6;
         }
-
         .pdf-fallback h3 {
             margin-bottom: 1rem;
             color: #ecf0f1;
         }
-
         .pdf-fallback p {
             color: #bdc3c7;
             margin-bottom: 1rem;
         }
-
         .download-btn {
             background: #3498db;
             color: white;
@@ -182,7 +255,6 @@
             gap: 8px;
             transition: background 0.3s ease;
         }
-
         .download-btn:hover {
             background: #2980b9;
         }
@@ -197,7 +269,6 @@
             color: #718096;
             background: #f8f9fa;
         }
-
         .content-loading .spinner {
             width: 50px;
             height: 50px;
@@ -217,25 +288,21 @@
             min-width: 0;
             border-left: 1px solid #e0e0e0;
         }
-
         .chat-header {
             background: #f8f9fa;
             padding: clamp(10px, 3vw, 15px);
             border-bottom: 1px solid #e9ecef;
             flex-shrink: 0;
         }
-
         .chat-header h3 {
             color: #333;
             font-size: clamp(1rem, 2.5vw, 1.1rem);
             margin-bottom: 5px;
         }
-
         .chat-header p {
             color: #666;
             font-size: clamp(0.8rem, 2vw, 0.9rem);
         }
-
         .chat-messages {
             flex: 1;
             overflow-y: auto;
@@ -243,9 +310,8 @@
             background: #f8f9fa;
             min-height: 0;
         }
-
         .chat-messages:empty::before {
-            content: "Ask questions about the chapter...";
+            content: "Say 'Hey Teacher' to interrupt and ask questions...";
             color: #999;
             font-style: italic;
             display: flex;
@@ -256,7 +322,6 @@
             padding: 20px;
             font-size: clamp(0.9rem, 2.5vw, 1rem);
         }
-
         .message {
             margin-bottom: clamp(10px, 2.5vw, 15px);
             padding: clamp(10px, 2.5vw, 15px);
@@ -267,34 +332,61 @@
             line-height: 1.4;
             font-size: clamp(0.85rem, 2.2vw, 0.95rem);
         }
-
         .message.user {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             margin-left: auto;
             border-bottom-right-radius: 5px;
         }
-
         .message.bot {
             background: white;
             color: #333;
             border: 1px solid #e0e0e0;
             border-bottom-left-radius: 5px;
         }
-
+        .message.voice-message {
+            border-left: 4px solid #e74c3c;
+            background: #fff5f5;
+            position: relative;
+        }
+        .message.voice-message::before {
+            content: "🎤";
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            font-size: 0.8rem;
+        }
+        .message.voice-response {
+            border-left: 4px solid #2ecc71;
+            background: #f0fff4;
+            position: relative;
+        }
+        .message.voice-response::before {
+            content: "🔊";
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            font-size: 0.8rem;
+        }
+        .message.system {
+            background: #e8f4fd;
+            color: #2c3e50;
+            border: 1px solid #3498db;
+            text-align: center;
+            font-style: italic;
+            border-radius: 20px;
+        }
         .chat-input-container {
             padding: clamp(15px, 3vw, 20px);
             border-top: 1px solid #e9ecef;
             background: white;
             flex-shrink: 0;
         }
-
         .chat-input-wrapper {
             display: flex;
             gap: clamp(8px, 2vw, 10px);
             align-items: flex-end;
         }
-
         .chat-input {
             flex: 1;
             padding: clamp(10px, 2.5vw, 15px);
@@ -307,12 +399,10 @@
             transition: border-color 0.3s ease;
             font-family: inherit;
         }
-
         .chat-input:focus {
             outline: none;
             border-color: #667eea;
         }
-
         .send-btn {
             width: clamp(40px, 8vw, 45px);
             height: clamp(40px, 8vw, 45px);
@@ -328,15 +418,75 @@
             flex-shrink: 0;
             font-size: clamp(0.9rem, 2vw, 1rem);
         }
-
         .send-btn:hover {
             transform: scale(1.1);
         }
-
         .send-btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
             transform: none;
+        }
+
+        /* Enhanced Voice Indicator */
+        .voice-indicator {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.9);
+            color: white;
+            padding: 40px;
+            border-radius: 25px;
+            text-align: center;
+            z-index: 10000;
+            display: none;
+            min-width: 350px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border: 3px solid transparent;
+        }
+        .voice-indicator.show {
+            display: block;
+        }
+        .voice-indicator i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            display: block;
+        }
+        .voice-indicator h3 {
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+        }
+        .voice-indicator p {
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+        .voice-indicator.listening {
+            border-color: #2ecc71;
+        }
+        .voice-indicator.listening i {
+            color: #2ecc71;
+            animation: pulse 2s infinite;
+        }
+        .voice-indicator.processing {
+            border-color: #f39c12;
+        }
+        .voice-indicator.processing i {
+            color: #f39c12;
+            animation: spin 1s linear infinite;
+        }
+        .voice-indicator.speaking {
+            border-color: #e74c3c;
+        }
+        .voice-indicator.speaking i {
+            color: #e74c3c;
+            animation: speaking 1s infinite;
+        }
+        .voice-indicator.wake-detected {
+            border-color: #9b59b6;
+        }
+        .voice-indicator.wake-detected i {
+            color: #9b59b6;
+            animation: wake-pulse 0.8s infinite;
         }
 
         /* Buttons */
@@ -354,43 +504,35 @@
             text-decoration: none;
             white-space: nowrap;
         }
-
         .btn-primary {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
         }
-
         .btn-primary:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
         }
-
         .btn-success {
             background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
             color: white;
         }
-
         .btn-success:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(86, 171, 47, 0.3);
         }
-
         .btn-warning {
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
             color: white;
         }
-
         .btn-warning:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(240, 147, 251, 0.3);
         }
-
         .btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
             transform: none;
         }
-
         .select {
             padding: clamp(6px, 1.5vw, 8px);
             border: 2px solid #e0e0e0;
@@ -400,7 +542,6 @@
             cursor: pointer;
             transition: border-color 0.3s ease;
         }
-
         .select:focus {
             outline: none;
             border-color: #667eea;
@@ -421,18 +562,15 @@
             z-index: 100;
             border: 2px solid #667eea;
         }
-
         .audio-player.show {
             display: block;
         }
-
         .audio-controls {
             display: flex;
             align-items: center;
             gap: clamp(8px, 2vw, 10px);
             margin-bottom: clamp(8px, 2vw, 10px);
         }
-
         .progress-bar {
             flex: 1;
             height: clamp(4px, 1vw, 6px);
@@ -441,14 +579,12 @@
             overflow: hidden;
             cursor: pointer;
         }
-
         .progress-fill {
             height: 100%;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             width: 0%;
             transition: width 0.1s ease;
         }
-
         .time-display {
             font-size: clamp(0.7rem, 1.8vw, 0.8rem);
             color: #666;
@@ -470,7 +606,6 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
@@ -480,17 +615,14 @@
         ::-webkit-scrollbar {
             width: clamp(6px, 1vw, 8px);
         }
-
         ::-webkit-scrollbar-track {
             background: #f1f1f1;
             border-radius: 4px;
         }
-
         ::-webkit-scrollbar-thumb {
             background: #c1c1c1;
             border-radius: 4px;
         }
-
         ::-webkit-scrollbar-thumb:hover {
             background: #a8a8a8;
         }
@@ -501,19 +633,16 @@
             .chat-panel { width: 35%; }
             .main-container { max-width: 1800px; margin: 0 auto; }
         }
-
         @media (min-width: 1024px) and (max-width: 1439px) {
             .content-panel { width: 60%; }
             .chat-panel { width: 40%; }
         }
-
         @media (min-width: 768px) and (max-width: 1023px) {
             .main-container { flex-direction: row; }
             .content-panel { width: 55%; }
             .chat-panel { width: 45%; }
             .audio-player { min-width: 280px; right: 15px; bottom: 15px; }
         }
-
         @media (min-width: 480px) and (max-width: 767px) {
             .main-container { flex-direction: column; }
             .content-panel { width: 100%; height: 65%; border-right: none; border-bottom: 1px solid #e0e0e0; }
@@ -522,7 +651,6 @@
             .header h1 { font-size: 1.2rem; }
             .content-controls { justify-content: center; }
         }
-
         @media (max-width: 479px) {
             .main-container { flex-direction: column; }
             .content-panel { width: 100%; height: 60%; border-right: none; border-bottom: 1px solid #e0e0e0; }
@@ -541,7 +669,6 @@
             .chat-input { font-size: 0.85rem; padding: 10px 12px; }
             .send-btn { width: 38px; height: 38px; }
         }
-
         @media (max-width: 319px) {
             .header h1 { font-size: 0.9rem; }
             .btn { padding: 5px 8px; font-size: 0.65rem; gap: 2px; }
@@ -549,7 +676,6 @@
             .send-btn { width: 35px; height: 35px; font-size: 0.85rem; }
             .message { padding: 8px 10px; font-size: 0.8rem; }
         }
-
         @media (max-height: 500px) and (orientation: landscape) {
             .main-container { flex-direction: row; }
             .content-panel { width: 70%; height: 100%; }
@@ -558,7 +684,6 @@
             .main-container { height: calc(100vh - 45px); }
             .audio-player { bottom: 10px; right: 10px; min-width: 200px; }
         }
-
         @media (prefers-reduced-motion: reduce) {
             * {
                 animation-duration: 0.01ms !important;
@@ -566,7 +691,6 @@
                 transition-duration: 0.01ms !important;
             }
         }
-
         @media (prefers-contrast: high) {
             .header { background: #000; color: #fff; }
             .btn-primary { background: #000; color: #fff; }
@@ -580,10 +704,21 @@
     <div class="header">
         <h1><i class="fas fa-graduation-cap"></i> Smart Gurukul</h1>
         <div class="header-controls">
+            <div class="voice-status" id="voice-status">
+                <i class="fas fa-microphone"></i>
+                <span>Listening for "Hey Teacher"</span>
+            </div>
             <button class="btn btn-primary" id="new-selection-btn" onclick="showSelectionScreen()" style="display: none;">
                 <i class="fas fa-plus"></i> New Chapter
             </button>
         </div>
+    </div>
+
+    <!-- Enhanced Voice Indicator -->
+    <div class="voice-indicator" id="voice-indicator">
+        <i class="fas fa-microphone"></i>
+        <h3 id="voice-indicator-text">Listening...</h3>
+        <p id="voice-indicator-subtitle">Say "Hey Teacher" to interrupt and ask questions</p>
     </div>
 
     <!-- Main Container -->
@@ -600,6 +735,11 @@
                     <select id="content-language-select" class="select" onchange="reteachChapter()">
                         <option value="en">English</option>
                     </select>
+                    <div class="voice-controls">
+                        <button class="voice-btn mic-btn" id="voice-toggle-btn" onclick="toggleVoiceListening()" title="Toggle Voice Listening">
+                            <i class="fas fa-microphone"></i>
+                        </button>
+                    </div>
                     <button class="btn btn-primary" id="play-btn" onclick="playTeachingAudio()" disabled>
                         <i class="fas fa-play"></i> Play Audio
                     </button>
@@ -659,7 +799,7 @@
         <div class="chat-panel">
             <div class="chat-header">
                 <h3><i class="fas fa-robot"></i> AI Teacher Assistant</h3>
-                <p>Ask detailed questions about your chapter</p>
+                <p>Say "Hey Teacher" to interrupt and ask questions</p>
             </div>
             <div class="chat-messages" id="chat-messages"></div>
             <div class="chat-input-container">
@@ -681,6 +821,17 @@
         let currentAudio = null;
         let chapterContent = '';
         let currentPdfUrl = '';
+        
+        // Enhanced voice recognition variables
+        let recognition = null;
+        let isVoiceListening = false;
+        let isWakeWordMode = true;
+        let voiceTimeout = null;
+        let silenceTimeout = null;
+        let isProcessingVoice = false;
+        let isSpeaking = false;
+        let wakeWordDetected = false;
+        let questionListeningTimeout = null;
 
         // API Base URL
         const API_BASE_URL = 'http://localhost:5000';
@@ -703,10 +854,16 @@
         const sendBtn = document.getElementById('send-btn');
         const chatMessages = document.getElementById('chat-messages');
         const newSelectionBtn = document.getElementById('new-selection-btn');
+        const voiceStatus = document.getElementById('voice-status');
+        const voiceToggleBtn = document.getElementById('voice-toggle-btn');
+        const voiceIndicator = document.getElementById('voice-indicator');
+        const voiceIndicatorText = document.getElementById('voice-indicator-text');
+        const voiceIndicatorSubtitle = document.getElementById('voice-indicator-subtitle');
 
         // Initialize on load
         document.addEventListener('DOMContentLoaded', () => {
             loadSupportedLanguages();
+            initializeVoiceRecognition();
             
             // Check for URL parameters and auto-load chapter
             checkUrlParameters();
@@ -723,6 +880,402 @@
             });
         });
 
+        // Enhanced Voice Recognition Initialization
+        function initializeVoiceRecognition() {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                recognition = new SpeechRecognition();
+                
+                recognition.continuous = true;
+                recognition.interimResults = true;
+                recognition.lang = 'en-US';
+                
+                recognition.onstart = () => {
+                    console.log('Voice recognition started');
+                    isVoiceListening = true;
+                    if (isWakeWordMode) {
+                        updateVoiceStatus('listening');
+                    }
+                };
+                
+                recognition.onresult = (event) => {
+                    let finalTranscript = '';
+                    let interimTranscript = '';
+                    
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        const transcript = event.results[i][0].transcript;
+                        if (event.results[i].isFinal) {
+                            finalTranscript += transcript;
+                        } else {
+                            interimTranscript += transcript;
+                        }
+                    }
+                    
+                    // Check for wake word in both final and interim results
+                    const fullTranscript = (finalTranscript + ' ' + interimTranscript).toLowerCase();
+                    
+                    if (isWakeWordMode && (fullTranscript.includes('hey teacher') || fullTranscript.includes('hey teacher'))) {
+                        console.log('Wake word detected in transcript:', fullTranscript);
+                        handleWakeWordDetected();
+                    } else if (!isWakeWordMode && finalTranscript.trim()) {
+                        handleVoiceQuestion(finalTranscript.trim());
+                    }
+                };
+                
+                recognition.onerror = (event) => {
+                    console.error('Voice recognition error:', event.error);
+                    if (event.error === 'not-allowed') {
+                        alert('Microphone access denied. Please allow microphone access to use voice features.');
+                        updateVoiceStatus('error');
+                    } else if (event.error === 'no-speech') {
+                        // Ignore no-speech errors, just restart
+                        console.log('No speech detected, continuing...');
+                    } else {
+                        console.error('Recognition error:', event.error);
+                    }
+                };
+                
+                recognition.onend = () => {
+                    console.log('Voice recognition ended');
+                    if (isVoiceListening && !isProcessingVoice) {
+                        // Restart recognition if it was supposed to be listening
+                        setTimeout(() => {
+                            if (isVoiceListening) {
+                                try {
+                                    recognition.start();
+                                } catch (error) {
+                                    console.error('Error restarting recognition:', error);
+                                }
+                            }
+                        }, 100);
+                    }
+                };
+                
+                // Start listening for wake word by default
+                startVoiceListening();
+                
+            } else {
+                console.warn('Speech recognition not supported');
+                voiceToggleBtn.style.display = 'none';
+                voiceStatus.innerHTML = '<i class="fas fa-microphone-slash"></i><span>Not Supported</span>';
+            }
+        }
+
+        // Enhanced Wake Word Detection Handler
+        function handleWakeWordDetected() {
+            console.log('🎤 Wake word "Hey Teacher" detected!');
+            
+            // Immediately stop any current audio/explanation
+            stopAudio();
+            
+            // Show wake word detection feedback
+            wakeWordDetected = true;
+            updateVoiceStatus('wake-detected');
+            showVoiceIndicator('wake-detected', 'Hey Teacher detected!', 'I\'m listening for your question...');
+            
+            // Switch to question listening mode
+            isWakeWordMode = false;
+            isProcessingVoice = true;
+            
+            // Add system message
+            addMessage('system', '🎤 "Hey Teacher" detected! I stopped the explanation and I\'m now listening for your question...');
+            
+            // Set timeout for question listening (15 seconds)
+            clearTimeout(questionListeningTimeout);
+            questionListeningTimeout = setTimeout(() => {
+                if (!isWakeWordMode) {
+                    console.log('Question listening timeout - returning to wake word mode');
+                    const timeoutMsg = 'I didn\'t hear a question. Say "Hey Teacher" again if you need help.';
+                    addMessage('system', timeoutMsg);
+                    returnToWakeWordMode();
+                }
+            }, 15000);
+            
+            // Update UI to show we're in question mode
+            setTimeout(() => {
+                if (!isWakeWordMode) {
+                    updateVoiceStatus('listening');
+                    showVoiceIndicator('listening', 'What\'s your question?', 'I\'m listening carefully...');
+                }
+            }, 1500);
+        }
+
+        // Enhanced Voice Question Handler
+        function handleVoiceQuestion(question) {
+            console.log('🎯 Processing voice question:', question);
+            
+            clearTimeout(questionListeningTimeout);
+            isProcessingVoice = true;
+            
+            updateVoiceStatus('processing');
+            showVoiceIndicator('processing', 'Processing your question...', 'Thinking about your answer...');
+            
+            // Add user message with voice indicator
+            addMessage('user', question, true);
+            
+            // Send voice question to API
+            sendVoiceQuestion(question);
+        }
+
+        // Enhanced Voice Question API Call
+        async function sendVoiceQuestion(question) {
+            try {
+                updateVoiceStatus('processing');
+                
+                const response = await fetch(`${API_BASE_URL}/voice-ask`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        question,
+                        subject: currentSubject,
+                        chapter: currentChapter,
+                        language: currentLanguage
+                    })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    // Add bot response with voice indicator
+                    addMessage('bot', data.answer, false, true);
+                    
+                    if (data.audio_data) {
+                        // Play voice response immediately
+                        playVoiceResponse(data.audio_data, `Answer: ${question.substring(0, 30)}...`);
+                    } else {
+                        // If no audio, return to wake word mode
+                        setTimeout(() => {
+                            returnToWakeWordMode();
+                        }, 2000);
+                    }
+                } else {
+                    const errorMsg = data.answer || 'Sorry, I couldn\'t process your voice question. Please try again.';
+                    addMessage('bot', errorMsg, false, true);
+                    
+                    if (data.audio_data) {
+                        playVoiceResponse(data.audio_data, 'Error Response');
+                    } else {
+                        setTimeout(() => {
+                            returnToWakeWordMode();
+                        }, 2000);
+                    }
+                }
+            } catch (error) {
+                console.error('Voice question error:', error);
+                const errorMsg = 'I\'m having trouble connecting. Please try asking your question again.';
+                addMessage('bot', errorMsg, false, true);
+                
+                // Try to generate audio for error message
+                try {
+                    const errorResponse = await fetch(`${API_BASE_URL}/voice-ask`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            question: 'connection error',
+                            subject: currentSubject,
+                            chapter: currentChapter,
+                            language: currentLanguage
+                        })
+                    });
+                    const errorData = await errorResponse.json();
+                    if (errorData.audio_data) {
+                        playVoiceResponse(errorData.audio_data, 'Error Message');
+                    }
+                } catch (audioError) {
+                    console.error('Error generating error audio:', audioError);
+                    setTimeout(() => {
+                        returnToWakeWordMode();
+                    }, 2000);
+                }
+            }
+            
+            hideVoiceIndicator();
+        }
+
+        // Enhanced Voice Response Player
+        async function playVoiceResponse(audioData, playingText) {
+            isSpeaking = true;
+            updateVoiceStatus('speaking');
+            showVoiceIndicator('speaking', 'AI Teacher Speaking...', 'Listen to the answer');
+            
+            try {
+                const audioBlob = new Blob([Uint8Array.from(atob(audioData), c => c.charCodeAt(0))], { type: 'audio/mp3' });
+                const audioUrl = URL.createObjectURL(audioBlob);
+                
+                currentAudio = new Audio(audioUrl);
+                audioPlayer.classList.add('show');
+                currentPlaying.textContent = playingText;
+                
+                currentAudio.onloadedmetadata = () => {
+                    updateTimeDisplay();
+                };
+                
+                currentAudio.ontimeupdate = () => {
+                    updateProgress();
+                };
+                
+                currentAudio.onended = () => {
+                    URL.revokeObjectURL(audioUrl);
+                    audioPlayer.classList.remove('show');
+                    playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+                    isSpeaking = false;
+                    hideVoiceIndicator();
+                    
+                    // Return to wake word mode after speaking
+                    setTimeout(() => {
+                        returnToWakeWordMode();
+                    }, 1000);
+                };
+                
+                currentAudio.onerror = () => {
+                    URL.revokeObjectURL(audioUrl);
+                    console.error('Failed to play voice response audio');
+                    isSpeaking = false;
+                    hideVoiceIndicator();
+                    returnToWakeWordMode();
+                };
+                
+                currentAudio.play();
+                playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                
+            } catch (error) {
+                console.error('Voice response playback error:', error);
+                isSpeaking = false;
+                hideVoiceIndicator();
+                returnToWakeWordMode();
+            }
+        }
+
+        // Return to Wake Word Mode
+        function returnToWakeWordMode() {
+            console.log('🔄 Returning to wake word listening mode');
+            isWakeWordMode = true;
+            isProcessingVoice = false;
+            wakeWordDetected = false;
+            clearTimeout(questionListeningTimeout);
+            hideVoiceIndicator();
+            updateVoiceStatus('listening');
+            
+            // Add a subtle system message
+            if (currentSubject && currentChapter) {
+                addMessage('system', '👂 I\'m listening for "Hey Teacher" again. Continue reading or ask me anything!');
+            }
+        }
+
+        // Toggle voice listening
+        function toggleVoiceListening() {
+            if (isVoiceListening) {
+                stopVoiceListening();
+            } else {
+                startVoiceListening();
+            }
+        }
+
+        // Start voice listening
+        function startVoiceListening() {
+            if (recognition && !isVoiceListening) {
+                try {
+                    recognition.start();
+                    isVoiceListening = true;
+                    isWakeWordMode = true;
+                    voiceToggleBtn.classList.add('listening');
+                    updateVoiceStatus('listening');
+                } catch (error) {
+                    console.error('Error starting voice recognition:', error);
+                }
+            }
+        }
+
+        // Stop voice listening
+        function stopVoiceListening() {
+            if (recognition && isVoiceListening) {
+                recognition.stop();
+                isVoiceListening = false;
+                isWakeWordMode = true;
+                isProcessingVoice = false;
+                wakeWordDetected = false;
+                voiceToggleBtn.classList.remove('listening', 'processing', 'wake-detected');
+                clearTimeout(questionListeningTimeout);
+                hideVoiceIndicator();
+                updateVoiceStatus('ready');
+            }
+        }
+
+        // Enhanced Voice Status Updates
+        function updateVoiceStatus(status) {
+            const icon = voiceStatus.querySelector('i');
+            const text = voiceStatus.querySelector('span');
+            const btn = voiceToggleBtn;
+            
+            // Remove all status classes
+            voiceStatus.className = 'voice-status';
+            btn.className = 'voice-btn mic-btn';
+            
+            switch (status) {
+                case 'listening':
+                    icon.className = 'fas fa-microphone';
+                    text.textContent = isWakeWordMode ? 'Listening for "Hey Teacher"' : 'Listening for question';
+                    voiceStatus.classList.add('listening');
+                    btn.classList.add('listening');
+                    break;
+                case 'processing':
+                    icon.className = 'fas fa-cog fa-spin';
+                    text.textContent = 'Processing question';
+                    voiceStatus.classList.add('processing');
+                    btn.classList.add('processing');
+                    break;
+                case 'speaking':
+                    icon.className = 'fas fa-volume-up';
+                    text.textContent = 'AI Teacher speaking';
+                    voiceStatus.classList.add('speaking');
+                    break;
+                case 'wake-detected':
+                    icon.className = 'fas fa-exclamation';
+                    text.textContent = 'Wake word detected!';
+                    voiceStatus.classList.add('wake-detected');
+                    btn.classList.add('wake-detected');
+                    break;
+                case 'ready':
+                    icon.className = 'fas fa-microphone-slash';
+                    text.textContent = 'Voice Ready';
+                    break;
+                case 'error':
+                    icon.className = 'fas fa-exclamation-triangle';
+                    text.textContent = 'Voice Error';
+                    break;
+            }
+        }
+
+        // Enhanced Voice Indicator
+        function showVoiceIndicator(type, title, subtitle) {
+            const indicator = voiceIndicator;
+            const icon = indicator.querySelector('i');
+            
+            voiceIndicatorText.textContent = title;
+            voiceIndicatorSubtitle.textContent = subtitle;
+            
+            indicator.className = `voice-indicator show ${type}`;
+            
+            switch (type) {
+                case 'listening':
+                    icon.className = 'fas fa-microphone';
+                    break;
+                case 'processing':
+                    icon.className = 'fas fa-cog';
+                    break;
+                case 'speaking':
+                    icon.className = 'fas fa-volume-up';
+                    break;
+                case 'wake-detected':
+                    icon.className = 'fas fa-exclamation';
+                    break;
+            }
+        }
+
+        // Hide voice indicator
+        function hideVoiceIndicator() {
+            voiceIndicator.classList.remove('show');
+        }
+
         // Check URL parameters and auto-load chapter
         function checkUrlParameters() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -730,7 +1283,6 @@
             const semester = urlParams.get('semester');
             const subject = urlParams.get('subject');
             const chapter = urlParams.get('chapter');
-
             if (subject && chapter) {
                 // Immediately set current values and load chapter
                 currentSubject = subject;
@@ -788,8 +1340,7 @@
                     sendBtn.disabled = false;
                     playBtn.disabled = false;
                     stopBtn.disabled = true;
-
-                    addMessage('bot', `I've loaded the original PDF document for ${chapterName}. You can view the document on the left and ask any questions about its content!`);
+                    addMessage('bot', `📚 I've loaded ${chapterName}. You can view the document and ask questions. Say "Hey Teacher" anytime to interrupt and ask questions!`);
                 } else {
                     showErrorState('Error Loading Chapter', data.error || 'Failed to load chapter content.', 'Please check if the chapter file exists in the database folder.');
                 }
@@ -951,7 +1502,6 @@
         async function reteachChapter() {
             const newLanguage = contentLanguageSelect.value;
             if (!currentSubject || !currentChapter || newLanguage === currentLanguage) return;
-
             currentLanguage = newLanguage;
             contentInfo.textContent = `Original PDF Document | Language: ${newLanguage}`;
         }
@@ -962,11 +1512,9 @@
                 alert('Please select a chapter first.');
                 return;
             }
-
             playBtn.disabled = true;
             stopBtn.disabled = false;
             playBtn.innerHTML = '<div class="loading"></div> Loading audio...';
-
             try {
                 const response = await fetch(`${API_BASE_URL}/teach-chapter`, {
                     method: 'POST',
@@ -988,13 +1536,12 @@
                 console.error('Audio generation error:', error);
                 addMessage('bot', 'Failed to generate audio. Please try again.');
             }
-
             playBtn.disabled = false;
             stopBtn.disabled = true;
             playBtn.innerHTML = '<i class="fas fa-play"></i> Play Audio';
         }
 
-        // Stop audio
+        // Enhanced Stop Audio Function
         function stopAudio() {
             if (currentAudio) {
                 currentAudio.pause();
@@ -1004,6 +1551,13 @@
                 playBtn.disabled = false;
                 stopBtn.disabled = true;
                 playBtn.innerHTML = '<i class="fas fa-play"></i> Play Audio';
+                isSpeaking = false;
+                hideVoiceIndicator();
+                
+                // Return to listening mode if voice is enabled
+                if (isVoiceListening) {
+                    returnToWakeWordMode();
+                }
             }
         }
 
@@ -1016,7 +1570,6 @@
                 currentAudio = new Audio(audioUrl);
                 audioPlayer.classList.add('show');
                 currentPlaying.textContent = playingText;
-
                 currentAudio.onloadedmetadata = () => {
                     updateTimeDisplay();
                 };
@@ -1108,12 +1661,10 @@
         async function sendMessage() {
             const question = chatInput.value.trim();
             if (!question || !currentSubject || !currentChapter) return;
-
             addMessage('user', question);
             chatInput.value = '';
             chatInput.style.height = 'auto';
             sendBtn.disabled = true;
-
             try {
                 const response = await fetch(`${API_BASE_URL}/ask`, {
                     method: 'POST',
@@ -1138,14 +1689,27 @@
                 console.error('Chat error:', error);
                 addMessage('bot', 'Failed to get a response. Please check your connection to the server.');
             }
-
             sendBtn.disabled = false;
         }
 
-        // Add message to chat
-        function addMessage(sender, content) {
+        // Enhanced Add Message Function
+        function addMessage(sender, content, isVoice = false, isVoiceResponse = false) {
             const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${sender}`;
+            let className = `message ${sender}`;
+            
+            if (isVoice) {
+                className += ' voice-message';
+            }
+            if (isVoiceResponse) {
+                className += ' voice-response';
+            }
+            
+            messageDiv.className = className;
+            
+            if (sender === 'system') {
+                messageDiv.className = 'message system';
+            }
+            
             messageDiv.innerHTML = content;
             chatMessages.appendChild(messageDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight;
