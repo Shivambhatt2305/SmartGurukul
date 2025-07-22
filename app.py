@@ -543,12 +543,8 @@ def health_check():
 
 @app.route('/')
 def index():
-   # Use absolute path or check if file exists
-    html_file = os.path.join(app.root_path, 'teacher.html')
-    if os.path.exists(html_file):
-        return send_file(html_file)
-    else:
-        return "Welcome to Smart Gurukul API", 200
+  """Serve the main UI."""
+    return send_file('teacher.html')
 
 @app.route('/get-pdf/<subject>/<chapter>')
 def get_pdf(subject, chapter):
