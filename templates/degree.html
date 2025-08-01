@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Engineering Programs - Smart Gurukul</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -16,7 +17,7 @@
             font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
             line-height: 1.6;
             color: #1a202c;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1e3a8a 0%, #0f766e 100%);
             min-height: 100vh;
             font-weight: 400;
             overflow-x: hidden;
@@ -28,9 +29,10 @@
             flex-direction: column;
         }
 
-        /* Perfect Header Design */
-        .perfect-header {
-           background: rgba(255, 255, 255, 0.98);
+        /* Professional Header - Enhanced */
+        .professional-header {
+            background: rgba(255, 255, 255, 0.98);
+            -webkit-backdrop-filter: blur(20px);
             backdrop-filter: blur(20px);
             border-bottom: 1px solid rgba(255, 255, 255, 0.2);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
@@ -40,74 +42,107 @@
             padding: 0;
         }
 
-        .header-container {
+        .header-content {
             max-width: 1400px;
             margin: 0 auto;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 1.2rem 2rem;
+            padding: 1rem 2rem;
+            gap: 2rem;
         }
 
         .brand-section {
+            flex-shrink: 0;
+        }
+
+        .logo-container {
             display: flex;
             align-items: center;
             gap: 1rem;
         }
 
-        .brand-title {
-            font-size: 1.8rem;
-            font-weight: 800;
-            color: #2d3748;
-            line-height: 1.2;
-            letter-spacing: -0.5px;
-        }
-
-        .brand-title span {
-            color: #667eea;
-        }
-
-        /* Clean Navigation */
-        .nav-container {
+        .logo-icon {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #1e40af 0%, #0d9488 100%);
+            border-radius: 16px;
+            width: 60px;
+            height: 60px;
             display: flex;
             align-items: center;
-            gap: 2.5rem;
-            margin: 0 auto;
+            justify-content: center;
+            box-shadow: 0 8px 25px rgba(30, 64, 175, 0.3);
+            animation: logoFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes logoFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .brand-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .brand-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #1e40af 0%, #0d9488 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+        }
+
+        .main-navigation {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(30, 64, 175, 0.08);
+            padding: 0.5rem;
+            border-radius: 50px;
+            position: relative;
         }
 
         .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
             text-decoration: none;
-            color: #4a5568;
-            font-weight: 600;
-            font-size: 1.05rem;
-            transition: all 0.3s ease;
+            color: #475569;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
-            padding: 0.5rem 0.2rem;
+            z-index: 2;
         }
 
         .nav-item.active {
-            color: #667eea;
+            color: white;
+            background: linear-gradient(135deg, #1e40af 0%, #0d9488 100%);
+            box-shadow: 0 4px 15px rgba(30, 64, 175, 0.4);
         }
 
-        .nav-item.active::after {
-            content: "";
-            position: absolute;
-            bottom: -5px;
-            left: 0;
-            width: 100%;
-            height: 3px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 3px;
+        .nav-item:hover:not(.active) {
+            color: #1e40af;
+            background: rgba(30, 64, 175, 0.1);
         }
 
-        .nav-item:hover {
-            color: #667eea;
+        .nav-icon {
+            font-size: 1.1rem;
+        }
+
+        .nav-text {
+            font-weight: 600;
         }
 
         .header-actions {
             display: flex;
             align-items: center;
-            gap: 0.8rem;
+            gap: 0.5rem;
         }
 
         .action-btn {
@@ -115,8 +150,8 @@
             height: 44px;
             border: none;
             border-radius: 12px;
-            background: rgba(102, 126, 234, 0.1);
-            color: #667eea;
+            background: rgba(30, 64, 175, 0.1);
+            color: #1e40af;
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -126,22 +161,96 @@
         }
 
         .action-btn:hover {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1e40af 0%, #0d9488 100%);
             color: white;
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 8px 25px rgba(30, 64, 175, 0.3);
         }
 
-        /* Mobile Navigation Toggle */
-        .mobile-toggle {
+        /* Mobile Navigation */
+        .mobile-menu-toggle {
             display: none;
-            background: transparent;
+            background: none;
             border: none;
             font-size: 1.5rem;
-            color: #667eea;
             cursor: pointer;
-            padding: 0.5rem;
-            border-radius: 8px;
+            color: #1e40af;
+            z-index: 1001;
+        }
+
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 80%;
+            max-width: 320px;
+            height: 100vh;
+            background: white;
+            z-index: 1000;
+            box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+            transition: right 0.3s ease;
+            padding: 5rem 1.5rem 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .mobile-menu.active {
+            right: 0;
+        }
+
+        .mobile-nav-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border-radius: 12px;
+            text-decoration: none;
+            color: #475569;
+            font-weight: 500;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .mobile-nav-item.active {
+            background: linear-gradient(135deg, #1e40af 0%, #0d9488 100%);
+            color: white;
+        }
+
+        .mobile-nav-item:hover:not(.active) {
+            background: rgba(30, 64, 175, 0.1);
+        }
+
+        .mobile-nav-icon {
+            font-size: 1.2rem;
+            width: 30px;
+            text-align: center;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            display: none;
+        }
+
+        .overlay.active {
+            display: block;
+        }
+
+        .close-menu {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #1e40af;
         }
 
         /* Main Content */
@@ -156,6 +265,7 @@
         /* Professional Page Header */
         .professional-page-header {
             background: rgba(255, 255, 255, 0.95);
+            -webkit-backdrop-filter: blur(20px);
             backdrop-filter: blur(20px);
             border-radius: 24px;
             padding: 3rem;
@@ -168,14 +278,14 @@
         .page-title {
             font-size: 2.5rem;
             font-weight: 800;
-            color: #1a202c;
+            color: #1e293b;
             margin-bottom: 1rem;
             line-height: 1.2;
         }
 
         .page-description {
             font-size: 1.2rem;
-            color: #718096;
+            color: #64748b;
             line-height: 1.6;
             max-width: 600px;
             margin: 0 auto;
@@ -190,6 +300,7 @@
 
         .degree-card {
             background: rgba(255, 255, 255, 0.95);
+            -webkit-backdrop-filter: blur(20px);
             backdrop-filter: blur(20px);
             padding: 3rem;
             border-radius: 25px;
@@ -208,7 +319,7 @@
             left: 0;
             right: 0;
             height: 5px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1e40af 0%, #0d9488 100%);
         }
 
         .degree-card:hover {
@@ -224,23 +335,19 @@
         }
 
         @keyframes float {
-            0%, 100% {
-                transform: translateY(0px);
-            }
-            50% {
-                transform: translateY(-10px);
-            }
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
         }
 
         .degree-card h3 {
             font-size: 1.6rem;
             margin-bottom: 1.5rem;
-            color: #2d3748;
+            color: #1e293b;
             font-weight: 700;
         }
 
         .degree-card p {
-            color: #718096;
+            color: #64748b;
             margin-bottom: 2rem;
             font-size: 1.1rem;
             line-height: 1.7;
@@ -250,16 +357,17 @@
             display: flex;
             justify-content: space-between;
             font-size: 1rem;
-            color: #4a5568;
+            color: #475569;
             font-weight: 600;
-            background: rgba(102, 126, 234, 0.1);
+            background: rgba(30, 64, 175, 0.1);
             padding: 1rem;
             border-radius: 15px;
         }
 
         /* Professional Footer */
         .professional-footer {
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(15, 23, 42, 0.95);
+            -webkit-backdrop-filter: blur(20px);
             backdrop-filter: blur(20px);
             color: white;
             text-align: center;
@@ -270,28 +378,28 @@
 
         /* Responsive Design */
         @media (max-width: 1200px) {
-            .header-container {
+            .header-content {
                 padding: 1rem 1.5rem;
             }
         }
 
         @media (max-width: 992px) {
-            .nav-container {
+            .main-navigation {
                 display: none;
             }
             
-            .mobile-toggle {
+            .mobile-menu-toggle {
                 display: block;
             }
         }
 
         @media (max-width: 768px) {
-            .header-container {
+            .header-content {
                 padding: 1rem;
             }
 
             .brand-title {
-                font-size: 1.5rem;
+                font-size: 1.2rem;
             }
 
             .main-content {
@@ -322,7 +430,7 @@
 
         @media (max-width: 480px) {
             .brand-title {
-                font-size: 1.3rem;
+                font-size: 1.1rem;
             }
 
             .professional-page-header {
@@ -343,161 +451,79 @@
             }
         }
 
-        /* Mobile Navigation */
-        .mobile-nav-container {
-            display: none;
-            background: white;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 2000;
-            padding: 2rem;
-            flex-direction: column;
-            transform: translateX(-100%);
-            transition: transform 0.3s ease;
-        }
-        
-        .mobile-nav-container.active {
-            transform: translateX(0);
-        }
-        
-        .mobile-nav-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid #eee;
-        }
-        
-        .mobile-nav-close {
-            background: none;
-            border: none;
-            font-size: 1.8rem;
-            color: #667eea;
-            cursor: pointer;
-        }
-        
-        .mobile-nav-items {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-        
-        .mobile-nav-item {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 1rem;
-            border-radius: 12px;
-            text-decoration: none;
-            color: #4a5568;
-            font-weight: 500;
-            font-size: 1.1rem;
-            transition: all 0.3s;
-        }
-        
-        .mobile-nav-item.active {
-            background: rgba(102, 126, 234, 0.1);
-            color: #667eea;
-            font-weight: 600;
-        }
-
         /* Animations */
         .fade-in-up {
             animation: fadeInUp 0.6s ease-out forwards;
         }
 
         @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .stagger-animation {
             animation-delay: calc(var(--stagger) * 0.1s);
         }
-        .logo-icon {
-                width: 50px;
-                height: 50px;
-                font-size: 2rem;
-            }
-            .logo-icon {
-            font-size: 2.5rem;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 16px;
-            width: 60px;
-            height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
-            animation: logoFloat 3s ease-in-out infinite;
-        }
-        .brand-text {
-             font-size: 1.0rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            line-height: 1.2;
-        }
-        .logo-container {
-                gap: 0.75rem;
-            }
-                  .logo-container {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Perfect Header -->
-        <header class="perfect-header">
-            <div class="header-container">
-                <div class="logo-icon">🎓</div>
+        <!-- Enhanced Professional Header -->
+        <header class="professional-header">
+            <div class="header-content">
+                <div class="brand-section">
+                    <div class="logo-container">
+                        <div class="logo-icon">🎓</div>
                         <div class="brand-text">
                             <h1 class="brand-title">Smart Gurukul</h1>
                         </div>
+                    </div>
+                </div>
                 
-                <!-- Clean Navigation -->
-                <nav class="nav-container">
-                    <a href="index.html" class="nav-item">Home</a>
-                    <a href="self-learning.html" class="nav-item">AI Learning</a>
-                    <a href="degree.html" class="nav-item active">Programs</a>
+                <nav class="main-navigation">
+                    <a href="index.html" class="nav-item">
+                        <span class="nav-icon">🏠</span>
+                        <span class="nav-text">Home</span>
+                    </a>
+                    <a href="self-learning.html" class="nav-item">
+                        <span class="nav-icon">🤖</span>
+                        <span class="nav-text">AI Learning</span>
+                    </a>
+                    <a href="degree.html" class="nav-item active">
+                        <span class="nav-icon">🎯</span>
+                        <span class="nav-text">Programs</span>
+                    </a>
                 </nav>
 
                 <div class="header-actions">
                     <button class="action-btn profile-btn">
                         <span class="btn-icon">👤</span>
                     </button>
-                    <button class="mobile-toggle" id="mobileToggle">☰</button>
+                    <button class="mobile-menu-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
                 </div>
             </div>
         </header>
 
-        <!-- Mobile Navigation -->
-        <div class="mobile-nav-container" id="mobileNav">
-            <div class="mobile-nav-header">
-                <h1 class="brand-title">Smart <span>Gurukul</span></h1>
-                <button class="mobile-nav-close" id="mobileClose">✕</button>
-            </div>
-            
-            <div class="mobile-nav-items">
-                <a href="index.html" class="mobile-nav-item">Home</a>
-                <a href="self-learning.html" class="mobile-nav-item">AI Learning</a>
-                <a href="degree.html" class="mobile-nav-item active">Programs</a>
-            </div>
+        <!-- Mobile Navigation Menu -->
+        <div class="overlay"></div>
+        <div class="mobile-menu">
+            <button class="close-menu" type="button" aria-label="Close menu" title="Close menu">
+                <i class="fas fa-times"></i>
+            </button>
+            <a href="index.html" class="mobile-nav-item">
+                <span class="mobile-nav-icon">🏠</span>
+                <span>Home</span>
+            </a>
+            <a href="self-learning.html" class="mobile-nav-item">
+                <span class="mobile-nav-icon">🤖</span>
+                <span>AI Learning</span>
+            </a>
+            <a href="degree.html" class="mobile-nav-item active">
+                <span class="mobile-nav-icon">🎯</span>
+                <span>Programs</span>
+            </a>
         </div>
 
         <main class="main-content">
@@ -572,27 +598,36 @@
             window.location.href = `semester.html?degree=${degreeId}`;
         }
 
-        // Add animations on load
+        // Mobile menu toggle
+        const menuToggle = document.querySelector('.mobile-menu-toggle');
+        const closeMenu = document.querySelector('.close-menu');
+        const mobileMenu = document.querySelector('.mobile-menu');
+        const overlay = document.querySelector('.overlay');
+        
+        menuToggle.addEventListener('click', () => {
+            mobileMenu.classList.add('active');
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        
+        closeMenu.addEventListener('click', () => {
+            mobileMenu.classList.remove('active');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        });
+        
+        overlay.addEventListener('click', () => {
+            mobileMenu.classList.remove('active');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        });
+
+        // Add animations
         document.addEventListener('DOMContentLoaded', () => {
             const cards = document.querySelectorAll('.degree-card');
             cards.forEach((card, index) => {
                 card.style.setProperty('--stagger', index);
                 card.classList.add('fade-in-up', 'stagger-animation');
-            });
-            
-            // Mobile navigation toggle
-            const mobileToggle = document.getElementById('mobileToggle');
-            const mobileNav = document.getElementById('mobileNav');
-            const mobileClose = document.getElementById('mobileClose');
-            
-            mobileToggle.addEventListener('click', () => {
-                mobileNav.classList.add('active');
-                document.body.style.overflow = 'hidden';
-            });
-            
-            mobileClose.addEventListener('click', () => {
-                mobileNav.classList.remove('active');
-                document.body.style.overflow = 'auto';
             });
         });
     </script>

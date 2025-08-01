@@ -4,99 +4,192 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Gurukul - Voice-Enhanced Teaching Assistant</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
             background: #f5f7fa;
             height: 100vh;
             overflow: hidden;
+            line-height: 1.6;
         }
-        
-        /* Header */
+        /* Header Styles */
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1e40af 0%, #0d9488 100%);
             color: white;
             padding: clamp(8px, 2vw, 15px) clamp(10px, 3vw, 20px);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             z-index: 1000;
             position: relative;
             min-height: 50px;
+            flex-wrap: wrap;
+            gap: 10px;
         }
         .header h1 {
             font-size: clamp(1.1rem, 3vw, 1.5rem);
             font-weight: 600;
+            display: flex;
+            align-items: center;
+            margin: 0;
         }
         .header h1 i {
             margin-right: clamp(5px, 1vw, 10px);
+            font-size: clamp(1.2rem, 2.5vw, 1.2rem);
         }
         .header-controls {
             display: flex;
             gap: clamp(8px, 2vw, 15px);
             align-items: center;
+            flex-wrap: wrap;
         }
-        
-        /* Enhanced Voice Status Indicator */
+        /* Voice Status Indicator */
         .voice-status {
             display: flex;
             align-items: center;
             gap: 8px;
-            padding: 8px 15px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 25px;
-            font-size: 0.9rem;
-            font-weight: 500;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            font-size: 0.85rem;
             transition: all 0.3s ease;
-            border: 2px solid transparent;
+            white-space: nowrap;
+        }
+        .voice-status i {
+            font-size: 0.9rem;
         }
         .voice-status.listening {
             background: rgba(46, 204, 113, 0.3);
-            border-color: rgba(46, 204, 113, 0.5);
             animation: pulse 2s infinite;
         }
         .voice-status.processing {
             background: rgba(241, 196, 15, 0.3);
-            border-color: rgba(241, 196, 15, 0.5);
         }
         .voice-status.speaking {
-            background: rgba(231, 76, 60, 0.3);
-            border-color: rgba(231, 76, 60, 0.5);
-            animation: speaking 1s infinite;
+            background: rgba(52, 152, 219, 0.3);
         }
         .voice-status.wake-detected {
-            background: rgba(155, 89, 182, 0.4);
-            border-color: rgba(155, 89, 182, 0.6);
-            animation: wake-pulse 0.8s infinite;
+            background: rgba(231, 76, 60, 0.3);
+            animation: flash 0.5s ease-in-out 3;
         }
-        
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.05); opacity: 0.8; }
+        .voice-status.error {
+            background: rgba(231, 76, 60, 0.3);
         }
-        
-        @keyframes speaking {
-            0%, 100% { transform: scale(1); }
-            25% { transform: scale(1.02); }
-            75% { transform: scale(0.98); }
+        .voice-status.disabled {
+            background: rgba(149, 165, 166, 0.3);
         }
-        
-        @keyframes wake-pulse {
-            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(155, 89, 182, 0.7); }
-            50% { transform: scale(1.08); box-shadow: 0 0 0 10px rgba(155, 89, 182, 0); }
+        /* Voice Indicator Overlay */
+        .voice-indicator {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            min-width: 300px;
         }
-
+        .voice-indicator.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        .voice-indicator i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+        .voice-indicator.listening i {
+            color: #2ecc71;
+            animation: pulse 1.5s infinite;
+        }
+        .voice-indicator.processing i {
+            color: #f1c40f;
+            animation: spin 1s linear infinite;
+        }
+        .voice-indicator.speaking i {
+            color: #3498db;
+            animation: bounce 1s infinite;
+        }
+        .voice-indicator.wake-detected i {
+            color: #e74c3c;
+        }
+        /* Upload Screen - Enhanced Mobile */
+        .upload-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1e40af 0%, #0d9488 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            transition: all 0.5s ease;
+            padding: clamp(20px, 5vw, 40px);
+        }
+        .upload-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+        .upload-area {
+            background: rgba(255,255,255,0.95);
+            border-radius: clamp(15px, 3vw, 20px);
+            padding: clamp(30px, 8vw, 60px);
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            border: 3px dashed #ddd;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            width: min(90vw, 500px);
+            max-width: 100%;
+        }
+        .upload-area:hover {
+            border-color: #1e40af;
+            transform: translateY(-5px);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+        }
+        .upload-icon {
+            font-size: clamp(2.5rem, 8vw, 4rem);
+            color: #1e40af;
+            margin-bottom: clamp(15px, 3vw, 20px);
+        }
+        .upload-area h2 {
+            color: #333;
+            margin-bottom: clamp(8px, 2vw, 10px);
+            font-size: clamp(1.2rem, 4vw, 1.5rem);
+        }
+        .upload-area p {
+            color: #666;
+            font-size: clamp(0.9rem, 3vw, 1.1rem);
+            line-height: 1.4;
+        }
+        #file-input {
+            display: none;
+        }
         /* Main Container */
         .main-container {
             display: flex;
-            height: calc(100vh - 55px);
+            height: calc(100vh - 55px); /* Adjusted for header height */
             flex-direction: row;
             transition: flex-direction 0.3s ease;
         }
-
         /* Content Panel */
         .content-panel {
             flex: 1;
@@ -110,175 +203,335 @@
         }
         .content-header {
             background: #f8f9fa;
-            padding: clamp(8px, 2vw, 15px);
+            padding: clamp(10px, 3vw, 15px) clamp(15px, 4vw, 20px);
             border-bottom: 1px solid #e9ecef;
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-shrink: 0;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 15px;
         }
         .content-info h3 {
             color: #333;
-            font-size: clamp(0.9rem, 2.5vw, 1rem);
-            margin-bottom: 3px;
+            font-size: clamp(1rem, 2.5vw, 1.1rem);
+            margin-bottom: 5px;
+            font-weight: 600;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            max-width: 300px;
+            max-width: 200px; /* Limit width for responsiveness */
         }
         .content-info p {
             color: #666;
-            font-size: clamp(0.75rem, 2vw, 0.85rem);
+            font-size: clamp(0.8rem, 2vw, 0.9rem);
         }
         .content-controls {
             display: flex;
-            gap: clamp(5px, 1.5vw, 10px);
+            gap: clamp(8px, 2vw, 10px);
             flex-wrap: wrap;
             align-items: center;
         }
-
-        /* Enhanced Voice Controls */
+        /* Page Progress Indicator */
+        .page-progress {
+            background: rgba(30, 64, 175, 0.1);
+            border: 1px solid rgba(30, 64, 175, 0.3);
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            color: #1e40af;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .page-progress i {
+            font-size: 0.9rem;
+        }
+        .page-progress.auto-advancing {
+            background: rgba(46, 204, 113, 0.1);
+            border-color: rgba(46, 204, 113, 0.3);
+            color: #2ecc71;
+            animation: pulse 2s infinite;
+        }
+        /* Voice Controls */
         .voice-controls {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             align-items: center;
         }
         .voice-btn {
-            width: 55px;
-            height: 55px;
+            width: clamp(35px, 8vw, 40px);
+            height: clamp(35px, 8vw, 40px);
             border-radius: 50%;
-            border: none;
+            border: 2px solid #e0e0e0;
+            background: white;
+            color: #1e40af;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: all 0.3s ease;
-            font-size: 1.3rem;
-            position: relative;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            font-size: clamp(0.9rem, 2vw, 1rem);
         }
-        .voice-btn.mic-btn {
-            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        .voice-btn:hover {
+            border-color: #1e40af;
+            background: #f0f4ff;
+        }
+        .voice-btn.listening {
+            background: #2ecc71;
             color: white;
-        }
-        .voice-btn.mic-btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
-        }
-        .voice-btn.mic-btn.listening {
-            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            border-color: #2ecc71;
             animation: pulse 2s infinite;
         }
-        .voice-btn.mic-btn.processing {
-            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
-            animation: spin 1s linear infinite;
+        .voice-btn.processing {
+            background: #f1c40f;
+            color: white;
+            border-color: #f1c40f;
         }
-        .voice-btn.mic-btn.wake-detected {
-            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
-            animation: wake-pulse 0.8s infinite;
+        .voice-btn.wake-detected {
+            background: #e74c3c;
+            color: white;
+            border-color: #e74c3c;
+            animation: flash 0.5s ease-in-out 3;
         }
-
-        /* PDF Container */
+        .voice-btn.disabled {
+            background: #95a5a6;
+            color: white;
+            border-color: #95a5a6;
+            cursor: not-allowed;
+        }
+        /* Language Select */
+        .select,
+        .language-select {
+            padding: clamp(6px, 1.5vw, 8px) clamp(10px, 2.5vw, 12px);
+            border: 2px solid #e0e0e0;
+            border-radius: clamp(10px, 2vw, 15px);
+            font-size: clamp(0.75rem, 2vw, 0.85rem);
+            background: white;
+            cursor: pointer;
+            transition: border-color 0.3s ease;
+            min-width: clamp(100px, 20vw, 120px);
+        }
+        .select:focus,
+        .language-select:focus {
+            outline: none;
+            border-color: #1e40af;
+        }
+        /* PDF Container and Viewer */
         .pdf-container {
+            width: 100%;
             flex: 1;
-            background: #2c3e50;
+            overflow: hidden;
+            background: #f8f9fa;
+            position: relative;
             display: flex;
             flex-direction: column;
-            position: relative;
-            overflow: hidden;
         }
         .pdf-toolbar {
-            background: #34495e;
-            padding: 10px 15px;
+            background: white;
+            padding: clamp(8px, 2vw, 12px) clamp(15px, 4vw, 20px);
+            border-bottom: 1px solid #e0e0e0;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            color: white;
+            flex-wrap: wrap;
+            gap: 10px;
             flex-shrink: 0;
         }
         .pdf-controls {
             display: flex;
-            gap: 10px;
-            align-items: center;
+            gap: clamp(5px, 1.5vw, 8px);
         }
         .pdf-info {
-            font-size: 0.9rem;
-            color: #bdc3c7;
+            font-size: clamp(0.8rem, 2vw, 0.9rem);
+            color: #666;
+            font-weight: 500;
         }
         .pdf-viewer {
             flex: 1;
-            background: #2c3e50;
             position: relative;
-            overflow: hidden;
+            overflow: hidden; /* Hide scrollbars, only one page shown */
+            display: flex;
+            align-items: center; /* Center page vertically */
+            justify-content: center; /* Center page horizontally */
+            background: #f8f9fa;
+            padding: clamp(10px, 3vw, 20px);
         }
-        .pdf-embed {
-            width: 100%;
-            height: 100%;
-            border: none;
+        .pdf-page {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
             background: white;
+            border-radius: clamp(4px, 1vw, 8px);
+            overflow: hidden;
+            max-width: 100%;
+            height: auto; /* Allow height to adjust based on content */
+            transition: all 0.3s ease;
+            border: 3px solid #e0e0e0; /* Default border */
+            position: relative; /* For page number overlay */
+            display: block; /* Ensure it takes up space */
         }
+        .pdf-page.current-page {
+            border-color: #1e40af; /* Blue border for current page */
+            box-shadow: 0 8px 25px rgba(30, 64, 175, 0.3);
+            transform: scale(1.02);
+        }
+        .pdf-canvas {
+            display: block;
+            width: 100%;
+            height: auto;
+            max-width: 100%;
+        }
+        .page-number-overlay {
+            position: absolute;
+            bottom: clamp(8px, 2vw, 10px);
+            right: clamp(8px, 2vw, 10px);
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: clamp(4px, 1vw, 5px) clamp(8px, 2vw, 10px);
+            border-radius: clamp(12px, 3vw, 15px);
+            font-size: clamp(0.7rem, 1.8vw, 0.8rem);
+            font-weight: 500;
+        }
+        /* Page Navigation Controls */
+        .page-navigation {
+            position: absolute;
+            bottom: clamp(15px, 3vw, 20px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: clamp(20px, 5vw, 25px);
+            padding: clamp(6px, 1.5vw, 10px) clamp(10px, 3vw, 20px);
+            display: flex;
+            align-items: center;
+            gap: clamp(10px, 3vw, 15px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+        .page-info {
+            font-size: clamp(0.8rem, 2vw, 0.9rem);
+            color: #333;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        .page-btn {
+            background: none;
+            border: none;
+            color: #1e40af;
+            cursor: pointer;
+            font-size: clamp(1rem, 2.5vw, 1.2rem);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: clamp(25px, 6vw, 35px);
+            height: clamp(25px, 6vw, 35px);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+        .page-btn:hover {
+            background: #f0f4ff;
+        }
+        .page-btn:disabled {
+            color: #ccc;
+            cursor: not-allowed;
+        }
+        .auto-advance-toggle {
+            background: #1e40af;
+            color: white;
+            border: none;
+            padding: clamp(6px, 1.5vw, 8px) clamp(10px, 2.5vw, 12px);
+            border-radius: clamp(10px, 2vw, 15px);
+            font-size: clamp(0.75rem, 2vw, 0.8rem);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .auto-advance-toggle:hover {
+            background: #1e3a8a;
+        }
+        .auto-advance-toggle.active {
+            background: #2ecc71;
+        }
+        /* PDF Fallback */
         .pdf-fallback {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100%;
-            color: #ecf0f1;
             text-align: center;
-            padding: 2rem;
+            padding: clamp(20px, 5vw, 40px);
+            color: #666;
         }
         .pdf-fallback i {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-            color: #95a5a6;
+            font-size: clamp(2.5rem, 8vw, 4rem);
+            color: #e74c3c;
+            margin-bottom: clamp(15px, 3vw, 20px);
         }
         .pdf-fallback h3 {
-            margin-bottom: 1rem;
-            color: #ecf0f1;
+            margin-bottom: clamp(8px, 2vw, 15px);
+            color: #333;
+            font-size: clamp(1.2rem, 4vw, 1.5rem);
         }
         .pdf-fallback p {
-            color: #bdc3c7;
-            margin-bottom: 1rem;
+            margin-bottom: clamp(8px, 2vw, 15px);
+            line-height: 1.6;
+            font-size: clamp(0.9rem, 3vw, 1rem);
         }
         .download-btn {
-            background: #3498db;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            text-decoration: none;
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            transition: background 0.3s ease;
+            padding: clamp(10px, 2.5vw, 12px) clamp(15px, 4vw, 20px);
+            background: #1e40af;
+            color: white;
+            text-decoration: none;
+            border-radius: clamp(20px, 5vw, 25px);
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin: 5px;
+            font-size: clamp(0.85rem, 2.2vw, 0.9rem);
         }
         .download-btn:hover {
-            background: #2980b9;
+            background: #1e3a8a;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(30, 64, 175, 0.3);
         }
-
-        /* Loading state */
+        /* Content Loading */
         .content-loading {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100%;
-            color: #718096;
-            background: #f8f9fa;
+            text-align: center;
+            padding: clamp(20px, 5vw, 40px);
+            color: #666;
         }
-        .content-loading .spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid #e2e8f0;
-            border-top: 5px solid #667eea;
+        .content-loading i {
+            font-size: clamp(2.5rem, 8vw, 4rem);
+            color: #95a5a6;
+            margin-bottom: clamp(15px, 3vw, 20px);
+        }
+        .content-loading h3 {
+            color: #2c3e50;
+            margin-bottom: clamp(8px, 2vw, 15px);
+            font-size: clamp(1.2rem, 4vw, 1.5rem);
+        }
+        .content-loading p {
+            margin-bottom: clamp(10px, 2.5vw, 20px);
+            line-height: 1.6;
+            font-size: clamp(0.9rem, 3vw, 1rem);
+        }
+        /* Spinner */
+        .spinner {
+            width: clamp(30px, 7vw, 40px);
+            height: clamp(30px, 7vw, 40px);
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #1e40af;
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin-bottom: 1.5rem;
+            margin-bottom: clamp(10px, 2.5vw, 20px);
         }
-
         /* Chat Panel */
         .chat-panel {
             width: clamp(300px, 40vw, 500px);
@@ -287,10 +540,11 @@
             flex-direction: column;
             min-width: 0;
             border-left: 1px solid #e0e0e0;
+            flex-shrink: 0;
         }
         .chat-header {
             background: #f8f9fa;
-            padding: clamp(10px, 3vw, 15px);
+            padding: clamp(10px, 3vw, 15px) clamp(15px, 4vw, 20px);
             border-bottom: 1px solid #e9ecef;
             flex-shrink: 0;
         }
@@ -298,6 +552,10 @@
             color: #333;
             font-size: clamp(1rem, 2.5vw, 1.1rem);
             margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
         }
         .chat-header p {
             color: #666;
@@ -311,7 +569,7 @@
             min-height: 0;
         }
         .chat-messages:empty::before {
-            content: "Say 'Hey Teacher' to interrupt and ask questions...";
+            content: "Ask questions about the document...";
             color: #999;
             font-style: italic;
             display: flex;
@@ -322,18 +580,20 @@
             padding: 20px;
             font-size: clamp(0.9rem, 2.5vw, 1rem);
         }
+        /* Message Styles */
         .message {
             margin-bottom: clamp(10px, 2.5vw, 15px);
-            padding: clamp(10px, 2.5vw, 15px);
+            padding: clamp(10px, 2.5vw, 12px) clamp(12px, 3vw, 16px);
             border-radius: clamp(12px, 3vw, 15px);
             max-width: 85%;
             word-wrap: break-word;
             animation: fadeIn 0.3s ease;
             line-height: 1.4;
             font-size: clamp(0.85rem, 2.2vw, 0.95rem);
+            position: relative;
         }
         .message.user {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1e40af 0%, #0d9488 100%);
             color: white;
             margin-left: auto;
             border-bottom-right-radius: 5px;
@@ -343,39 +603,48 @@
             color: #333;
             border: 1px solid #e0e0e0;
             border-bottom-left-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
-        .message.voice-message {
-            border-left: 4px solid #e74c3c;
-            background: #fff5f5;
-            position: relative;
+        .message.system {
+            background: rgba(52, 152, 219, 0.1);
+            color: #2980b9;
+            border: 1px solid rgba(52, 152, 219, 0.2);
+            text-align: center;
+            margin: 10px auto;
+            font-size: clamp(0.75rem, 2vw, 0.85rem);
+            font-style: italic;
         }
         .message.voice-message::before {
             content: "🎤";
             position: absolute;
-            top: 8px;
-            right: 8px;
-            font-size: 0.8rem;
+            top: -5px;
+            right: -5px;
+            background: #2ecc71;
+            color: white;
+            border-radius: 50%;
+            width: clamp(16px, 4vw, 20px);
+            height: clamp(16px, 4vw, 20px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(0.6rem, 1.5vw, 0.7rem);
         }
-        .message.voice-response {
-            border-left: 4px solid #2ecc71;
-            background: #f0fff4;
-            position: relative;
-        }
-        .message.voice-response::before {
+        .message.voice-response::after {
             content: "🔊";
             position: absolute;
-            top: 8px;
-            right: 8px;
-            font-size: 0.8rem;
+            top: -5px;
+            left: -5px;
+            background: #3498db;
+            color: white;
+            border-radius: 50%;
+            width: clamp(16px, 4vw, 20px);
+            height: clamp(16px, 4vw, 20px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(0.6rem, 1.5vw, 0.7rem);
         }
-        .message.system {
-            background: #e8f4fd;
-            color: #2c3e50;
-            border: 1px solid #3498db;
-            text-align: center;
-            font-style: italic;
-            border-radius: 20px;
-        }
+        /* Chat Input */
         .chat-input-container {
             padding: clamp(15px, 3vw, 20px);
             border-top: 1px solid #e9ecef;
@@ -389,7 +658,7 @@
         }
         .chat-input {
             flex: 1;
-            padding: clamp(10px, 2.5vw, 15px);
+            padding: clamp(10px, 2.5vw, 12px) clamp(12px, 3vw, 16px);
             border: 2px solid #e0e0e0;
             border-radius: clamp(20px, 5vw, 25px);
             font-size: clamp(0.85rem, 2.2vw, 0.9rem);
@@ -401,13 +670,13 @@
         }
         .chat-input:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: #1e40af;
         }
         .send-btn {
             width: clamp(40px, 8vw, 45px);
             height: clamp(40px, 8vw, 45px);
             border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1e40af 0%, #0d9488 100%);
             color: white;
             border: none;
             cursor: pointer;
@@ -424,143 +693,70 @@
         .send-btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
-            transform: none;
+            transform: none !important;
         }
-
-        /* Enhanced Voice Indicator */
-        .voice-indicator {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.9);
-            color: white;
-            padding: 40px;
-            border-radius: 25px;
-            text-align: center;
-            z-index: 10000;
-            display: none;
-            min-width: 350px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            border: 3px solid transparent;
-        }
-        .voice-indicator.show {
-            display: block;
-        }
-        .voice-indicator i {
-            font-size: 4rem;
-            margin-bottom: 20px;
-            display: block;
-        }
-        .voice-indicator h3 {
-            margin-bottom: 10px;
-            font-size: 1.3rem;
-        }
-        .voice-indicator p {
-            font-size: 1rem;
-            opacity: 0.8;
-        }
-        .voice-indicator.listening {
-            border-color: #2ecc71;
-        }
-        .voice-indicator.listening i {
-            color: #2ecc71;
-            animation: pulse 2s infinite;
-        }
-        .voice-indicator.processing {
-            border-color: #f39c12;
-        }
-        .voice-indicator.processing i {
-            color: #f39c12;
-            animation: spin 1s linear infinite;
-        }
-        .voice-indicator.speaking {
-            border-color: #e74c3c;
-        }
-        .voice-indicator.speaking i {
-            color: #e74c3c;
-            animation: speaking 1s infinite;
-        }
-        .voice-indicator.wake-detected {
-            border-color: #9b59b6;
-        }
-        .voice-indicator.wake-detected i {
-            color: #9b59b6;
-            animation: wake-pulse 0.8s infinite;
-        }
-
-        /* Buttons */
+        /* Button Styles */
         .btn {
-            padding: clamp(6px, 1.5vw, 10px) clamp(10px, 2.5vw, 15px);
+            padding: clamp(6px, 1.5vw, 8px) clamp(10px, 2.5vw, 16px);
             border: none;
             border-radius: clamp(15px, 4vw, 20px);
             cursor: pointer;
             font-size: clamp(0.75rem, 2vw, 0.85rem);
             font-weight: 500;
             transition: all 0.3s ease;
-            display: flex;
+            display: inline-flex;
             align-items: center;
             gap: clamp(4px, 1vw, 6px);
             text-decoration: none;
             white-space: nowrap;
         }
+        .btn i {
+            font-size: clamp(0.8rem, 1.8vw, 0.9rem);
+        }
         .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1e40af 0%, #0d9488 100%);
             color: white;
         }
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 5px 15px rgba(30, 64, 175, 0.3);
         }
         .btn-success {
-            background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+            background: linear-gradient(135deg, #059669 0%, #0891b2 100%);
             color: white;
         }
         .btn-success:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(86, 171, 47, 0.3);
+            box-shadow: 0 5px 15px rgba(5, 150, 105, 0.3);
         }
         .btn-warning {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            background: linear-gradient(135deg, #dc2626 0%, #ea580c 100%);
             color: white;
         }
         .btn-warning:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(240, 147, 251, 0.3);
+            box-shadow: 0 5px 15px rgba(220, 38, 38, 0.3);
         }
         .btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
-            transform: none;
+            transform: none !important;
         }
-        .select {
-            padding: clamp(6px, 1.5vw, 8px);
-            border: 2px solid #e0e0e0;
-            border-radius: clamp(10px, 2vw, 15px);
-            font-size: clamp(0.75rem, 2vw, 0.85rem);
-            background: white;
-            cursor: pointer;
-            transition: border-color 0.3s ease;
-        }
-        .select:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
         /* Audio Player */
         .audio-player {
-            position: fixed;
+            position: absolute;
             bottom: clamp(15px, 3vw, 20px);
             right: clamp(15px, 3vw, 20px);
-            background: rgba(255,255,255,0.95);
+            background: rgba(255, 255, 255, 0.95);
             border-radius: clamp(10px, 3vw, 15px);
             padding: clamp(10px, 3vw, 15px);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
             display: none;
             min-width: clamp(250px, 60vw, 300px);
             max-width: 90vw;
             z-index: 100;
-            border: 2px solid #667eea;
+            border: 2px solid #1e40af;
+            backdrop-filter: blur(10px);
         }
         .audio-player.show {
             display: block;
@@ -581,7 +777,7 @@
         }
         .progress-fill {
             height: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1e40af 0%, #0d9488 100%);
             width: 0%;
             transition: width 0.1s ease;
         }
@@ -589,19 +785,80 @@
             font-size: clamp(0.7rem, 1.8vw, 0.8rem);
             color: #666;
             min-width: clamp(60px, 15vw, 80px);
+            text-align: center;
         }
-
-        /* Loading Animation */
-        .loading {
-            display: inline-block;
-            width: clamp(16px, 4vw, 20px);
-            height: clamp(16px, 4vw, 20px);
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #667eea;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
+        /* Bottom Controls */
+        .bottom-controls {
+            position: absolute;
+            bottom: clamp(10px, 3vw, 20px);
+            left: clamp(10px, 3vw, 20px);
+            display: flex;
+            gap: clamp(8px, 2vw, 15px);
+            z-index: 100;
+            flex-wrap: wrap;
         }
-
+        /* Permission Request Modal */
+        .permission-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+        }
+        .permission-modal.show {
+            display: flex;
+        }
+        .permission-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            max-width: 400px;
+            margin: 20px;
+        }
+        .permission-content i {
+            font-size: 3rem;
+            color: #1e40af;
+            margin-bottom: 20px;
+        }
+        .permission-content h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+        .permission-content p {
+            margin-bottom: 20px;
+            color: #666;
+            line-height: 1.5;
+        }
+        /* Resize Handle - Hide on Mobile */
+        .resize-handle {
+            width: 5px;
+            background: #e0e0e0;
+            cursor: col-resize;
+            position: relative;
+            transition: background-color 0.3s ease;
+            display: block;
+        }
+        .resize-handle:hover {
+            background: #1e40af;
+        }
+        .resize-handle::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 3px;
+            height: 30px;
+            background: #ccc;
+            border-radius: 2px;
+        }
+        /* Animations */
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
@@ -610,7 +867,19 @@
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        @keyframes flash {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
         /* Scrollbar Styling */
         ::-webkit-scrollbar {
             width: clamp(6px, 1vw, 8px);
@@ -626,64 +895,351 @@
         ::-webkit-scrollbar-thumb:hover {
             background: #a8a8a8;
         }
-
-        /* Responsive Design */
+        /* COMPREHENSIVE RESPONSIVE BREAKPOINTS */
+        /* Large Desktop (1440px+) */
         @media (min-width: 1440px) {
-            .content-panel { width: 65%; }
-            .chat-panel { width: 35%; }
-            .main-container { max-width: 1800px; margin: 0 auto; }
+            .content-panel {
+                width: 65%;
+            }
+            .chat-panel {
+                width: 35%;
+            }
+            .main-container {
+                max-width: 1800px;
+                margin: 0 auto;
+            }
         }
+        /* Standard Desktop (1024px - 1439px) */
         @media (min-width: 1024px) and (max-width: 1439px) {
-            .content-panel { width: 60%; }
-            .chat-panel { width: 40%; }
+            .content-panel {
+                width: 60%;
+            }
+            .chat-panel {
+                width: 40%;
+            }
         }
+        /* Tablet Landscape (768px - 1023px) */
         @media (min-width: 768px) and (max-width: 1023px) {
-            .main-container { flex-direction: row; }
-            .content-panel { width: 55%; }
-            .chat-panel { width: 45%; }
-            .audio-player { min-width: 280px; right: 15px; bottom: 15px; }
+            .main-container {
+                flex-direction: row;
+            }
+            .content-panel {
+                width: 55%;
+            }
+            .chat-panel {
+                width: 45%;
+            }
+            .resize-handle {
+                display: block;
+            }
+            .bottom-controls {
+                bottom: 15px;
+                left: 15px;
+            }
+            .page-navigation {
+                bottom: 15px;
+            }
+            .audio-player {
+                min-width: 280px;
+                right: 15px;
+                bottom: 15px;
+            }
         }
+        /* Tablet Portrait & Large Mobile (480px - 767px) */
         @media (min-width: 480px) and (max-width: 767px) {
-            .main-container { flex-direction: column; }
-            .content-panel { width: 100%; height: 65%; border-right: none; border-bottom: 1px solid #e0e0e0; }
-            .chat-panel { width: 100%; height: 35%; border-left: none; border-top: 1px solid #e0e0e0; }
-            .audio-player { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); right: auto; min-width: 280px; max-width: calc(100vw - 40px); }
-            .header h1 { font-size: 1.2rem; }
-            .content-controls { justify-content: center; }
+            .main-container {
+                flex-direction: column;
+            }
+            .content-panel {
+                width: 100%;
+                height: 65%;
+                border-right: none;
+                border-bottom: 1px solid #e0e0e0;
+            }
+            .chat-panel {
+                width: 100%;
+                height: 35%;
+                border-left: none;
+                border-top: 1px solid #e0e0e0;
+            }
+            .resize-handle {
+                display: none;
+            }
+            .header {
+                padding: 10px 15px;
+                min-height: 50px;
+            }
+            .header h1 {
+                font-size: 1.2rem;
+            }
+            .content-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            .content-controls {
+                width: 100%;
+                justify-content: space-between;
+            }
+            .bottom-controls {
+                position: relative;
+                bottom: auto;
+                left: auto;
+                padding: 15px;
+                background: rgba(255,255,255,0.9);
+                border-top: 1px solid #e9ecef;
+                justify-content: center;
+                backdrop-filter: blur(10px);
+            }
+            .page-navigation {
+                position: relative;
+                bottom: auto;
+                left: auto;
+                transform: none;
+                margin: 10px auto;
+            }
+            .audio-player {
+                position: fixed;
+                bottom: 80px;
+                left: 50%;
+                transform: translateX(-50%);
+                right: auto;
+                min-width: 280px;
+                max-width: calc(100vw - 40px);
+            }
+            .header h1 {
+                font-size: 1.2rem;
+            }
+            .document-controls { /* This class is from old code, ensure it's not used or updated */
+                justify-content: center;
+            }
         }
+        /* Small Mobile (320px - 479px) */
         @media (max-width: 479px) {
-            .main-container { flex-direction: column; }
-            .content-panel { width: 100%; height: 60%; border-right: none; border-bottom: 1px solid #e0e0e0; }
-            .chat-panel { width: 100%; height: 40%; border-left: none; border-top: 1px solid #e0e0e0; }
-            .header { padding: 8px 15px; }
-            .header h1 { font-size: 1rem; }
-            .header h1 i { margin-right: 5px; }
-            .content-header { flex-direction: column; align-items: flex-start; gap: 10px; }
-            .content-controls { width: 100%; justify-content: space-between; }
-            .btn { padding: 6px 10px; font-size: 0.7rem; }
-            .btn i { margin-right: 3px; }
-            .audio-player { position: fixed; bottom: 70px; left: 10px; right: 10px; transform: none; min-width: auto; max-width: none; width: calc(100vw - 20px); }
-            .audio-controls { gap: 8px; }
-            .time-display { font-size: 0.65rem; min-width: 50px; }
-            .message { max-width: 95%; font-size: 0.85rem; }
-            .chat-input { font-size: 0.85rem; padding: 10px 12px; }
-            .send-btn { width: 38px; height: 38px; }
+            .main-container {
+                flex-direction: column;
+            }
+            .content-panel {
+                width: 100%;
+                height: 60%;
+                border-right: none;
+                border-bottom: 1px solid #e0e0e0;
+            }
+            .chat-panel {
+                width: 100%;
+                height: 40%;
+                border-left: none;
+                border-top: 1px solid #e0e0e0;
+            }
+            .resize-handle {
+                display: none;
+            }
+            .header {
+                padding: 8px 15px;
+            }
+            .header h1 {
+                font-size: 1rem;
+            }
+            .header h1 i {
+                margin-right: 5px;
+            }
+            .content-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            .content-controls {
+                width: 100%;
+                justify-content: space-between;
+            }
+            .btn {
+                padding: 6px 10px;
+                font-size: 0.7rem;
+            }
+            .btn i {
+                margin-right: 3px;
+            }
+            .bottom-controls {
+                position: relative;
+                bottom: auto;
+                left: auto;
+                padding: 10px;
+                background: rgba(255,255,255,0.95);
+                border-top: 1px solid #e9ecef;
+                justify-content: space-around;
+                backdrop-filter: blur(10px);
+                flex-wrap: nowrap;
+                overflow-x: auto;
+            }
+            .page-navigation {
+                position: relative;
+                bottom: auto;
+                left: auto;
+                transform: none;
+                margin: 8px auto;
+                padding: 6px 12px;
+            }
+            .audio-player {
+                position: fixed;
+                bottom: 70px;
+                left: 10px;
+                right: 10px;
+                transform: none;
+                min-width: auto;
+                max-width: none;
+                width: calc(100vw - 20px);
+            }
+            .audio-controls {
+                gap: 8px;
+            }
+            .time-display {
+                font-size: 0.65rem;
+                min-width: 50px;
+            }
+            .message {
+                padding: 8px 10px;
+                font-size: 0.8rem;
+            }
+            .upload-area {
+                padding: 25px 20px;
+            }
+            .upload-icon {
+                font-size: 2.5rem;
+            }
+            .upload-area h2 {
+                font-size: 1.1rem;
+            }
+            .upload-area p {
+                font-size: 0.9rem;
+            }
         }
+        /* Ultra Small Mobile (below 319px) */
         @media (max-width: 319px) {
-            .header h1 { font-size: 0.9rem; }
-            .btn { padding: 5px 8px; font-size: 0.65rem; gap: 2px; }
-            .chat-input { padding: 8px 10px; font-size: 0.8rem; }
-            .send-btn { width: 35px; height: 35px; font-size: 0.85rem; }
-            .message { padding: 8px 10px; font-size: 0.8rem; }
+            .header h1 {
+                font-size: 0.9rem;
+            }
+            .btn {
+                padding: 5px 8px;
+                font-size: 0.65rem;
+                gap: 2px;
+            }
+            .bottom-controls {
+                padding: 8px;
+                gap: 5px;
+            }
+            .chat-input {
+                padding: 8px 10px;
+                font-size: 0.8rem;
+            }
+            .send-btn {
+                width: 35px;
+                height: 35px;
+                font-size: 0.85rem;
+            }
+            .message {
+                padding: 8px 10px;
+                font-size: 0.8rem;
+            }
+            .upload-area {
+                padding: 20px 15px;
+            }
         }
+        /* Landscape Mode Adjustments */
         @media (max-height: 500px) and (orientation: landscape) {
-            .main-container { flex-direction: row; }
-            .content-panel { width: 70%; height: 100%; }
-            .chat-panel { width: 30%; height: 100%; }
-            .header { padding: 5px 15px; min-height: 40px; }
-            .main-container { height: calc(100vh - 45px); }
-            .audio-player { bottom: 10px; right: 10px; min-width: 200px; }
+            .main-container {
+                flex-direction: row;
+            }
+            .content-panel {
+                width: 70%;
+                height: 100%;
+            }
+            .chat-panel {
+                width: 30%;
+                height: 100%;
+            }
+            .header {
+                padding: 5px 15px;
+                min-height: 40px;
+            }
+            .main-container {
+                height: calc(100vh - 45px);
+            }
+            .bottom-controls {
+                bottom: 10px;
+                left: 10px;
+            }
+            .page-navigation {
+                bottom: 10px;
+            }
+            .audio-player {
+                bottom: 10px;
+                right: 10px;
+                min-width: 200px;
+            }
         }
+        /* High DPI / Retina Display Adjustments */
+        @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+            .pdf-canvas {
+                image-rendering: -webkit-optimize-contrast;
+                image-rendering: crisp-edges;
+            }
+        }
+        /* Touch Device Optimizations */
+        @media (hover: none) and (pointer: coarse) {
+            .btn:hover {
+                transform: none;
+                box-shadow: none;
+            }
+            .send-btn:hover {
+                transform: none;
+            }
+            .page-btn:hover {
+                background: none;
+            }
+            .resize-handle:hover {
+                background: #e0e0e0;
+            }
+            /* Increase touch targets */
+            .btn {
+                min-height: 44px;
+                min-width: 44px;
+            }
+            .page-btn {
+                min-width: 44px;
+                min-height: 44px;
+            }
+            .send-btn {
+                min-width: 44px;
+                min-height: 44px;
+            }
+        }
+        /* Print Styles */
+        @media print {
+            .header,
+            .chat-panel,
+            .bottom-controls,
+            .page-navigation,
+            .audio-player,
+            .resize-handle,
+            .upload-screen {
+                display: none !important;
+            }
+            .main-container {
+                flex-direction: column;
+            }
+            .content-panel {
+                width: 100% !important;
+                height: auto !important;
+            }
+            .pdf-container {
+                overflow: visible !important;
+            }
+            .pdf-page {
+                break-inside: avoid;
+                margin: 10px 0;
+            }
+        }
+        /* Accessibility Improvements */
         @media (prefers-reduced-motion: reduce) {
             * {
                 animation-duration: 0.01ms !important;
@@ -692,35 +1248,71 @@
             }
         }
         @media (prefers-contrast: high) {
-            .header { background: #000; color: #fff; }
-            .btn-primary { background: #000; color: #fff; }
-            .message.user { background: #000; color: #fff; }
-            .send-btn { background: #000; }
+            .header {
+                background: #000;
+                color: #fff;
+            }
+            .btn-primary {
+                background: #000;
+                color: #fff;
+            }
+            .message.user {
+                background: #000;
+                color: #fff;
+            }
+            .send-btn {
+                background: #000;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- Permission Request Modal -->
+    <div class="permission-modal" id="permission-modal">
+        <div class="permission-content">
+            <i class="fas fa-microphone"></i>
+            <h3>Microphone Permission Required</h3>
+            <p>To use voice features like "Hey Teacher", please allow microphone access when prompted by your browser.</p>
+            <div style="display: flex; gap: 10px; justify-content: center;">
+                <button class="btn btn-primary" onclick="requestMicrophonePermission()">
+                    <i class="fas fa-microphone"></i> Enable Voice
+                </button>
+                <button class="btn btn-warning" onclick="closePermissionModal()">
+                    <i class="fas fa-times"></i> Skip
+                </button>
+            </div>
+        </div>
+    </div>
     <!-- Header -->
     <div class="header">
         <h1><i class="fas fa-graduation-cap"></i> Smart Gurukul</h1>
         <div class="header-controls">
             <div class="voice-status" id="voice-status">
-                <i class="fas fa-microphone"></i>
-                <span>Listening for "Hey Teacher"</span>
+                <i class="fas fa-microphone-slash"></i>
+                <span>Voice Ready</span>
             </div>
-            <button class="btn btn-primary" id="new-selection-btn" onclick="showSelectionScreen()" style="display: none;">
+            <button class="btn btn-primary" id="new-selection-btn" onclick="showSelectionScreen()">
                 <i class="fas fa-plus"></i> New Chapter
             </button>
         </div>
     </div>
-
     <!-- Enhanced Voice Indicator -->
     <div class="voice-indicator" id="voice-indicator">
         <i class="fas fa-microphone"></i>
         <h3 id="voice-indicator-text">Listening...</h3>
         <p id="voice-indicator-subtitle">Say "Hey Teacher" to interrupt and ask questions</p>
     </div>
-
+    <!-- Upload Screen -->
+    <div class="upload-screen" id="upload-screen" style="display: none;">
+        <div class="upload-area" onclick="document.getElementById('file-input').click()">
+            <div class="upload-icon">
+                <i class="fas fa-cloud-upload-alt"></i>
+            </div>
+            <h2>Upload Your Document</h2>
+            <p>Click here or drag and drop your PDF file to get started</p>
+            <input type="file" id="file-input" accept=".pdf" />
+        </div>
+    </div>
     <!-- Main Container -->
     <div class="main-container">
         <!-- Content Panel -->
@@ -732,7 +1324,11 @@
                     <p id="content-info">Select a chapter to begin</p>
                 </div>
                 <div class="content-controls">
-                    <select id="content-language-select" class="select" onchange="reteachChapter()">
+                    <div class="page-progress" id="page-progress">
+                        <i class="fas fa-book-open"></i>
+                        <span id="page-progress-text">Ready to start</span>
+                    </div>
+                    <select id="content-language-select" class="select" onchange="changeTeachingLanguage()">
                         <option value="en">English</option>
                     </select>
                     <div class="voice-controls">
@@ -748,19 +1344,18 @@
                     </button>
                 </div>
             </div>
-
             <!-- PDF Container -->
             <div class="pdf-container" id="pdf-container">
                 <!-- PDF Toolbar -->
                 <div class="pdf-toolbar">
                     <div class="pdf-controls">
-                        <button class="btn btn-primary" onclick="zoomIn()" style="padding: 5px 10px;">
+                        <button class="btn btn-primary" onclick="zoomIn()">
                             <i class="fas fa-search-plus"></i>
                         </button>
-                        <button class="btn btn-primary" onclick="zoomOut()" style="padding: 5px 10px;">
+                        <button class="btn btn-primary" onclick="zoomOut()">
                             <i class="fas fa-search-minus"></i>
                         </button>
-                        <button class="btn btn-primary" onclick="resetZoom()" style="padding: 5px 10px;">
+                        <button class="btn btn-primary" onclick="resetZoom()">
                             <i class="fas fa-expand-arrows-alt"></i>
                         </button>
                     </div>
@@ -768,20 +1363,31 @@
                         PDF Document
                     </div>
                 </div>
-
-                <!-- PDF Viewer -->
+                <!-- PDF Viewer (for canvas rendering) -->
                 <div class="pdf-viewer" id="pdf-viewer">
                     <div class="content-loading">
                         <div class="spinner"></div>
-                        <p>Please select a subject and chapter to start learning.</p>
+                        <p>Please select a subject and chapter to start learning, or upload a new document.</p>
                     </div>
                 </div>
+                <!-- Page Navigation -->
+                <div class="page-navigation" id="page-navigation" style="display: none;">
+                    <button class="page-btn" id="prev-btn" onclick="goToPreviousPage()" disabled>
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <div class="page-info" id="page-info">Page 1 of 1</div>
+                    <button class="page-btn" id="next-btn" onclick="goToNextPage()" disabled>
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                    <button class="auto-advance-toggle" id="auto-advance-toggle" onclick="toggleAutoAdvance()">
+                        <i class="fas fa-magic"></i> Auto
+                    </button>
+                </div>
             </div>
-
             <!-- Audio Player -->
             <div class="audio-player" id="audio-player">
                 <div class="audio-controls">
-                    <button class="btn btn-primary" id="play-pause-btn" onclick="togglePlayPause()" style="padding: 5px 10px;">
+                    <button class="btn btn-primary" id="play-pause-btn" onclick="togglePlayPause()">
                         <i class="fas fa-play"></i>
                     </button>
                     <div class="progress-bar" onclick="seekAudio(event)">
@@ -793,8 +1399,18 @@
                     Playing: <span id="current-playing">Chapter Content</span>
                 </div>
             </div>
+            <!-- Bottom Controls (for download/summary of uploaded docs) -->
+            <div class="bottom-controls" id="bottom-controls" style="display: none;">
+                <button class="btn btn-success" id="download-btn" onclick="downloadDocument()" disabled>
+                    <i class="fas fa-download"></i> Download
+                </button>
+                <button class="btn btn-warning" id="summary-btn" onclick="generateSummary()" disabled>
+                    <i class="fas fa-file-alt"></i> Summary
+                </button>
+            </div>
         </div>
-
+        <!-- Resize Handle -->
+        <div class="resize-handle" id="resize-handle"></div>
         <!-- Chat Panel -->
         <div class="chat-panel">
             <div class="chat-header">
@@ -812,30 +1428,41 @@
             </div>
         </div>
     </div>
-
     <script>
         // Global variables
         let currentSubject = '';
         let currentChapter = '';
         let currentLanguage = 'en';
         let currentAudio = null;
-        let chapterContent = '';
+        let chapterContent = ''; // Full text of the current chapter/document
         let currentPdfUrl = '';
-        
+        let originalFile = null; // Stores the File object for uploaded PDFs
+        // PDF.js rendering variables
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.worker.min.js';
+        let currentPDFDoc = null; // PDFDocumentProxy object from pdf.js
+        let currentScale = 1.0; // Initial zoom scale for PDF.js rendering, adjusted for better fit
+        // Page progression variables
+        let currentPage = 1;
+        let totalPages = 1;
+        let chapterPages = []; // Array of {pageNumber, content} for PDF.js extracted text
+        let autoAdvanceEnabled = true;
+        let isTeachingInProgress = false;
         // Enhanced voice recognition variables
         let recognition = null;
         let isVoiceListening = false;
         let isWakeWordMode = true;
-        let voiceTimeout = null;
-        let silenceTimeout = null;
         let isProcessingVoice = false;
         let isSpeaking = false;
         let wakeWordDetected = false;
         let questionListeningTimeout = null;
-
+        let shouldKeepListening = false;
+        let voicePermissionGranted = false;
+        let recognitionRestartAttempts = 0;
+        const MAX_RESTART_ATTEMPTS = 3;
+        // Flag to prevent overlapping audio playback
+        let isAudioPlaying = false;
         // API Base URL
-        const API_BASE_URL = 'http://localhost:5000';
-
+        const API_BASE_URL = 'http://localhost:5000'; // Ensure this matches your Flask app port
         // DOM elements
         const contentTitle = document.getElementById('content-title');
         const contentInfo = document.getElementById('content-info');
@@ -854,133 +1481,327 @@
         const sendBtn = document.getElementById('send-btn');
         const chatMessages = document.getElementById('chat-messages');
         const newSelectionBtn = document.getElementById('new-selection-btn');
+        const uploadDocBtn = document.getElementById('upload-doc-btn'); // New button
         const voiceStatus = document.getElementById('voice-status');
         const voiceToggleBtn = document.getElementById('voice-toggle-btn');
         const voiceIndicator = document.getElementById('voice-indicator');
         const voiceIndicatorText = document.getElementById('voice-indicator-text');
         const voiceIndicatorSubtitle = document.getElementById('voice-indicator-subtitle');
+        const permissionModal = document.getElementById('permission-modal');
+        const uploadScreen = document.getElementById('upload-screen');
+        const fileInput = document.getElementById('file-input');
+        const uploadArea = document.querySelector('.upload-area');
+        // Page navigation elements
+        const pageNavigation = document.getElementById('page-navigation');
+        const pageInfo = document.getElementById('page-info');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const autoAdvanceToggle = document.getElementById('auto-advance-toggle');
+        const pageProgress = document.getElementById('page-progress');
+        const pageProgressText = document.getElementById('page-progress-text');
+        // Download and Summary buttons
+        const bottomControls = document.getElementById('bottom-controls');
+        const downloadBtn = document.getElementById('download-btn');
+        const summaryBtn = document.getElementById('summary-btn');
+        // Resize functionality
+        const documentPanel = document.querySelector('.content-panel');
+        const chatPanel = document.querySelector('.chat-panel');
+        const resizeHandle = document.getElementById('resize-handle');
+        let isResizing = false;
+        // Utility function for debouncing
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+        // Responsive layout detection
+        function isMobile() {
+            return window.innerWidth <= 767;
+        }
+        function isTablet() {
+            return window.innerWidth > 767 && window.innerWidth <= 1023;
+        }
+        // Initialize resize functionality (desktop only)
+        function initializeResize() {
+            if (isMobile()) return;
+            let startX, startDocumentWidth, startChatWidth;
+            resizeHandle.addEventListener('mousedown', (e) => {
+                if (isMobile()) return;
+                isResizing = true;
+                startX = e.clientX;
+                startDocumentWidth = documentPanel.offsetWidth;
+                startChatWidth = chatPanel.offsetWidth;
+                document.addEventListener('mousemove', handleResize);
+                document.addEventListener('mouseup', stopResize);
+                document.body.style.cursor = 'col-resize';
+                e.preventDefault();
+            });
+            function handleResize(e) {
+                if (!isResizing || isMobile()) return;
+                const deltaX = e.clientX - startX;
+                const containerWidth = document.querySelector('.main-container').offsetWidth;
+                const newDocumentWidth = startDocumentWidth + deltaX;
+                const newChatWidth = startChatWidth - deltaX;
+                const minDocumentWidth = 400;
+                const minChatWidth = 300;
+                const maxDocumentWidth = containerWidth - minChatWidth - 5;
+                const maxChatWidth = containerWidth - minDocumentWidth - 5;
+                if (newDocumentWidth >= minDocumentWidth &&
+                    newDocumentWidth <= maxDocumentWidth &&
+                    newChatWidth >= minChatWidth &&
+                    newChatWidth <= maxChatWidth) {
+                    const documentPercentage = (newDocumentWidth / containerWidth) * 100;
+                    const chatPercentage = (newChatWidth / containerWidth) * 100;
+                    documentPanel.style.width = `${documentPercentage}%`;
+                    chatPanel.style.width = `${chatPercentage}%`;
+                }
+            }
+            function stopResize() {
+                isResizing = false;
+                document.removeEventListener('mousemove', handleResize);
+                document.removeEventListener('mouseup', stopResize);
+                document.body.style.cursor = '';
+            }
+        }
+        // Handle window resize for PDF rendering
+        function handleWindowResize() {
+            if (isMobile()) {
+                documentPanel.style.width = '';
+                chatPanel.style.width = '';
+            }
+            if (currentPDFDoc) {
+                // Re-render the current page on resize to adjust scale
+                renderCurrentPage();
+            }
+        }
+        // Get optimal scale based on container width
+        function getOptimalScale() {
+            const containerWidth = pdfViewer.offsetWidth - 40; // Account for padding
+            const baseWidth = 600; // A reference width for PDF pages
+            let scale = containerWidth / baseWidth;
+            return scale * currentScale; // Apply user zoom
+        }
+
+        // Add this before the existing PDF.js configuration
+        window.addEventListener('error', function(e) {
+            if (e.filename && e.filename.includes('pdf.worker')) {
+                console.warn('PDF.js worker failed to load, using fallback');
+                // Try alternative CDN
+                pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://unpkg.com/pdfjs-dist@2.9.359/build/pdf.worker.min.js';
+            }
+        });
+
+        // PDF.js rendering variables - Fix worker configuration
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.worker.min.js';
+
+        // Add error handling for PDF.js worker
+        if (typeof pdfjsLib !== 'undefined') {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.worker.min.js';
+        } else {
+            console.warn('PDF.js library not loaded properly');
+        }
 
         // Initialize on load
         document.addEventListener('DOMContentLoaded', () => {
-            loadSupportedLanguages();
-            initializeVoiceRecognition();
-            
-            // Check for URL parameters and auto-load chapter
-            checkUrlParameters();
-            
-            chatInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    sendMessage();
+            // Wait a bit for all elements to be rendered
+            setTimeout(() => {
+                initializeResize();
+                loadSupportedLanguages();
+                
+                // Ensure all DOM elements exist before checking URL parameters
+                if (document.readyState === 'complete') {
+                    checkUrlParameters();
+                } else {
+                    window.addEventListener('load', checkUrlParameters);
                 }
-            });
-            chatInput.addEventListener('input', () => {
-                chatInput.style.height = 'auto';
-                chatInput.style.height = Math.min(chatInput.scrollHeight, 120) + 'px';
-            });
-        });
-
-        // Enhanced Voice Recognition Initialization
-        function initializeVoiceRecognition() {
-            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-                recognition = new SpeechRecognition();
                 
-                recognition.continuous = true;
-                recognition.interimResults = true;
-                recognition.lang = 'en-US';
-                
-                recognition.onstart = () => {
-                    console.log('Voice recognition started');
-                    isVoiceListening = true;
-                    if (isWakeWordMode) {
-                        updateVoiceStatus('listening');
-                    }
-                };
-                
-                recognition.onresult = (event) => {
-                    let finalTranscript = '';
-                    let interimTranscript = '';
+                // Event listeners for file upload - add null checks
+                if (uploadArea) {
+                    uploadArea.addEventListener('dragover', (e) => {
+                        e.preventDefault();
+                        uploadArea.style.borderColor = '#1e40af';
+                        uploadArea.style.transform = 'translateY(-5px)';
+                    });
                     
-                    for (let i = event.resultIndex; i < event.results.length; i++) {
-                        const transcript = event.results[i][0].transcript;
-                        if (event.results[i].isFinal) {
-                            finalTranscript += transcript;
-                        } else {
-                            interimTranscript += transcript;
+                    uploadArea.addEventListener('dragleave', () => {
+                        uploadArea.style.borderColor = '#ddd';
+                        uploadArea.style.transform = 'translateY(0)';
+                    });
+                    
+                    uploadArea.addEventListener('drop', (e) => {
+                        e.preventDefault();
+                        uploadArea.style.borderColor = '#ddd';
+                        uploadArea.style.transform = 'translateY(0)';
+                        const files = e.dataTransfer.files;
+                        if (files.length > 0) {
+                            handleFileUpload(files[0]);
                         }
-                    }
+                    });
+                }
+                
+                if (fileInput) {
+                    fileInput.addEventListener('change', (e) => {
+                        if (e.target.files.length > 0) {
+                            handleFileUpload(e.target.files[0]);
+                        }
+                    });
+                }
+                
+                if (chatInput) {
+                    chatInput.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            sendMessage();
+                        }
+                    });
                     
-                    // Check for wake word in both final and interim results
-                    const fullTranscript = (finalTranscript + ' ' + interimTranscript).toLowerCase();
-                    
-                    if (isWakeWordMode && (fullTranscript.includes('hey teacher') || fullTranscript.includes('hey teacher'))) {
-                        console.log('Wake word detected in transcript:', fullTranscript);
-                        handleWakeWordDetected();
-                    } else if (!isWakeWordMode && finalTranscript.trim()) {
-                        handleVoiceQuestion(finalTranscript.trim());
-                    }
-                };
+                    chatInput.addEventListener('input', () => {
+                        chatInput.style.height = 'auto';
+                        chatInput.style.height = Math.min(chatInput.scrollHeight, 120) + 'px';
+                    });
+                }
                 
-                recognition.onerror = (event) => {
-                    console.error('Voice recognition error:', event.error);
-                    if (event.error === 'not-allowed') {
-                        alert('Microphone access denied. Please allow microphone access to use voice features.');
-                        updateVoiceStatus('error');
-                    } else if (event.error === 'no-speech') {
-                        // Ignore no-speech errors, just restart
-                        console.log('No speech detected, continuing...');
-                    } else {
-                        console.error('Recognition error:', event.error);
-                    }
-                };
+                window.addEventListener('resize', debounce(handleWindowResize, 250));
+                window.addEventListener('orientationchange', () => {
+                    setTimeout(handleWindowResize, 100);
+                });
                 
-                recognition.onend = () => {
-                    console.log('Voice recognition ended');
-                    if (isVoiceListening && !isProcessingVoice) {
-                        // Restart recognition if it was supposed to be listening
-                        setTimeout(() => {
-                            if (isVoiceListening) {
-                                try {
-                                    recognition.start();
-                                } catch (error) {
-                                    console.error('Error restarting recognition:', error);
-                                }
-                            }
-                        }, 100);
-                    }
-                };
-                
-                // Start listening for wake word by default
-                startVoiceListening();
-                
-            } else {
-                console.warn('Speech recognition not supported');
-                voiceToggleBtn.style.display = 'none';
-                voiceStatus.innerHTML = '<i class="fas fa-microphone-slash"></i><span>Not Supported</span>';
+                // Initialize voice recognition after a longer delay to ensure everything is loaded
+                setTimeout(() => {
+                    initializeVoiceRecognition();
+                }, 2000);
+            }, 100);
+        });
+        // Request microphone permission
+        async function requestMicrophonePermission() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                stream.getTracks().forEach(track => track.stop()); // Stop the stream immediately
+                voicePermissionGranted = true;
+                closePermissionModal();
+                initializeVoiceRecognition();
+                addMessage('system', '🎤 Microphone permission granted! Voice features are now available.');
+            } catch (error) {
+                console.error('Microphone permission denied:', error);
+                updateVoiceStatus('error');
+                addMessage('system', '❌ Microphone permission denied. Voice features will not be available.');
+                closePermissionModal();
             }
         }
-
+        // Close permission modal
+        function closePermissionModal() {
+            permissionModal.classList.remove('show');
+        }
+        // Enhanced Voice Recognition Initialization
+        function initializeVoiceRecognition() {
+            if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+                console.warn('Speech recognition not supported');
+                voiceToggleBtn.classList.add('disabled');
+                voiceToggleBtn.style.cursor = 'not-allowed';
+                updateVoiceStatus('disabled');
+                return;
+            }
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            // Improved recognition settings
+            recognition.continuous = false; // Changed to false for better stability
+            recognition.interimResults = false; // Changed to false to avoid conflicts
+            recognition.lang = 'en-US';
+            recognition.maxAlternatives = 1;
+            recognition.onstart = () => {
+                console.log('Voice recognition started');
+                isVoiceListening = true;
+                recognitionRestartAttempts = 0;
+                if (isWakeWordMode) {
+                    updateVoiceStatus('listening');
+                }
+            };
+            recognition.onresult = (event) => {
+                if (event.results.length > 0) {
+                    const transcript = event.results[0][0].transcript.toLowerCase().trim();
+                    console.log('Voice transcript:', transcript);
+                    if (isWakeWordMode && (transcript.includes('hey teacher') || transcript.includes('teacher'))) {
+                        console.log('Wake word detected in transcript:', transcript);
+                        handleWakeWordDetected();
+                    } else if (!isWakeWordMode && transcript) {
+                        handleVoiceQuestion(transcript);
+                    }
+                }
+            };
+            recognition.onerror = (event) => {
+                console.error('Voice recognition error:', event.error);
+                switch (event.error) {
+                    case 'not-allowed':
+                        voicePermissionGranted = false;
+                        updateVoiceStatus('error');
+                        addMessage('system', '❌ Microphone access denied. Please allow microphone access to use voice features.');
+                        shouldKeepListening = false;
+                        break;
+                    case 'no-speech':
+                        console.log('No speech detected, will retry...');
+                        break;
+                    case 'audio-capture':
+                        console.log('Audio capture error, will retry...');
+                        break;
+                    case 'network':
+                        console.log('Network error in voice recognition');
+                        updateVoiceStatus('error');
+                        break;
+                    default:
+                        console.error('Unhandled recognition error:', event.error);
+                }
+                recognitionRestartAttempts++;
+                if (recognitionRestartAttempts >= MAX_RESTART_ATTEMPTS) {
+                    console.log('Max restart attempts reached, stopping voice recognition');
+                    shouldKeepListening = false;
+                    updateVoiceStatus('error');
+                    addMessage('system', '⚠️ Voice recognition encountered repeated errors. Please refresh the page to try again.');
+                }
+            };
+            recognition.onend = () => {
+                console.log('Voice recognition ended');
+                isVoiceListening = false;
+                if (shouldKeepListening && !isProcessingVoice && recognitionRestartAttempts < MAX_RESTART_ATTEMPTS) {
+                    setTimeout(() => {
+                        if (shouldKeepListening) {
+                            try {
+                                recognition.start();
+                            } catch (error) {
+                                console.error('Error restarting recognition:', error);
+                                recognitionRestartAttempts++;
+                                if (recognitionRestartAttempts >= MAX_RESTART_ATTEMPTS) {
+                                    shouldKeepListening = false;
+                                    updateVoiceStatus('error');
+                                }
+                            }
+                        }
+                    }, 500); // Increased delay for stability
+                }
+            };
+            // Check if we need to request permission
+            if (!voicePermissionGranted) {
+                permissionModal.classList.add('show');
+            } else {
+                startVoiceListening();
+            }
+        }
         // Enhanced Wake Word Detection Handler
         function handleWakeWordDetected() {
             console.log('🎤 Wake word "Hey Teacher" detected!');
-            
-            // Immediately stop any current audio/explanation
             stopAudio();
-            
-            // Show wake word detection feedback
             wakeWordDetected = true;
             updateVoiceStatus('wake-detected');
             showVoiceIndicator('wake-detected', 'Hey Teacher detected!', 'I\'m listening for your question...');
-            
-            // Switch to question listening mode
             isWakeWordMode = false;
             isProcessingVoice = true;
-            
-            // Add system message
+            shouldKeepListening = false; // Stop continuous listening temporarily
             addMessage('system', '🎤 "Hey Teacher" detected! I stopped the explanation and I\'m now listening for your question...');
-            
-            // Set timeout for question listening (15 seconds)
             clearTimeout(questionListeningTimeout);
             questionListeningTimeout = setTimeout(() => {
                 if (!isWakeWordMode) {
@@ -989,39 +1810,38 @@
                     addMessage('system', timeoutMsg);
                     returnToWakeWordMode();
                 }
-            }, 15000);
-            
-            // Update UI to show we're in question mode
+            }, 10000); // Reduced timeout for better UX
+            // Start listening for the question
             setTimeout(() => {
                 if (!isWakeWordMode) {
                     updateVoiceStatus('listening');
                     showVoiceIndicator('listening', 'What\'s your question?', 'I\'m listening carefully...');
+                    // Restart recognition for question
+                    try {
+                        if (recognition && !isVoiceListening) {
+                            recognition.start();
+                        }
+                    } catch (error) {
+                        console.error('Error starting question recognition:', error);
+                        returnToWakeWordMode();
+                    }
                 }
-            }, 1500);
+            }, 1000);
         }
-
         // Enhanced Voice Question Handler
         function handleVoiceQuestion(question) {
             console.log('🎯 Processing voice question:', question);
-            
             clearTimeout(questionListeningTimeout);
             isProcessingVoice = true;
-            
             updateVoiceStatus('processing');
             showVoiceIndicator('processing', 'Processing your question...', 'Thinking about your answer...');
-            
-            // Add user message with voice indicator
             addMessage('user', question, true);
-            
-            // Send voice question to API
             sendVoiceQuestion(question);
         }
-
         // Enhanced Voice Question API Call
         async function sendVoiceQuestion(question) {
             try {
                 updateVoiceStatus('processing');
-                
                 const response = await fetch(`${API_BASE_URL}/voice-ask`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -1032,17 +1852,12 @@
                         language: currentLanguage
                     })
                 });
-                
                 const data = await response.json();
                 if (data.success) {
-                    // Add bot response with voice indicator
                     addMessage('bot', data.answer, false, true);
-                    
                     if (data.audio_data) {
-                        // Play voice response immediately
                         playVoiceResponse(data.audio_data, `Answer: ${question.substring(0, 30)}...`);
                     } else {
-                        // If no audio, return to wake word mode
                         setTimeout(() => {
                             returnToWakeWordMode();
                         }, 2000);
@@ -1050,7 +1865,6 @@
                 } else {
                     const errorMsg = data.answer || 'Sorry, I couldn\'t process your voice question. Please try again.';
                     addMessage('bot', errorMsg, false, true);
-                    
                     if (data.audio_data) {
                         playVoiceResponse(data.audio_data, 'Error Response');
                     } else {
@@ -1063,153 +1877,138 @@
                 console.error('Voice question error:', error);
                 const errorMsg = 'I\'m having trouble connecting. Please try asking your question again.';
                 addMessage('bot', errorMsg, false, true);
-                
-                // Try to generate audio for error message
-                try {
-                    const errorResponse = await fetch(`${API_BASE_URL}/voice-ask`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            question: 'connection error',
-                            subject: currentSubject,
-                            chapter: currentChapter,
-                            language: currentLanguage
-                        })
-                    });
-                    const errorData = await errorResponse.json();
-                    if (errorData.audio_data) {
-                        playVoiceResponse(errorData.audio_data, 'Error Message');
-                    }
-                } catch (audioError) {
-                    console.error('Error generating error audio:', audioError);
-                    setTimeout(() => {
-                        returnToWakeWordMode();
-                    }, 2000);
-                }
+                setTimeout(() => {
+                    returnToWakeWordMode();
+                }, 2000);
             }
-            
             hideVoiceIndicator();
         }
-
         // Enhanced Voice Response Player
         async function playVoiceResponse(audioData, playingText) {
+            if (isAudioPlaying) return;
+            isAudioPlaying = true;
             isSpeaking = true;
             updateVoiceStatus('speaking');
             showVoiceIndicator('speaking', 'AI Teacher Speaking...', 'Listen to the answer');
-            
             try {
                 const audioBlob = new Blob([Uint8Array.from(atob(audioData), c => c.charCodeAt(0))], { type: 'audio/mp3' });
                 const audioUrl = URL.createObjectURL(audioBlob);
-                
                 currentAudio = new Audio(audioUrl);
                 audioPlayer.classList.add('show');
                 currentPlaying.textContent = playingText;
-                
                 currentAudio.onloadedmetadata = () => {
                     updateTimeDisplay();
                 };
-                
                 currentAudio.ontimeupdate = () => {
                     updateProgress();
                 };
-                
                 currentAudio.onended = () => {
                     URL.revokeObjectURL(audioUrl);
                     audioPlayer.classList.remove('show');
                     playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
                     isSpeaking = false;
+                    isAudioPlaying = false;
                     hideVoiceIndicator();
-                    
-                    // Return to wake word mode after speaking
                     setTimeout(() => {
                         returnToWakeWordMode();
                     }, 1000);
                 };
-                
                 currentAudio.onerror = () => {
                     URL.revokeObjectURL(audioUrl);
                     console.error('Failed to play voice response audio');
                     isSpeaking = false;
+                    isAudioPlaying = false;
                     hideVoiceIndicator();
                     returnToWakeWordMode();
                 };
-                
                 currentAudio.play();
                 playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
-                
             } catch (error) {
                 console.error('Voice response playback error:', error);
                 isSpeaking = false;
+                isAudioPlaying = false;
                 hideVoiceIndicator();
                 returnToWakeWordMode();
             }
         }
-
         // Return to Wake Word Mode
         function returnToWakeWordMode() {
             console.log('🔄 Returning to wake word listening mode');
             isWakeWordMode = true;
             isProcessingVoice = false;
             wakeWordDetected = false;
+            shouldKeepListening = true;
+            recognitionRestartAttempts = 0;
             clearTimeout(questionListeningTimeout);
             hideVoiceIndicator();
             updateVoiceStatus('listening');
-            
-            // Add a subtle system message
-            if (currentSubject && currentChapter) {
+            if (currentSubject || originalFile) { // Check if any document is loaded
                 addMessage('system', '👂 I\'m listening for "Hey Teacher" again. Continue reading or ask me anything!');
             }
+            // Restart continuous listening
+            if (recognition && !isVoiceListening && voicePermissionGranted) {
+                setTimeout(() => {
+                    try {
+                        recognition.start();
+                    } catch (error) {
+                        console.error('Error restarting wake word listening:', error);
+                    }
+                }, 500);
+            }
         }
-
         // Toggle voice listening
         function toggleVoiceListening() {
-            if (isVoiceListening) {
+            if (!voicePermissionGranted) {
+                permissionModal.classList.add('show');
+                return;
+            }
+            if (shouldKeepListening) {
                 stopVoiceListening();
             } else {
                 startVoiceListening();
             }
         }
-
         // Start voice listening
         function startVoiceListening() {
-            if (recognition && !isVoiceListening) {
+            if (!recognition || !voicePermissionGranted) {
+                console.log('Voice recognition not available or permission not granted');
+                return;
+            }
+            shouldKeepListening = true;
+            isWakeWordMode = true;
+            recognitionRestartAttempts = 0;
+            voiceToggleBtn.classList.add('listening');
+            updateVoiceStatus('listening');
+            if (!isVoiceListening) {
                 try {
                     recognition.start();
-                    isVoiceListening = true;
-                    isWakeWordMode = true;
-                    voiceToggleBtn.classList.add('listening');
-                    updateVoiceStatus('listening');
                 } catch (error) {
                     console.error('Error starting voice recognition:', error);
+                    updateVoiceStatus('error');
                 }
             }
         }
-
         // Stop voice listening
         function stopVoiceListening() {
+            shouldKeepListening = false;
+            isWakeWordMode = true;
+            isProcessingVoice = false;
+            wakeWordDetected = false;
+            voiceToggleBtn.classList.remove('listening', 'processing', 'wake-detected');
+            clearTimeout(questionListeningTimeout);
+            hideVoiceIndicator();
+            updateVoiceStatus('ready');
             if (recognition && isVoiceListening) {
                 recognition.stop();
-                isVoiceListening = false;
-                isWakeWordMode = true;
-                isProcessingVoice = false;
-                wakeWordDetected = false;
-                voiceToggleBtn.classList.remove('listening', 'processing', 'wake-detected');
-                clearTimeout(questionListeningTimeout);
-                hideVoiceIndicator();
-                updateVoiceStatus('ready');
             }
         }
-
         // Enhanced Voice Status Updates
         function updateVoiceStatus(status) {
             const icon = voiceStatus.querySelector('i');
             const text = voiceStatus.querySelector('span');
             const btn = voiceToggleBtn;
-            
-            // Remove all status classes
             voiceStatus.className = 'voice-status';
             btn.className = 'voice-btn mic-btn';
-            
             switch (status) {
                 case 'listening':
                     icon.className = 'fas fa-microphone';
@@ -1241,20 +2040,23 @@
                 case 'error':
                     icon.className = 'fas fa-exclamation-triangle';
                     text.textContent = 'Voice Error';
+                    voiceStatus.classList.add('error');
+                    break;
+                case 'disabled':
+                    icon.className = 'fas fa-microphone-slash';
+                    text.textContent = 'Voice Not Supported';
+                    voiceStatus.classList.add('disabled');
+                    btn.classList.add('disabled');
                     break;
             }
         }
-
         // Enhanced Voice Indicator
         function showVoiceIndicator(type, title, subtitle) {
             const indicator = voiceIndicator;
             const icon = indicator.querySelector('i');
-            
             voiceIndicatorText.textContent = title;
             voiceIndicatorSubtitle.textContent = subtitle;
-            
             indicator.className = `voice-indicator show ${type}`;
-            
             switch (type) {
                 case 'listening':
                     icon.className = 'fas fa-microphone';
@@ -1270,50 +2072,258 @@
                     break;
             }
         }
-
         // Hide voice indicator
         function hideVoiceIndicator() {
             voiceIndicator.classList.remove('show');
         }
-
+        // Page Management Functions
+        function updatePageNavigation() {
+            pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+            prevBtn.disabled = currentPage === 1;
+            nextBtn.disabled = currentPage === totalPages;
+            // Update page progress
+            if (totalPages > 1) {
+                pageProgressText.textContent = `Page ${currentPage}/${totalPages}`;
+                if (autoAdvanceEnabled && isTeachingInProgress) {
+                    pageProgress.classList.add('auto-advancing');
+                } else {
+                    pageProgress.classList.remove('auto-advancing');
+                }
+            } else {
+                pageProgressText.textContent = 'Single page';
+                pageProgress.classList.remove('auto-advancing');
+            }
+        }
+        function goToPreviousPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                stopAudio(); // Stop current audio
+                renderCurrentPage(); // Render the new page
+                updatePageNavigation();
+                if (isTeachingInProgress) {
+                    playTeachingAudio(); // Restart teaching for the new page
+                }
+            }
+        }
+        function goToNextPage() {
+            if (currentPage < totalPages) {
+                currentPage++;
+                stopAudio(); // Stop current audio
+                renderCurrentPage(); // Render the new page
+                updatePageNavigation();
+                if (isTeachingInProgress) {
+                    playTeachingAudio(); // Restart teaching for the new page
+                }
+            }
+        }
+        function autoAdvanceToNextPage() {
+            if (autoAdvanceEnabled && currentPage < totalPages && !isAudioPlaying) {
+                console.log(`🔄 Auto-advancing from page ${currentPage} to ${currentPage + 1}`);
+                // Add a brief delay before advancing
+                setTimeout(() => {
+                    addMessage('system', `📖 Moving to page ${currentPage + 1} of ${totalPages}...`);
+                    goToNextPage(); // This will update currentPage, render, and potentially play audio
+                }, 2000);
+            } else if (currentPage >= totalPages) {
+                // Chapter completed
+                addMessage('system', '🎉 Chapter completed! Great job learning with Smart Gurukul!');
+                isTeachingInProgress = false;
+                pageProgress.classList.remove('auto-advancing');
+            }
+        }
+        function toggleAutoAdvance() {
+            autoAdvanceEnabled = !autoAdvanceEnabled;
+            if (autoAdvanceEnabled) {
+                autoAdvanceToggle.classList.add('active');
+                autoAdvanceToggle.innerHTML = '<i class="fas fa-magic"></i> Auto ON';
+                addMessage('system', '✨ Auto page progression enabled! Pages will advance automatically when explanation ends.');
+            } else {
+                autoAdvanceToggle.classList.remove('active');
+                autoAdvanceToggle.innerHTML = '<i class="fas fa-magic"></i> Auto OFF';
+            }
+            updatePageNavigation();
+        }
+        // Load specific page content and explanation
+        async function loadPageContent(pageNumber) {
+            if (!currentPDFDoc) { // Ensure a PDF document is loaded
+                addMessage('system', 'No document loaded to teach from.');
+                return;
+            }
+            try {
+                addMessage('system', `📄 Loading page ${pageNumber} explanation...`);
+                let isLastPage = pageNumber >= totalPages;
+                // Request explanation and audio from backend
+                const response = await fetch(`${API_BASE_URL}/teach-page`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        subject: currentSubject, // Will be empty for uploaded PDFs, backend handles it
+                        chapter: currentChapter, // Will be empty for uploaded PDFs
+                        page_number: pageNumber,
+                        language: currentLanguage,
+                    })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    // Update page info (redundant if already updated by goToNextPage/PreviousPage but ensures consistency)
+                    currentPage = data.page_number;
+                    totalPages = data.total_pages;
+                    updatePageNavigation();
+                    // No need to call renderCurrentPage here, it's called by goToNextPage/PreviousPage
+                    // Show page explanation in chat
+                    addMessage('bot', `📄 Page ${pageNumber}: ${data.explanation}`);
+                    // Play audio for this page (if teaching is active)
+                    if (data.audio_data && isTeachingInProgress) {
+                        playPageAudio(data.audio_data, `Page ${pageNumber} of ${totalPages}`, data.is_last_page);
+                    } else if (isTeachingInProgress && !data.audio_data) {
+                        addMessage('system', `⚠️ No audio available for page ${pageNumber} in ${contentLanguageSelect.options[contentLanguageSelect.selectedIndex].text}.`);
+                        // If no audio, still try to auto-advance if enabled
+                        if (autoAdvanceEnabled && !isLastPage) {
+                            autoAdvanceToNextPage();
+                        } else if (isLastPage) {
+                            isTeachingInProgress = false;
+                            pageProgress.classList.remove('auto-advancing');
+                            addMessage('system', '🎉 Chapter completed! You can ask questions or start a new chapter.');
+                        }
+                        playBtn.disabled = false;
+                        stopBtn.disabled = true;
+                        playBtn.innerHTML = '<i class="fas fa-play"></i> Play Audio';
+                    }
+                } else {
+                    addMessage('bot', `Error loading page ${pageNumber}: ${data.error}`);
+                    playBtn.disabled = false;
+                    stopBtn.disabled = true;
+                    playBtn.innerHTML = '<i class="fas fa-play"></i> Play Audio';
+                    isTeachingInProgress = false;
+                }
+            } catch (error) {
+                console.error('Error loading page content:', error);
+                addMessage('bot', `Failed to load page ${pageNumber}. Please try again.`);
+                playBtn.disabled = false;
+                stopBtn.disabled = true;
+                playBtn.innerHTML = '<i class="fas fa-play"></i> Play Audio';
+                isTeachingInProgress = false;
+            }
+        }
+        // Play audio for a specific page
+        async function playPageAudio(audioData, playingText, isLastPage = false) {
+            if (isAudioPlaying) return; // Prevent overlapping audio
+            isAudioPlaying = true;
+            try {
+                const audioBlob = new Blob([Uint8Array.from(atob(audioData), c => c.charCodeAt(0))], { type: 'audio/mp3' });
+                const audioUrl = URL.createObjectURL(audioBlob);
+                currentAudio = new Audio(audioUrl);
+                audioPlayer.classList.add('show');
+                currentPlaying.textContent = playingText;
+                currentAudio.onloadedmetadata = () => {
+                    updateTimeDisplay();
+                };
+                currentAudio.ontimeupdate = () => {
+                    updateProgress();
+                };
+                currentAudio.onended = () => {
+                    URL.revokeObjectURL(audioUrl);
+                    audioPlayer.classList.remove('show');
+                    playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+                    isAudioPlaying = false;
+                    // Auto-advance to next page when audio ends
+                    if (isTeachingInProgress && autoAdvanceEnabled && !isLastPage) {
+                        autoAdvanceToNextPage();
+                    } else if (isLastPage) {
+                        isTeachingInProgress = false;
+                        pageProgress.classList.remove('auto-advancing');
+                        addMessage('system', '🎉 Chapter completed! You can ask questions or start a new chapter.');
+                    }
+                    playBtn.disabled = false;
+                    stopBtn.disabled = true;
+                    playBtn.innerHTML = '<i class="fas fa-play"></i> Play Audio';
+                };
+                currentAudio.onerror = () => {
+                    URL.revokeObjectURL(audioUrl);
+                    console.error('Failed to play page audio');
+                    audioPlayer.classList.remove('show');
+                    isAudioPlaying = false;
+                    playBtn.disabled = false;
+                    stopBtn.disabled = true;
+                    playBtn.innerHTML = '<i class="fas fa-play"></i> Play Audio';
+                };
+                currentAudio.play();
+                playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                playBtn.disabled = true;
+                stopBtn.disabled = false;
+            } catch (error) {
+                console.error('Page audio playback error:', error);
+                isAudioPlaying = false;
+                playBtn.disabled = false;
+                stopBtn.disabled = true;
+                playBtn.innerHTML = '<i class="fas fa-play"></i> Play Audio';
+            }
+        }
+        // Play teaching audio (starts from current page)
+        async function playTeachingAudio() {
+            if (!currentPDFDoc) { // Check if a PDF document is loaded
+                alert('Please load a document or select a chapter first.');
+                return;
+            }
+            if (isAudioPlaying) {
+                console.log('Audio already playing, please wait.');
+                return;
+            }
+            playBtn.disabled = true;
+            stopBtn.disabled = false;
+            playBtn.innerHTML = '<div class="spinner" style="width: 16px; height: 16px; border-width: 2px;"></div> Loading audio...';
+            isTeachingInProgress = true;
+            try {
+                // Load current page content and start teaching
+                await loadPageContent(currentPage);
+            } catch (error) {
+                console.error('Audio generation error:', error);
+                addMessage('bot', 'Failed to generate audio. Please try again.');
+                playBtn.disabled = false;
+                stopBtn.disabled = true;
+                playBtn.innerHTML = '<i class="fas fa-play"></i> Play Audio';
+                isTeachingInProgress = false;
+                isAudioPlaying = false;
+            }
+        }
         // Check URL parameters and auto-load chapter
         function checkUrlParameters() {
             const urlParams = new URLSearchParams(window.location.search);
-            const degree = urlParams.get('degree');
-            const semester = urlParams.get('semester');
             const subject = urlParams.get('subject');
             const chapter = urlParams.get('chapter');
+            
             if (subject && chapter) {
-                // Immediately set current values and load chapter
                 currentSubject = subject;
                 currentChapter = chapter;
-                currentLanguage = 'en';
-                
-                // Load chapter content immediately
+                currentLanguage = 'en'; // Default language for database chapters
                 autoLoadChapter(subject, chapter);
+                
+                // Add null checks before accessing DOM elements
+                if (uploadScreen) {
+                    uploadScreen.style.display = 'none'; // Hide upload screen if chapter is loaded
+                }
+                if (newSelectionBtn) {
+                    newSelectionBtn.style.display = 'block'; // Show new chapter button
+                }
+                if (bottomControls) {
+                    bottomControls.style.display = 'flex'; // Show bottom controls
+                }
             } else {
-                // Show default message if no parameters
-                pdfViewer.innerHTML = `
-                    <div class="content-loading">
-                        <i class="fas fa-book-open" style="font-size: 4rem; color: #95a5a6; margin-bottom: 1rem;"></i>
-                        <h3 style="color: #2c3e50; margin-bottom: 1rem;">Welcome to Smart Gurukul</h3>
-                        <p style="color: #7f8c8d; margin-bottom: 1rem;">Please select a chapter from the chapter selection page to start learning.</p>
-                        <a href="chapter.html" class="download-btn">
-                            <i class="fas fa-arrow-left"></i> Go to Chapter Selection
-                        </a>
-                    </div>
-                `;
+                // If no chapter params, show upload screen by default
+                showUploadScreen();
+                if (newSelectionBtn) {
+                    newSelectionBtn.style.display = 'none'; // Hide new chapter button initially
+                }
+                if (bottomControls) {
+                    bottomControls.style.display = 'none'; // Hide bottom controls initially
+                }
             }
         }
-
         // Auto-load chapter from URL parameters
         async function autoLoadChapter(subjectName, chapterName) {
             try {
                 console.log(`Auto-loading: ${subjectName} - ${chapterName}`);
-                
-                showLoadingState('Loading PDF document...');
-                
-                // Call the API to get chapter content
+                showLoadingState('Loading PDF document from database...');
                 const response = await fetch(`${API_BASE_URL}/get-chapter-content`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -1322,25 +2332,32 @@
                         chapter: chapterName
                     })
                 });
-                
                 const data = await response.json();
                 if (data.success) {
-                    newSelectionBtn.style.display = 'block';
+                    currentSubject = subjectName;
+                    currentChapter = chapterName;
+                    originalFile = null; // Clear original file if loading from database
+                    bottomControls.style.display = 'flex'; // Show download/summary for database chapters
                     contentTitle.textContent = `${chapterName} (${subjectName})`;
                     contentInfo.textContent = `Original PDF Document | Language: English`;
-                    
-                    // Store the PDF URL and text content
                     currentPdfUrl = `${API_BASE_URL}${data.pdf_url}`;
-                    chapterContent = data.raw_text;
-                    
-                    // Display the PDF
-                    displayPDF(currentPdfUrl, `${chapterName}.pdf`);
-                    
+                    chapterContent = data.raw_text; // Full text for chat/summary
+                    chapterPages = data.pages || []; // Page-by-page content for PDF.js
+                    totalPages = data.total_pages || 1;
+                    currentPage = 1;
+                    await loadPDFFromUrl(currentPdfUrl, `${chapterName}.pdf`); // Load PDF using PDF.js
+                    pageNavigation.style.display = 'flex';
+                    updatePageNavigation();
                     contentLanguageSelect.value = currentLanguage;
                     sendBtn.disabled = false;
                     playBtn.disabled = false;
                     stopBtn.disabled = true;
-                    addMessage('bot', `📚 I've loaded ${chapterName}. You can view the document and ask questions. Say "Hey Teacher" anytime to interrupt and ask questions!`);
+                    downloadBtn.disabled = false; // Enable download button
+                    summaryBtn.disabled = false; // Enable summary button
+                    addMessage('bot', `📚 I've loaded ${chapterName} with ${totalPages} pages. You can view the document and ask questions. Say "Hey Teacher" anytime to interrupt and ask questions!`);
+                    if (totalPages > 1) {
+                        addMessage('system', `📖 This chapter has ${totalPages} pages. Auto page progression is ${autoAdvanceEnabled ? 'enabled' : 'disabled'}. Click the Auto button to toggle.`);
+                    }
                 } else {
                     showErrorState('Error Loading Chapter', data.error || 'Failed to load chapter content.', 'Please check if the chapter file exists in the database folder.');
                 }
@@ -1349,42 +2366,187 @@
                 showErrorState('Connection Error', 'Failed to connect to the server. Please ensure the Flask app is running on port 5000.', `Error: ${error.message}`);
             }
         }
-
-        // Display PDF in viewer
-        function displayPDF(pdfUrl, filename) {
-            pdfInfo.textContent = filename;
-            
-            // Try to embed PDF
-            const embed = document.createElement('embed');
-            embed.src = pdfUrl;
-            embed.type = 'application/pdf';
-            embed.className = 'pdf-embed';
-            embed.style.width = '100%';
-            embed.style.height = '100%';
-            
-            // Fallback for browsers that don't support PDF embedding
-            embed.onerror = () => {
-                showPDFFallback(pdfUrl, filename);
-            };
-            
-            pdfViewer.innerHTML = '';
-            pdfViewer.appendChild(embed);
-            
-            // Also provide fallback after a short delay if PDF doesn't load
-            setTimeout(() => {
-                if (embed.offsetHeight === 0) {
-                    showPDFFallback(pdfUrl, filename);
+        // Handle PDF file upload
+        async function handleFileUpload(file) {
+            if (file.type !== 'application/pdf') {
+                alert('Please upload a PDF file only.');
+                return;
+            }
+            originalFile = file; // Store the original file object
+            currentSubject = ''; // Clear subject/chapter for uploaded docs
+            currentChapter = '';
+            bottomControls.style.display = 'flex'; // Show download/summary for uploaded docs
+            const fileName = file.name;
+            const fileSize = (file.size / 1024 / 1024).toFixed(2) + ' MB';
+            contentTitle.textContent = fileName;
+            contentInfo.textContent = `Size: ${fileSize} | Language: ${contentLanguageSelect.options[contentLanguageSelect.selectedIndex].text}`;
+            uploadScreen.classList.add('hidden');
+            uploadScreen.style.display = 'none'; // Ensure it's hidden
+            uploadDocBtn.style.display = 'none'; // Hide upload button
+            newSelectionBtn.style.display = 'block';
+            showLoadingState('Uploading and processing document...');
+            try {
+                const formData = new FormData();
+                formData.append('pdf_file', file);
+                formData.append('language', currentLanguage);
+                const response = await fetch(`${API_BASE_URL}/upload-pdf`, {
+                    method: 'POST',
+                    body: formData
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        chapterContent = data.translated_text || data.original_text;
+                                                
+                        // Load the PDF locally with PDF.js to get page data and render
+                        await loadPDFFromBlob(file);
+                        downloadBtn.disabled = false; // Enable download button
+                        summaryBtn.disabled = false; // Enable summary button
+                        if (data.audio_data) {
+                            playResponseAudio(data.audio_data, "Document processed!");
+                        }
+                        addMessage('bot', 'Document uploaded and processed successfully! I\'m ready to provide detailed explanations about any part of the content. Ask me anything!');
+                        if (totalPages > 1) {
+                            addMessage('system', `📖 This document has ${totalPages} pages. Auto page progression is ${autoAdvanceEnabled ? 'enabled' : 'disabled'}. Click the Auto button to toggle.`);
+                        }
+                    } else {
+                        alert(data.error || 'Failed to process PDF.');
+                        showErrorState('Processing Error', data.error || 'Failed to process PDF.', 'Please try another file or check server logs.');
+                    }
+                } else {
+                    const errorData = await response.json();
+                    alert('Failed to upload PDF: ' + (errorData.error || 'Server error'));
+                    showErrorState('Upload Error', 'Failed to upload PDF.', errorData.error || 'Please check your connection and server.');
                 }
-            }, 2000);
+            } catch (error) {
+                console.error('PDF upload error:', error);
+                alert('Failed to upload PDF. Please check your connection.');
+                showErrorState('Connection Error', 'Failed to upload PDF.', `Error: ${error.message}`);
+            }
         }
-
+        // Load and render PDF from a URL (for database chapters)
+        async function loadPDFFromUrl(pdfUrl, filename) {
+            pdfInfo.textContent = filename;
+            pdfViewer.innerHTML = ''; // Clear previous content
+            showLoadingState('Rendering PDF...');
+            try {
+                const loadingTask = pdfjsLib.getDocument(pdfUrl);
+                currentPDFDoc = await loadingTask.promise;
+                totalPages = currentPDFDoc.numPages;
+                chapterPages = []; // Reset chapterPages for new document
+                // Extract text for each page and store it
+                for (let i = 1; i <= totalPages; i++) {
+                    const page = await currentPDFDoc.getPage(i);
+                    const textContent = await page.getTextContent();
+                    const pageText = textContent.items.map(item => item.str).join(' ');
+                    chapterPages.push({ pageNumber: i, content: pageText });
+                }
+                chapterContent = chapterPages.map(p => p.content).join('\n\n'); // Update full text
+                renderCurrentPage(); // Render only the first page
+                pageNavigation.style.display = 'flex';
+                updatePageNavigation();
+                sendBtn.disabled = false;
+                playBtn.disabled = false;
+                stopBtn.disabled = true;
+                downloadBtn.disabled = false;
+                summaryBtn.disabled = false;
+            } catch (error) {
+                console.error('PDF loading error:', error);
+                showPDFFallback(pdfUrl, filename);
+                sendBtn.disabled = true;
+                playBtn.disabled = true;
+                stopBtn.disabled = true;
+                downloadBtn.disabled = true;
+                summaryBtn.disabled = true;
+            }
+        }
+        // Load and render PDF from a File object (for uploaded documents)
+        async function loadPDFFromBlob(file) {
+            pdfInfo.textContent = file.name;
+            pdfViewer.innerHTML = ''; // Clear previous content
+            showLoadingState('Rendering PDF...');
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const typedarray = new Uint8Array(e.target.result);
+                try {
+                    const loadingTask = pdfjsLib.getDocument(typedarray);
+                    currentPDFDoc = await loadingTask.promise;
+                    totalPages = currentPDFDoc.numPages;
+                    chapterPages = []; // Reset chapterPages for new document
+                    // Extract text for each page and store it
+                    for (let i = 1; i <= totalPages; i++) {
+                        const page = await currentPDFDoc.getPage(i);
+                        const textContent = await page.getTextContent();
+                        const pageText = textContent.items.map(item => item.str).join(' ');
+                        chapterPages.push({ pageNumber: i, content: pageText });
+                    }
+                    chapterContent = chapterPages.map(p => p.content).join('\n\n'); // Update full text
+                    renderCurrentPage(); // Render only the first page
+                    pageNavigation.style.display = 'flex';
+                    updatePageNavigation();
+                    sendBtn.disabled = false;
+                    playBtn.disabled = false;
+                    stopBtn.disabled = true;
+                    downloadBtn.disabled = false;
+                    summaryBtn.disabled = false;
+                } catch (error) {
+                    console.error('PDF loading error:', error);
+                    showPDFFallback(URL.createObjectURL(file), file.name);
+                    sendBtn.disabled = true;
+                    playBtn.disabled = true;
+                    stopBtn.disabled = true;
+                    downloadBtn.disabled = true;
+                    summaryBtn.disabled = true;
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+        // Render only the current page
+        async function renderCurrentPage() {
+            if (!currentPDFDoc) return;
+            pdfViewer.innerHTML = ''; // Clear previous content
+            const pageNum = currentPage;
+            try {
+                const page = await currentPDFDoc.getPage(pageNum);
+                const viewport = page.getViewport({ scale: getOptimalScale() });
+                const pageDiv = document.createElement('div');
+                pageDiv.className = 'pdf-page current-page'; // Always add current-page class
+                pageDiv.id = `page-${pageNum}`;
+                pageDiv.dataset.pageNumber = pageNum;
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+                canvas.className = 'pdf-canvas';
+                pageDiv.appendChild(canvas);
+                pdfViewer.appendChild(pageDiv); // Append to pdfViewer
+                const renderContext = {
+                    canvasContext: context,
+                    viewport: viewport
+                };
+                await page.render(renderContext).promise;
+                const pageNumberDiv = document.createElement('div');
+                pageNumberDiv.className = 'page-number-overlay';
+                pageNumberDiv.textContent = `Page ${pageNum}`;
+                pageDiv.appendChild(pageNumberDiv);
+            } catch (error) {
+                console.error('Error rendering page:', error);
+                pdfViewer.innerHTML = `
+                    <div class="pdf-fallback">
+                        <i class="fas fa-exclamation-triangle" style="color: #e74c3c;"></i>
+                        <h3>Page Rendering Error</h3>
+                        <p>Could not render page ${pageNum}. Please try reloading the document.</p>
+                    </div>
+                `;
+            }
+        }
         // Show PDF fallback with download option
         function showPDFFallback(pdfUrl, filename) {
             pdfViewer.innerHTML = `
                 <div class="pdf-fallback">
                     <i class="fas fa-file-pdf"></i>
                     <h3>PDF Viewer Not Available</h3>
-                    <p>Your browser doesn't support embedded PDF viewing.</p>
+                    <p>Your browser doesn't support embedded PDF viewing, or there was an error rendering the PDF.</p>
                     <p>You can download the PDF file to view it:</p>
                     <a href="${pdfUrl}" target="_blank" class="download-btn">
                         <i class="fas fa-download"></i> Download ${filename}
@@ -1396,35 +2558,19 @@
                 </div>
             `;
         }
-
         // PDF Controls
         function zoomIn() {
-            const embed = pdfViewer.querySelector('.pdf-embed');
-            if (embed) {
-                const currentZoom = embed.style.transform || 'scale(1)';
-                const scale = parseFloat(currentZoom.match(/scale$$([\d.]+)$$/)?.[1] || '1');
-                embed.style.transform = `scale(${Math.min(scale * 1.2, 3)})`;
-                embed.style.transformOrigin = 'top left';
-            }
+            currentScale = Math.min(currentScale * 1.2, 3.0);
+            renderCurrentPage(); // Re-render current page with new zoom
         }
-
         function zoomOut() {
-            const embed = pdfViewer.querySelector('.pdf-embed');
-            if (embed) {
-                const currentZoom = embed.style.transform || 'scale(1)';
-                const scale = parseFloat(currentZoom.match(/scale$$([\d.]+)$$/)?.[1] || '1');
-                embed.style.transform = `scale(${Math.max(scale / 1.2, 0.5)})`;
-                embed.style.transformOrigin = 'top left';
-            }
+            currentScale = Math.max(currentScale / 1.2, 0.5);
+            renderCurrentPage(); // Re-render current page with new zoom
         }
-
         function resetZoom() {
-            const embed = pdfViewer.querySelector('.pdf-embed');
-            if (embed) {
-                embed.style.transform = 'scale(1)';
-            }
+            currentScale = 1.0; // Reset to initial scale
+            renderCurrentPage(); // Re-render current page with new zoom
         }
-
         // Load supported languages
         async function loadSupportedLanguages() {
             try {
@@ -1448,7 +2594,6 @@
                 setDefaultLanguages();
             }
         }
-
         // Set default languages if API fails
         function setDefaultLanguages() {
             const defaultLanguages = [
@@ -1457,9 +2602,7 @@
                 { code: 'es', name: 'Spanish' },
                 { code: 'fr', name: 'French' }
             ];
-            
             contentLanguageSelect.innerHTML = '';
-            
             defaultLanguages.forEach(lang => {
                 const option = document.createElement('option');
                 option.value = lang.code;
@@ -1467,9 +2610,8 @@
                 contentLanguageSelect.appendChild(option);
             });
         }
-
         // Show loading state
-        function showLoadingState(message = 'Loading PDF document...') {
+        function showLoadingState(message = 'Loading content...') {
             pdfViewer.innerHTML = `
                 <div class="content-loading">
                     <div class="spinner"></div>
@@ -1477,7 +2619,6 @@
                 </div>
             `;
         }
-
         // Show error state
         function showErrorState(title, message, details) {
             pdfViewer.innerHTML = `
@@ -1489,58 +2630,29 @@
                     <div style="margin-top: 1rem; padding: 1rem; background: rgba(52, 73, 94, 0.1); border-radius: 8px; text-align: left;">
                         <strong>Troubleshooting:</strong>
                         <ul style="margin-top: 0.5rem; text-align: left;">
-                            <li>Make sure you have created the 'database' folder</li>
-                            <li>Add your PDF files in the correct folder structure</li>
+                            <li>Make sure you have created the 'database' folder (if using chapters)</li>
+                            <li>Add your PDF files in the correct folder structure (if using chapters)</li>
                             <li>Run 'python app.py' to start the server</li>
+                            <li>Ensure your Gemini API key is correctly set in the Flask app</li>
                         </ul>
                     </div>
                 </div>
             `;
         }
-
-        // Reteach chapter with new language (for audio)
-        async function reteachChapter() {
+        // Change teaching language and re-teach current page/chapter
+        async function changeTeachingLanguage() {
             const newLanguage = contentLanguageSelect.value;
-            if (!currentSubject || !currentChapter || newLanguage === currentLanguage) return;
+            if (newLanguage === currentLanguage) return; // No change
             currentLanguage = newLanguage;
-            contentInfo.textContent = `Original PDF Document | Language: ${newLanguage}`;
-        }
-
-        // Play teaching audio
-        async function playTeachingAudio() {
-            if (!currentSubject || !currentChapter) {
-                alert('Please select a chapter first.');
-                return;
+            contentInfo.textContent = `Document | Language: ${contentLanguageSelect.options[contentLanguageSelect.selectedIndex].text}`;
+            if (isTeachingInProgress) {
+                stopAudio(); // Stop current audio
+                playTeachingAudio(); // Restart teaching in new language
+            } else if (currentSubject || originalFile) {
+                // If a document is loaded but not teaching, just update the chat with a message
+                addMessage('system', `🗣️ Language changed to ${contentLanguageSelect.options[contentLanguageSelect.selectedIndex].text}.`);
             }
-            playBtn.disabled = true;
-            stopBtn.disabled = false;
-            playBtn.innerHTML = '<div class="loading"></div> Loading audio...';
-            try {
-                const response = await fetch(`${API_BASE_URL}/teach-chapter`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        subject: currentSubject,
-                        chapter: currentChapter,
-                        language: currentLanguage
-                    })
-                });
-                
-                const data = await response.json();
-                if (data.success && data.audio_data) {
-                    playResponseAudio(data.audio_data, `Teaching: ${currentChapter}`);
-                } else {
-                    addMessage('bot', 'Audio not available for this language.');
-                }
-            } catch (error) {
-                console.error('Audio generation error:', error);
-                addMessage('bot', 'Failed to generate audio. Please try again.');
-            }
-            playBtn.disabled = false;
-            stopBtn.disabled = true;
-            playBtn.innerHTML = '<i class="fas fa-play"></i> Play Audio';
         }
-
         // Enhanced Stop Audio Function
         function stopAudio() {
             if (currentAudio) {
@@ -1552,67 +2664,56 @@
                 stopBtn.disabled = true;
                 playBtn.innerHTML = '<i class="fas fa-play"></i> Play Audio';
                 isSpeaking = false;
+                isAudioPlaying = false;
                 hideVoiceIndicator();
-                
-                // Return to listening mode if voice is enabled
-                if (isVoiceListening) {
+                isTeachingInProgress = false;
+                pageProgress.classList.remove('auto-advancing');
+                if (shouldKeepListening) {
                     returnToWakeWordMode();
                 }
             }
+            // Also stop browser TTS if active
+            if (speechSynthesis.speaking) {
+                speechSynthesis.cancel();
+            }
         }
-
-        // Play response audio
+        // Play response audio (for chat answers)
         async function playResponseAudio(audioData, playingText) {
+            if (isAudioPlaying) return;
+            isAudioPlaying = true;
             try {
                 const audioBlob = new Blob([Uint8Array.from(atob(audioData), c => c.charCodeAt(0))], { type: 'audio/mp3' });
                 const audioUrl = URL.createObjectURL(audioBlob);
-                
                 currentAudio = new Audio(audioUrl);
                 audioPlayer.classList.add('show');
                 currentPlaying.textContent = playingText;
                 currentAudio.onloadedmetadata = () => {
                     updateTimeDisplay();
                 };
-                
                 currentAudio.ontimeupdate = () => {
                     updateProgress();
                 };
-                
                 currentAudio.onended = () => {
                     URL.revokeObjectURL(audioUrl);
                     audioPlayer.classList.remove('show');
                     playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-                    playBtn.disabled = false;
-                    stopBtn.disabled = true;
-                    playBtn.innerHTML = '<i class="fas fa-play"></i> Play Audio';
+                    isAudioPlaying = false;
                 };
-                
                 currentAudio.onerror = () => {
                     URL.revokeObjectURL(audioUrl);
-                    alert('Failed to play audio.');
-                    audioPlayer.classList.remove('show');
-                    playBtn.disabled = false;
-                    stopBtn.disabled = true;
-                    playBtn.innerHTML = '<i class="fas fa-play"></i> Play Audio';
+                    console.error('Failed to play audio response.');
+                    isAudioPlaying = false;
                 };
-                
                 currentAudio.play();
                 playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
-                playBtn.disabled = true;
-                stopBtn.disabled = false;
             } catch (error) {
                 console.error('Audio playback error:', error);
-                alert('Failed to play audio.');
-                playBtn.disabled = false;
-                stopBtn.disabled = true;
-                playBtn.innerHTML = '<i class="fas fa-play"></i> Play Audio';
+                isAudioPlaying = false;
             }
         }
-
         // Audio player controls
         function togglePlayPause() {
             if (!currentAudio) return;
-            
             if (currentAudio.paused) {
                 currentAudio.play();
                 playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
@@ -1621,46 +2722,39 @@
                 playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
             }
         }
-
         function seekAudio(event) {
             if (!currentAudio) return;
-            
             const progressBar = event.currentTarget;
             const clickX = event.offsetX;
             const width = progressBar.offsetWidth;
             const duration = currentAudio.duration;
-            
             currentAudio.currentTime = (clickX / width) * duration;
         }
-
         function updateProgress() {
             if (!currentAudio) return;
-            
             const progress = (currentAudio.currentTime / currentAudio.duration) * 100;
             progressFill.style.width = progress + '%';
             updateTimeDisplay();
         }
-
         function updateTimeDisplay() {
             if (!currentAudio) return;
-            
             const current = formatTime(currentAudio.currentTime);
             const duration = formatTime(currentAudio.duration);
             timeDisplay.textContent = `${current} / ${duration}`;
         }
-
         function formatTime(seconds) {
             if (isNaN(seconds)) return '0:00';
-            
             const mins = Math.floor(seconds / 60);
             const secs = Math.floor(seconds % 60);
             return `${mins}:${secs.toString().padStart(2, '0')}`;
         }
-
         // Send message
         async function sendMessage() {
             const question = chatInput.value.trim();
-            if (!question || !currentSubject || !currentChapter) return;
+            if (!question || (!currentSubject && !originalFile)) {
+                addMessage('system', 'Please load a document or select a chapter first, then ask a question.');
+                return;
+            }
             addMessage('user', question);
             chatInput.value = '';
             chatInput.style.height = 'auto';
@@ -1670,8 +2764,9 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        question,
-                        subject: currentSubject,
+                        question: question,
+                        context: chapterContent, // Use the full extracted text as context
+                        subject: currentSubject, // Pass subject/chapter for backend context handling
                         chapter: currentChapter,
                         language: currentLanguage
                     })
@@ -1691,33 +2786,157 @@
             }
             sendBtn.disabled = false;
         }
-
         // Enhanced Add Message Function
         function addMessage(sender, content, isVoice = false, isVoiceResponse = false) {
             const messageDiv = document.createElement('div');
             let className = `message ${sender}`;
-            
             if (isVoice) {
                 className += ' voice-message';
             }
             if (isVoiceResponse) {
                 className += ' voice-response';
             }
-            
             messageDiv.className = className;
-            
             if (sender === 'system') {
                 messageDiv.className = 'message system';
             }
-            
             messageDiv.innerHTML = content;
             chatMessages.appendChild(messageDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
-
-        // Show selection screen
+        // Show selection screen (redirect to chapter.html)
         function showSelectionScreen() {
             window.location.href = "chapter.html";
+        }
+        // Show upload screen
+        function showUploadScreen() {
+            if (uploadScreen) {
+                uploadScreen.classList.remove('hidden');
+                uploadScreen.style.display = 'flex'; // Ensure it's visible
+            }
+            
+            if (newSelectionBtn) {
+                newSelectionBtn.style.display = 'block'; // Always show new chapter button
+            }
+            
+            // Reset main UI
+            currentPDFDoc = null;
+            chapterPages = [];
+            chapterContent = '';
+            currentPage = 1;
+            totalPages = 1;
+            currentSubject = '';
+            currentChapter = '';
+            originalFile = null;
+            
+            if (pdfViewer) {
+                pdfViewer.innerHTML = `
+                    <div class="content-loading">
+                        <i class="fas fa-cloud-upload-alt" style="font-size: 4rem; color: #95a5a6; margin-bottom: 1rem;"></i>
+                        <p>Upload a PDF document to get started.</p>
+                    </div>
+                `;
+            }
+            
+            if (pageNavigation) {
+                pageNavigation.style.display = 'none';
+            }
+            
+            if (contentTitle) {
+                contentTitle.textContent = 'Upload Document';
+            }
+            
+            if (contentInfo) {
+                contentInfo.textContent = 'Ready for your PDF';
+            }
+            
+            if (playBtn) playBtn.disabled = true;
+            if (stopBtn) stopBtn.disabled = true;
+            if (sendBtn) sendBtn.disabled = true;
+            
+            if (bottomControls) {
+                bottomControls.style.display = 'none'; // Hide download/summary
+            }
+            
+            if (chatMessages) {
+                chatMessages.innerHTML = ''; // Clear chat
+            }
+            
+            stopAudio(); // Stop any ongoing audio
+        }
+        // Download functionality
+        function downloadDocument() {
+            let urlToDownload = '';
+            let filenameToDownload = '';
+            if (originalFile) {
+                urlToDownload = URL.createObjectURL(originalFile);
+                filenameToDownload = originalFile.name;
+            } else if (currentPdfUrl) {
+                urlToDownload = currentPdfUrl;
+                filenameToDownload = currentChapter ? `${currentChapter}.pdf` : 'document.pdf'; // Fallback filename
+            } else {
+                alert('No document available to download.');
+                return;
+            }
+            const a = document.createElement('a');
+            a.href = urlToDownload;
+            a.download = filenameToDownload;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            if (originalFile) {
+                URL.revokeObjectURL(urlToDownload); // Only revoke if it's a blob URL
+            }
+            addMessage('system', `📥 Downloaded "${filenameToDownload}" successfully!`);
+        }
+        // Summary functionality
+        async function generateSummary() {
+            if (!chapterContent) {
+                alert('No document content to summarize.');
+                return;
+            }
+            summaryBtn.disabled = true;
+            summaryBtn.innerHTML = '<div class="spinner" style="width: 16px; height: 16px; border-width: 2px;"></div> Generating...';
+            addMessage('system', '📝 Generating summary...');
+            try {
+                const response = await fetch(`${API_BASE_URL}/ask`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        question: 'Please provide a comprehensive summary of this document with key points and important information.',
+                        context: chapterContent,
+                        language: currentLanguage
+                    })
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    const summary = data.answer || 'Could not generate summary.';
+                    const summaryContent = `DOCUMENT SUMMARY\n\nDocument: ${originalFile ? originalFile.name : (currentChapter || 'Unknown')}\nGenerated: ${new Date().toLocaleString()}\n\n${summary.replace(/<[^>]*>?/gm, '')}`; // Remove HTML tags for plain text file
+                    const blob = new Blob([summaryContent], { type: 'text/plain' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `${(originalFile ? originalFile.name : currentChapter).replace('.pdf', '')}_summary.txt`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    addMessage('bot', 'Summary generated and downloaded successfully!');
+                    if (data.audio_data) {
+                        playResponseAudio(data.audio_data, "Summary generated!");
+                    }
+                } else {
+                    const errorData = await response.json();
+                    addMessage('bot', `Failed to generate summary: ${errorData.answer || 'Server error'}`);
+                }
+            } catch (error) {
+                console.error('Summary error:', error);
+                addMessage('bot', 'Failed to generate summary. Please check your connection.');
+            }
+            summaryBtn.disabled = false;
+            summaryBtn.innerHTML = '<i class="fas fa-file-alt"></i> Summary';
         }
     </script>
 </body>
