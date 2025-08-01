@@ -1,4 +1,3 @@
-#4
 from flask import Flask, request, jsonify, send_file, send_from_directory
 from flask_cors import CORS
 import google.generativeai as genai
@@ -1110,7 +1109,7 @@ def health_check():
 @app.route('/')
 def index():
     """Serve the main UI."""
-    return render_template('teacher.html')
+    return send_file('teacher.html')
 
 @app.route('/get-pdf/<subject>/<chapter>')
 def get_pdf(subject, chapter):
