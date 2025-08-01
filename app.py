@@ -1110,7 +1110,7 @@ def health_check():
 @app.route('/')
 def index():
     """Serve the main UI."""
-    return send_file('teacher.html')
+    return render_template('teacher.html')
 
 @app.route('/get-pdf/<subject>/<chapter>')
 def get_pdf(subject, chapter):
