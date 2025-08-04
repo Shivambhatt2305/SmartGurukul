@@ -1109,7 +1109,7 @@ def health_check():
 @app.route('/')
 def index():
     """Serve the main UI."""
-    return send_file('teacher.html')
+    return render_template('teacher.html')  # This will look in the 'templates' folder
 
 @app.route('/get-pdf/<subject>/<chapter>')
 def get_pdf(subject, chapter):
@@ -1174,3 +1174,4 @@ if __name__ == '__main__':
     print(f"\n⚠️ API Key: {'✅ Set' if GEMINI_API_KEY not in ['YOUR_GEMINI_API_KEY', 'AIzaSyCr46nkrI0cmCpYybRg8uMtsnAHzQpb1VM'] else '❌ Please set GEMINI_API_KEY'}")
     
     app.run(host='0.0.0.0', port=5000, debug=True)
+
