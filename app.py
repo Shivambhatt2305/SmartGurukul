@@ -11,6 +11,7 @@ import PyPDF2
 import json
 import tempfile
 from pathlib import Path
+from flask import Flask, render_template
 
 app = Flask(__name__)
 CORS(app)
@@ -1174,4 +1175,5 @@ if __name__ == '__main__':
     print(f"\n⚠️ API Key: {'✅ Set' if GEMINI_API_KEY not in ['YOUR_GEMINI_API_KEY', 'AIzaSyCr46nkrI0cmCpYybRg8uMtsnAHzQpb1VM'] else '❌ Please set GEMINI_API_KEY'}")
     
     app.run(host='0.0.0.0', port=5000, debug=True)
+
 
