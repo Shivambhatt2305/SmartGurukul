@@ -15,6 +15,8 @@ from pathlib import Path
 app = Flask(__name__)
 CORS(app)
 
+
+
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
